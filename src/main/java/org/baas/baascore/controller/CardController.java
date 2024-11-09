@@ -2,6 +2,7 @@ package org.baas.baascore.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.baas.baascore.dto.CardIssuedResponse;
+import org.baas.baascore.dto.CardReissuedRequest;
 import org.baas.baascore.dto.CommonRequest;
 import org.baas.baascore.service.CardService;
 import org.springframework.http.ResponseEntity;
@@ -21,4 +22,8 @@ public class CardController {
         return ResponseEntity.ok().body(cardService.cardIssued(commonRequest));
     }
 
+    @PostMapping("/reissue")
+    public ResponseEntity<CardIssuedResponse> cardReissued(@RequestBody CardReissuedRequest cardReissuedRequest){
+        return ResponseEntity.ok().body(cardService.cardReissued(cardReissuedRequest));
+    }
 }

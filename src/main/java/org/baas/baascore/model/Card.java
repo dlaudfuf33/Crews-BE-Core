@@ -7,9 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.baas.baascore.util.BaseTimeEntity;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 
 /**
  * Card 엔티티 - 카드 정보 관리
@@ -59,4 +57,8 @@ public class Card extends BaseTimeEntity {
     // 카드 활성 상태 (활성화 또는 비활성화)
     @Column(name = "card_status", nullable = false)
     private boolean cardStatus;
+
+    public void changeCardStatus(boolean cardStatus) {
+        this.cardStatus = cardStatus;
+    }
 }

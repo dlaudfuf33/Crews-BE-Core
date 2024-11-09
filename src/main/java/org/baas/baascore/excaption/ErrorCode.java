@@ -15,7 +15,9 @@ public enum ErrorCode {
     BALANCE_NOT_ZERO("잔액이 0원이 아닙니다. 잔액을 비워주세요."),
     ACCOUNTNUMBER_NOT_FOUND("계좌번호가 맞지 않습니다."),
     ACCOUNTNUMBER_DUPLICATED("계좌번호가 중복되었습니다."),
+    CARDNUMBER_NOT_FOUND("카드번호가 맞지 않습니다."),
     CARDNUMBER_DUPLICATED("카드번호가 중복되었습니다.");
+
 
     private final String message;
 }

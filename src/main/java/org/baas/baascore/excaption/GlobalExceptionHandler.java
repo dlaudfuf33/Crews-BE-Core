@@ -101,6 +101,16 @@ public class GlobalExceptionHandler {
                 .build());
     }
 
+    @ExceptionHandler(CardNumberNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCARDNumberNotFoundException(CardNumberNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponse.builder()
+                .errorCode(ex.getErrorCode().name())
+                .message(ex.getErrorCode().getMessage())
+                .details(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
+
     @ExceptionHandler(CardDuplicatedException.class)
     public ResponseEntity<ErrorResponse> handleCardNumberDuplicatedException(CardDuplicatedException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponse.builder()

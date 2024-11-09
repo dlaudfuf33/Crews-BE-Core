@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -65,6 +66,8 @@ public class AccountService {
         );
         if (!customer.equals(account.getCustomer()))
             throw new MemberNotEqualsException();
+        else if (!account.getBank().getBankCode().equals("020"))
+            throw new IllegalStateException("우리은행의 계좌가 아닙니다.");
         else if (account.getBalance().compareTo(BigDecimal.ZERO) != 0)
             throw new BalanceNotZeroException();
         account.accountDeleted(true);
@@ -76,7 +79,7 @@ public class AccountService {
                 IdentityCodeNotFoundException::new
         );
         List<Account> accountList = accountRepository.findByCustomerAndIsDeletedAndAccountType(customer, false, AccountType.PERSONAL);
-        List<Card> cardList = cardRepository.findByCustomerAndCardStatusTrue(customer);
+        List<Card> cardList = cardRepository.findByCustomerAndCardStatusTrueAndExpiredAtGreaterThan(customer, LocalDateTime.now());
 
 
         List<AccountIssuedResponse> changedAccountList = accountList.stream().map(AccountIssuedResponse::from).toList();
