@@ -54,7 +54,7 @@ class CoreTransactionServiceConcurrencyTest {
 
 
     @Test
-    void testConcurrentTransferExecution() throws InterruptedException {
+    void testConcurrentTransferExecution() {
         int threadCount = 101; // 101번의 요청 실행
         ExecutorService executorService = Executors.newFixedThreadPool(100); // 50개의 스레드 풀 사용
         CountDownLatch latch = new CountDownLatch(threadCount);  // 모든 스레드 종료 대기
