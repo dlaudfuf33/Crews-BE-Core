@@ -17,10 +17,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class CoreTransactionServiceConcurrencyTest {
+    private static final Logger log = LoggerFactory.getLogger(CoreTransactionServiceConcurrencyTest.class);
 
     @Autowired
     private CoreTransactionService coreTransactionService;
@@ -77,7 +81,17 @@ class CoreTransactionServiceConcurrencyTest {
         }
 
         // 모든 스레드가 완료될 때까지 대기
-        latch.await(10, TimeUnit.SECONDS);
+        try {
+            boolean completed = latch.await(10, TimeUnit.SECONDS);
+            if (!completed) {
+                log.warn("일부 스레드가 완료되지 않았습니다. 타임아웃 발생");
+            }
+        } catch (InterruptedException e) {
+            log.error("대기 중 인터럽트 발생", e);
+            Thread.currentThread().interrupt(); // 인터럽트 상태 복구
+        }
+
+// Executor 서비스 종료
         executorService.shutdown();
 
         // 검증 1: 성공 거래의 개수가 99건인지 확인

@@ -36,4 +36,8 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     Optional<Account> findByFintechUseNumForUpdate(@Param("fintechUseNum") String fintechUseNum);
 
 
+
+    @EntityGraph(attributePaths = {"customer", "bank"})
+    List<Account> findByCustomerId(Long customerId);
+
 }
