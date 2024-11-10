@@ -3,8 +3,6 @@ package org.baas.baascore.excaption;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import javax.security.auth.login.AccountNotFoundException;
-
 @AllArgsConstructor
 @Getter
 public enum ErrorCode {

@@ -7,7 +7,11 @@ import org.baas.baascore.dto.TransferRequestDto;
 import org.baas.baascore.dto.TransferResponseDto;
 import org.baas.baascore.dto.TransferStatesRequestDto;
 import org.baas.baascore.dto.TransferStatesResponseDto;
-import org.baas.baascore.excaption.customs.*;
+import org.baas.baascore.excaption.DepositNotFoundException;
+import org.baas.baascore.excaption.InsufficientBalanceException;
+import org.baas.baascore.excaption.TransferFailedException;
+import org.baas.baascore.excaption.WithdrawNotFoundException;
+import org.baas.baascore.excaption.customs.TransactionNotFoundException;
 import org.baas.baascore.model.Account;
 import org.baas.baascore.model.CoreTransaction;
 import org.baas.baascore.model.TransactionHistory;
@@ -162,7 +166,6 @@ public class CoreTransactionService {
     /**
      * 거래내역 Id , 핀테크이용번호 로 거래상태를 반환 합니다.
      *
-     * @param transferStatesRequestDto
      * @return TransferStatesResponseDto
      */
     public TransferStatesResponseDto getTransactionStatus(TransferStatesRequestDto transferStatesRequestDto) {
