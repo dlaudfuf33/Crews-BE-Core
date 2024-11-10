@@ -1,6 +1,7 @@
 package org.baas.baascore.excaption;
 
 
+import org.baas.baascore.excaption.customs.TransactionNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -135,6 +136,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DepositNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleDepositNotFoundException(DepositNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponse.builder()
+                .errorCode(ex.getErrorCode().name())
+                .message(ex.getErrorCode().getMessage())
+                .details(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
+
+    @ExceptionHandler(TransactionNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleTransactionNotFoundException(TransactionNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponse.builder()
                 .errorCode(ex.getErrorCode().name())
                 .message(ex.getErrorCode().getMessage())
