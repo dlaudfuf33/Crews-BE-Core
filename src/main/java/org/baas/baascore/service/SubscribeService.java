@@ -23,12 +23,12 @@ public class SubscribeService {
 
     public SubscribeResponseDto createSubscription(SubscribeRequestDto requestDto) {
 
-        if (SecurityUtils.isValidBusinessNumber(requestDto.businessNum())) {
-            log.info("사업자등록번호 : {} 인증 성공", requestDto.businessNum());
+        if (SecurityUtils.isValidBusinessNumber(requestDto.getBusinessNum())) {
+            log.info("사업자등록번호 : {} 인증 성공", requestDto.getBusinessNum());
         }
 
         // Bank 엔티티 조회
-        Optional<Bank> foundBank = bankRepository.findById(requestDto.bankId());
+        Optional<Bank> foundBank = bankRepository.findById(requestDto.getBankId());
 
         Bank bank;
         if (foundBank.isPresent()) {
@@ -39,9 +39,9 @@ public class SubscribeService {
         // 엔티티 생성
         Subscribe subscribe = Subscribe.createSubscription(
                 bank,
-                requestDto.productName(),
-                requestDto.businessNum(),
-                requestDto.companyName()
+                requestDto.getProductName(),
+                requestDto.getBusinessNum(),
+                requestDto.getCompanyName()
         );
 
         // 구독 정보 저장
