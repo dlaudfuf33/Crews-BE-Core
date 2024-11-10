@@ -1,7 +1,7 @@
-package org.baas.baascore.excaption.customs;
+package org.baas.baascore.excaption;
 
 import lombok.Getter;
-import org.baas.baascore.excaption.ErrorCode;
+
 @Getter
 public class TransactionNotFoundException extends RuntimeException {
     private final ErrorCode errorCode;

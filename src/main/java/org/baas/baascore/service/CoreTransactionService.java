@@ -11,7 +11,7 @@ import org.baas.baascore.excaption.DepositNotFoundException;
 import org.baas.baascore.excaption.InsufficientBalanceException;
 import org.baas.baascore.excaption.TransferFailedException;
 import org.baas.baascore.excaption.WithdrawNotFoundException;
-import org.baas.baascore.excaption.customs.TransactionNotFoundException;
+import org.baas.baascore.excaption.TransactionNotFoundException;
 import org.baas.baascore.model.Account;
 import org.baas.baascore.model.CoreTransaction;
 import org.baas.baascore.model.TransactionHistory;
