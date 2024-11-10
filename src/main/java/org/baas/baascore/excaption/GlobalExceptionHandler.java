@@ -22,6 +22,7 @@ public class GlobalExceptionHandler {
 
 
     }
+
     @ExceptionHandler(BankNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleBankNotFoundException(BankNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.builder()
@@ -81,6 +82,7 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .build());
     }
+
     @ExceptionHandler(AccountNumberNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleAccountNumberNotFoundException(BankNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponse.builder()
@@ -100,4 +102,46 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .build());
     }
+
+    @ExceptionHandler(TransferFailedException.class)
+    public ResponseEntity<ErrorResponse> handleTransferFailedException(TransferFailedException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponse.builder()
+                .errorCode(ex.getErrorCode().name())
+                .message(ex.getErrorCode().getMessage())
+                .details(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    public ResponseEntity<ErrorResponse> handleInsufficientBalanceException(InsufficientBalanceException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponse.builder()
+                .errorCode(ex.getErrorCode().name())
+                .message(ex.getErrorCode().getMessage())
+                .details(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
+
+    @ExceptionHandler(WithdrawNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleWithdrawNotFoundException(WithdrawNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponse.builder()
+                .errorCode(ex.getErrorCode().name())
+                .message(ex.getErrorCode().getMessage())
+                .details(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
+
+    @ExceptionHandler(DepositNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleDepositNotFoundException(DepositNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponse.builder()
+                .errorCode(ex.getErrorCode().name())
+                .message(ex.getErrorCode().getMessage())
+                .details(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
+
+
 }
