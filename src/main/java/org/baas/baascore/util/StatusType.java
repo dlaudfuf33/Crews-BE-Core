@@ -1,8 +1,8 @@
 package org.baas.baascore.util;
 
 public enum StatusType {
-    PENDING("개인"),
-    SUCCESS("모임"),
+    PENDING("대기"),
+    SUCCESS("성공"),
     FAIL("실패");
 
     private final String type;
