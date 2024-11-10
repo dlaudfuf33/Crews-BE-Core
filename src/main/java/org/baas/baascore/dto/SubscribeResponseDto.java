@@ -1,21 +1,22 @@
 package org.baas.baascore.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public class SubscribeResponseDto {
 
     /**
      * 액세스 키
      */
-    private String accessKey;
+    private final String accessKey;
 
     /**
      * 비밀 키
      */
-    private String secretKey;
+    private final String secretKey;
+
+    public SubscribeResponseDto(String accessKey, String secretKey) {
+        this.accessKey = accessKey;
+        this.secretKey = secretKey;
+    }
 }

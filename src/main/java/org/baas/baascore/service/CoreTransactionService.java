@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baas.baascore.dto.TransferRequestDto;
 import org.baas.baascore.dto.TransferResponseDto;
-import org.baas.baascore.excaption.DepositNotFoundException;
-import org.baas.baascore.excaption.TransferFailedException;
-import org.baas.baascore.excaption.WithdrawNotFoundException;
+import org.baas.baascore.dto.TransferStatesRequestDto;
+import org.baas.baascore.dto.TransferStatesResponseDto;
+import org.baas.baascore.excaption.customs.*;
 import org.baas.baascore.model.Account;
 import org.baas.baascore.model.CoreTransaction;
 import org.baas.baascore.model.TransactionHistory;
@@ -71,12 +71,17 @@ public class CoreTransactionService {
                     .amount(withdrawHistory.getTranAmt())
                     .afterAmt(withdrawHistory.getAccount().getBalance())
                     .build();// 응답 생성
+        } catch (InsufficientBalanceException e) {
+            // 잔액 부족 예외는 그대로 전달
+            markTransactionFail(withdrawHistory, depositHistory);
+            log.error("잔액 부족으로 이체 실패 - 출금 계좌: {}, 금액: {}",
+                    transferRequestDto.getFinUseNum(), transferRequestDto.getAmt());
+            throw e;
         } catch (Exception e) {
-            // 거래 내역 상태 업데이트 (실패)
+            // 기타 예외에 대해 실패 처리
             markTransactionFail(withdrawHistory, depositHistory);
             log.error("이체 거래 처리 중 오류 발생 - 출금 계좌: {}, 입금 계좌: {}, 금액: {}",
                     transferRequestDto.getFinUseNum(), transferRequestDto.getRecvAccountNum(), transferRequestDto.getAmt(), e);
-
             throw new TransferFailedException(e);
         }
     }
@@ -154,4 +159,19 @@ public class CoreTransactionService {
         transactionHistoryRepository.saveAll(List.of(withdrawHistory, depositHistory));
     }
 
+    /**
+     * 거래내역 Id , 핀테크이용번호 로 거래상태를 반환 합니다.
+     *
+     * @param transferStatesRequestDto
+     * @return TransferStatesResponseDto
+     */
+    public TransferStatesResponseDto getTransactionStatus(TransferStatesRequestDto transferStatesRequestDto) {
+        return TransferStatesResponseDto.of(
+                transactionHistoryRepository
+                        .findByCoreTransactionIdAndAccount_FintechUseNum(
+                                transferStatesRequestDto.getHistoryId(),
+                                transferStatesRequestDto.getFinUseNum())
+                        .orElseThrow(TransactionNotFoundException::new)
+        );
+    }
 }
