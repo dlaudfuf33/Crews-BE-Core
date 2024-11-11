@@ -12,9 +12,17 @@ import java.util.Optional;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
+    @EntityGraph(attributePaths = {"customer","bank"})
     Optional<Account> findByAccountNumber(String accountNumber);
+
+    @EntityGraph(attributePaths = {"bank"})
     Optional<Account> findByFintechUseNum(String fintechUseNum);
+
     List<Account> findByCustomerAndIsDeletedAndAccountType(Customer customer, boolean isDeleted, AccountType accountType);
+
+    @Override
+    @EntityGraph(attributePaths = {"customer","bank"})
+    Account save(Account account);
 
     @EntityGraph(attributePaths = {"customer", "bank"})
     List<Account> findByCustomerId(Long customerId);

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -37,8 +38,8 @@ public class AccountService {
     private final CustomerRepository customerRepository;
     private final CardRepository cardRepository;
 
-    public AccountIssuedResponse accountIssued(AccountIssuedRequest accountIssuedRequest) {
-        Customer customer = customerRepository.findByIdentityCode(accountIssuedRequest.getIdentiyCode()).orElseThrow(
+    public AccountIssuedResponse accountIssued(AccountIssuedRequest accountIssuedRequest){
+        Customer customer = customerRepository.findByIdentityCode(accountIssuedRequest.getIdentityCode()).orElseThrow(
                 IdentityCodeNotFoundException::new
         );
         String fintechUseNum = UUID.randomUUID().toString();
@@ -52,12 +53,12 @@ public class AccountService {
                 .currencyType(currencyType).accountType(accountType).fintechUseNum(fintechUseNum).build();
         Account savedAccount = accountRepository.save(account);
         log.info("생성된 계좌번호 : {}, 이름 {}, 식별자번호 {}", accountNumber, customer.getName(), customer.getIdentityCode());
-        return AccountIssuedResponse.of(savedAccount);
+        return AccountIssuedResponse.from(savedAccount);
 
     }
 
     public AccountDeleteResponse accountDelete(AccountDeleteRequest accountDeleteRequest) {
-        Customer customer = customerRepository.findByIdentityCode(accountDeleteRequest.getIdentiyCode()).orElseThrow(
+        Customer customer = customerRepository.findByIdentityCode(accountDeleteRequest.getIdentityCode()).orElseThrow(
                 IdentityCodeNotFoundException::new
         );
         Account account = accountRepository.findByFintechUseNum(accountDeleteRequest.getFintechUseNum()).orElseThrow(
@@ -65,28 +66,30 @@ public class AccountService {
         );
         if (!customer.equals(account.getCustomer()))
             throw new MemberNotEqualsException();
+        else if (!account.getBank().getBankCode().equals("020"))
+            throw new IllegalStateException("우리은행의 계좌가 아닙니다.");
         else if (account.getBalance().compareTo(BigDecimal.ZERO) != 0)
             throw new BalanceNotZeroException();
         account.accountDeleted(true);
-        return AccountDeleteResponse.of(account.isDeleted());
+        return AccountDeleteResponse.from(account.isDeleted());
     }
 
     public AccountInfoResponse accountInfo(AccountInfoRequest accountInfoRequest) {
-        Customer customer = customerRepository.findByIdentityCode(accountInfoRequest.getIdentiyCode()).orElseThrow(
+        Customer customer = customerRepository.findByIdentityCode(accountInfoRequest.getIdentityCode()).orElseThrow(
                 IdentityCodeNotFoundException::new
         );
         List<Account> accountList = accountRepository.findByCustomerAndIsDeletedAndAccountType(customer, false, AccountType.PERSONAL);
-        List<Card> cardList = cardRepository.findByCustomerAndCardStatusTrue(customer);
+        List<Card> cardList = cardRepository.findByCustomerAndCardStatusTrueAndExpiredAtGreaterThan(customer, LocalDateTime.now());
 
 
-        List<AccountIssuedResponse> changedAccountList = accountList.stream().map(AccountIssuedResponse::of).toList();
-        List<CardListDTO> chagedCardList = cardList.stream().map(CardListDTO::of).toList();
+        List<AccountIssuedResponse> changedAccountList = accountList.stream().map(AccountIssuedResponse::from).toList();
+        List<CardListDTO> chagedCardList = cardList.stream().map(CardListDTO::from).toList();
         return AccountInfoResponse.builder().accountList(changedAccountList).cardList(chagedCardList).build();
 
     }
 
     public FintechNumResponse fintechNum(FintechNumRequest fintechNumRequest) {
-        Customer customer = customerRepository.findByIdentityCode(fintechNumRequest.getIdentiyCode()).orElseThrow(
+        Customer customer = customerRepository.findByIdentityCode(fintechNumRequest.getIdentityCode()).orElseThrow(
                 IdentityCodeNotFoundException::new
         );
 
@@ -97,7 +100,7 @@ public class AccountService {
         if (!customer.equals(account.getCustomer()))
             throw new MemberNotEqualsException();
 
-        return FintechNumResponse.of(account);
+        return FintechNumResponse.from(account);
 
     }
 
