@@ -86,4 +86,5 @@ public class TransactionHistory extends BaseTimeEntity {
     public void recordAfterTransactionBalance(BigDecimal balance) {
         this.afterBalanceAmt = balance;
     }
+
 }

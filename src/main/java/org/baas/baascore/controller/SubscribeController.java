@@ -18,6 +18,7 @@ import java.util.List;
 public class SubscribeController {
     private final SubscribeService subscribeService;
 
+
     @PostMapping("/states")
     public ResponseEntity<List<SubcriptionsResponseDto>> getSubcriptionsstatement(@RequestBody SubcriptionsRequestDto subcriptionsRequestDto) {
         return ResponseEntity.ok(subscribeService.getSubscriptions(subcriptionsRequestDto));

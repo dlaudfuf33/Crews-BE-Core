@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baas.baascore.dto.SubcriptionsRequestDto;
 import org.baas.baascore.dto.SubcriptionsResponseDto;
-import org.baas.baascore.dto.SubscribeRequestDto;
-import org.baas.baascore.dto.SubscribeResponseDto;
+import org.baas.baascore.dto.IssueApikeyRequestDto;
+import org.baas.baascore.dto.IssueApikeyResponsetDto;
 import org.baas.baascore.excaption.BankNotFoundException;
 import org.baas.baascore.model.Bank;
 import org.baas.baascore.model.Subscribe;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,14 +25,15 @@ public class SubscribeService {
     private final SubscribeRepository subscribeRepository;
     private final BankRepository bankRepository;
 
-    public SubscribeResponseDto createSubscription(SubscribeRequestDto subscribeRequestDto) {
+    public IssueApikeyResponsetDto createSubscription(IssueApikeyRequestDto issueApikeyRequestDto) {
 
-        if (SecurityUtils.isValidBusinessNumber(subscribeRequestDto.getBusinessNum())) {
-            log.info("사업자등록번호 : {} 인증 성공", subscribeRequestDto.getBusinessNum());
+        if (SecurityUtils.isValidBusinessNumber(issueApikeyRequestDto.getBusinessNum())) {
+            log.info("사업자등록번호 : {} 인증 성공", issueApikeyRequestDto.getBusinessNum());
         }
 
+
         // Bank 엔티티 조회
-        Optional<Bank> foundBank = bankRepository.findById(subscribeRequestDto.getBankId());
+        Optional<Bank> foundBank = bankRepository.findById(issueApikeyRequestDto.getBankId());
 
         Bank bank;
         if (foundBank.isPresent()) {
@@ -44,9 +44,9 @@ public class SubscribeService {
         // 엔티티 생성
         Subscribe subscribe = Subscribe.createSubscription(
                 bank,
-                subscribeRequestDto.getProductName(),
-                subscribeRequestDto.getBusinessNum(),
-                subscribeRequestDto.getCompanyName()
+                issueApikeyRequestDto.getProductName(),
+                issueApikeyRequestDto.getBusinessNum(),
+                issueApikeyRequestDto.getCompanyName()
         );
 
         // 구독 정보 저장
@@ -54,7 +54,7 @@ public class SubscribeService {
         log.info("{}가(사업자등록번호{}) 구독 시작, api 키 발급 완료", subscribe.getCompanyName(), subscribe.getBusinessNum());
 
         // 클라이언트에게 반환할 DTO 생성
-        return new SubscribeResponseDto(subscribe.getAccessKey(), subscribe.getPlainSecretKey());
+        return new IssueApikeyResponsetDto(subscribe.getAccessKey(), subscribe.getPlainSecretKey());
     }
 
 
@@ -70,4 +70,5 @@ public class SubscribeService {
                 .toList();
 
     }
+
 }
