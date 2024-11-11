@@ -2,6 +2,8 @@ package org.baas.baascore.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.baas.baascore.dto.SubcriptionsRequestDto;
+import org.baas.baascore.dto.SubcriptionsResponseDto;
 import org.baas.baascore.dto.SubscribeRequestDto;
 import org.baas.baascore.dto.SubscribeResponseDto;
 import org.baas.baascore.excaption.BankNotFoundException;
@@ -12,7 +14,10 @@ import org.baas.baascore.repository.SubscribeRepository;
 import org.baas.baascore.util.SecurityUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,4 +58,16 @@ public class SubscribeService {
     }
 
 
+    public List<SubcriptionsResponseDto> getSubscriptions(SubcriptionsRequestDto subcriptionsRequestDto) {
+        List<Subscribe> subscribes = subscribeRepository
+                .findSubscribesByCompanyNameAndBusinessNum(
+                        subcriptionsRequestDto.getCompanyName(),
+                        subcriptionsRequestDto.getBusinessNum())
+                .orElseThrow(() -> new NoSuchElementException("해당 정보로 구독중인 서비스 없음."));
+
+        return subscribes.stream()
+                .map(SubcriptionsResponseDto::of)
+                .toList();
+
+    }
 }

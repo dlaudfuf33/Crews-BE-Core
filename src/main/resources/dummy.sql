@@ -78,43 +78,58 @@ INSERT INTO bank (code, name) VALUES
                                   ('292', '엘아이지투자증권');
 
 -- Customer 데이터 삽입
-INSERT INTO bank_member (id, email, name, jumin_number, gender, phone, address, birth, identity)
-VALUES
-    (1, 'customer1@example.com', '홍길동', '9001011234567', 'M', '010-1234-5678', '서울시 강남구', '1990-01-01', 'ID001'),
-    (2, 'customer2@example.com', '김영희', '9202022345678', 'F', '010-2345-6789', '서울시 서초구', '1992-02-02', 'ID002');
-
+INSERT INTO bank_member (email, name, jumin_number, gender, phone, address, birth, identity)
+VALUES ('customer21@example.com', '홍길동', '9001011234237', 'M', '010-1234-5678', '서울시 강남구', '1990-01-01', 'ID001'),
+       ('customer22@example.com', '김영희', '9202022345428', 'F', '010-2345-6789', '서울시 서초구', '1992-02-02', 'ID002'),
+       ('use2r3@example.com', '이철수', '94030134523489', 'M', '010-3456-7890', '서울시 마포구', '1994-03-01', 'ID003'),
+       ('us2er4@example.com', '박미영', '92010144567259', 'F', '010-4567-8901', '서울시 서초구', '1992-01-01', 'ID004'),
+       ('us2r5@example.com', '정우성', '88020156789112', 'M', '010-5678-9012', '서울시 용산구', '1988-02-01', 'ID005'),
+       ('testuser6@example.com', '김철민', '8501011234567', 'M', '010-6666-1111', '서울시 강서구', '1985-01-01', 'ID006'),
+       ('testuser7@example.com', '박지은', '9305052345678', 'F', '010-7777-2222', '서울시 동작구', '1993-05-05', 'ID007'),
+       ('testuser8@example.com', '이동수', '9103033456789', 'M', '010-8888-3333', '서울시 영등포구', '1991-03-03', 'ID008'),
+       ('testuser9@example.com', '최민경', '9607074567890', 'F', '010-9999-4444', '서울시 성동구', '1996-07-07', 'ID009'),
+       ('crews@crews.org', '크루즈', '9001011234237', 'M', '010-9697-9796', '서울시 마포구 상암동', '2024-11-11', 'ID001'),
+       ('testuser11@example.com', '윤도영', '9202026789123', 'F', '010-2020-6666', '서울시 관악구', '1992-02-02', 'ID011'),
+       ('testuser12@example.com', '강수지', '9508087890123', 'F', '010-3030-7777', '서울시 노원구', '1995-08-08', 'ID012'),
+       ('testuser13@example.com', '한기훈', '8901018901234', 'M', '010-4040-8888', '서울시 도봉구', '1989-01-01', 'ID013'),
+       ('testuser14@example.com', '서진우', '9005059012345', 'M', '010-5050-9999', '서울시 송파구', '1990-05-05', 'ID014'),
+       ('testuser15@example.com', '유소정', '9707070123456', 'F', '010-6060-0000', '서울시 중랑구', '1997-07-07', 'ID015');
 -- Account 데이터 삽입
-INSERT INTO core_account (id, customer_id, bank_code_id, account_number, balance, currency, account_type, fintech_use_num, is_deleted)
-VALUES
-    (1, 1, 1, '110-1234-5678', 1000000, 'KRW', 'PERSONAL', 'FNUM001', FALSE),
-    (2, 2, 2, '120-2345-6789', 2000000, 'KRW', 'PERSONAL', 'FNUM002', FALSE);
+INSERT INTO core_account (id, customer_id, bank_code_id, account_number, balance, currency, account_type,
+                          fintech_use_num, is_deleted)
+VALUES (1, 1, 1, '110-1234-5678', 1000000, 'KRW', 'PERSONAL', 'FNUM001', FALSE),
+       (2, 2, 2, '120-2345-6789', 2000000, 'KRW', 'PERSONAL', 'FNUM002', FALSE),
+       (3, 1, 1, '110-3456-7890', 200000, 'KRW', 'PERSONAL', '0013456789012', FALSE),
+       (4, 2, 2, '220-6789-0123', 1500000, 'KRW', 'PERSONAL', '0026789012345', FALSE),
+       (5, 3, 3, '330-7890-1234', 300000, 'KRW', 'PERSONAL', '0037890123456', FALSE);
 
 -- Card 데이터 삽입
 INSERT INTO core_card (id, customer_id, account_id, card_name, card_number, cvc, is_issued, expired_at, card_status)
-VALUES
-    (1, 1, 1, '하나카드', '4862-1234-5678-9012', '123', TRUE, '2025-11-07 00:00:00', TRUE),
-    (2, 2, 2, '국민카드', '4862-2345-6789-0123', '456', TRUE, '2025-11-07 00:00:00', TRUE);
+VALUES (1, 1, 1, '하나카드', '4862-1234-5678-9012', '123', TRUE, '2025-11-07 00:00:00', TRUE),
+       (2, 2, 2, '국민카드', '4862-2345-6789-0123', '456', TRUE, '2025-11-07 00:00:00', TRUE);
 
 -- Product 데이터 삽입
 INSERT INTO bank_product (id, bank_id, name, rate)
-VALUES
-    (1, 1, '카카오 모임통장 상품', 1.5),
-    (3, 2, '우리 일반통장 상품', 1.2);
+VALUES (1, 1, '카카오 모임통장 상품', 1.5),
+       (3, 2, '우리 일반통장 상품', 1.2);
 
 -- Subscribe 데이터 삽입
-INSERT INTO subscribe (id, bank_id, product_name, business_num, company_name, expire_date, is_subscribe, fee_amount, access_key, secret_key)
-VALUES
-    (1, 1, 'API 구독 상품', '123-45-67890', 'ABC 회사', '2025-11-07 00:00:00', TRUE, 100000, 'ACCESS_KEY_ABC', 'SECRET_KEY_HASH_ABC'),
-    (2, 2, 'API 구독 상품', '234-56-78901', 'XYZ 회사', '2025-11-07 00:00:00', TRUE, 100000, 'ACCESS_KEY_XYZ', 'SECRET_KEY_HASH_XYZ');
+INSERT INTO subscribe (id, bank_id, product_name, business_num, company_name, expire_date, is_subscribe, fee_amount,
+                       access_key, secret_key)
+VALUES (1, 1, 'API 구독 상품', '123-45-67890', '크루즈', '2025-11-07 00:00:00', TRUE, 100000,
+        '7d336211-107f-476e-b910-6afd64503450',
+        'vSSqvul8FLDhN2IIQgmn0dy79jOI4hWjRZXgtSAWw1A='),
+       (2, 2, 'API 구독 상품', '234-56-78901', 'Crews', '2025-11-07 00:00:00', TRUE, 100000,
+        '87d8ee92-6000-40bf-9f3f-f548a683061e',
+        'KMq60SuylJxV6/zO7HY67FzQDTlQwjrBUnRJa8xCJMA=');
 
 -- History 데이터 삽입
-INSERT INTO core_history (id, core_account_id, core_card, tran_type, tran_amt, after_balance_amt, withdraw_name, withdraw_account_num, description)
-VALUES
-    (1, 1, 1, 'DEPOSIT', 500000, 1500000, NULL, NULL, '월급 입금'),
-    (2, 2, 2, 'WITHDRAW', 100000, 1900000, '편의점', '120-2345-6789', '편의점 결제');
+INSERT INTO core_history (id, core_account_id, core_card, tran_type, tran_amt, after_balance_amt, counterparty_Name,
+                          counterparty_account_num, counterparty_bank_code, description)
+VALUES (1, 1, 1, 'DEPOSIT', 500000, 1500000, '김치도가', '110-1234-5678', '020', '월급 입금'),
+       (2, 2, 2, 'WITHDRAW', 100000, 1900000, '편의점', '120-2345-6789', '020', '편의점 결제');
 
 -- CoreTransaction 데이터 삽입
-INSERT INTO transaction (id, account_history_id, status)
-VALUES
-    (1, 1, 'SUCCESS'),
-    (2, 2, 'SUCCESS');
+INSERT INTO transaction (id, status)
+VALUES (1, 'SUCCESS'),
+       (2, 'SUCCESS');
