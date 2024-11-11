@@ -1,11 +1,9 @@
 package org.baas.baascore.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.baas.baascore.dto.TransferRequestDto;
-import org.baas.baascore.dto.TransferResponseDto;
-import org.baas.baascore.dto.TransferStatesRequestDto;
-import org.baas.baascore.dto.TransferStatesResponseDto;
+import org.baas.baascore.dto.*;
 import org.baas.baascore.service.CoreTransactionService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,5 +23,11 @@ public class CoreTransactionController {
     @PostMapping("/states")
     public TransferStatesResponseDto trxStateCheck(@RequestBody TransferStatesRequestDto transferStatesRequestDto) {
         return coreTransactionService.getTransactionStatus(transferStatesRequestDto);
+    }
+
+    @PostMapping("/details")
+    public ResponseEntity<TransactionDetailResponse> transactionDetail(
+            @RequestBody  TransactionDetailRequest transactionDetailRequest){
+        return ResponseEntity.ok().body(coreTransactionService.transactionDetail(transactionDetailRequest));
     }
 }

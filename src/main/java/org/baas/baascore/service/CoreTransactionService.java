@@ -3,25 +3,21 @@ package org.baas.baascore.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.baas.baascore.dto.TransferRequestDto;
-import org.baas.baascore.dto.TransferResponseDto;
-import org.baas.baascore.dto.TransferStatesRequestDto;
-import org.baas.baascore.dto.TransferStatesResponseDto;
-import org.baas.baascore.excaption.DepositNotFoundException;
-import org.baas.baascore.excaption.InsufficientBalanceException;
-import org.baas.baascore.excaption.TransferFailedException;
-import org.baas.baascore.excaption.WithdrawNotFoundException;
-import org.baas.baascore.excaption.TransactionNotFoundException;
+import org.baas.baascore.dto.*;
+import org.baas.baascore.excaption.*;
 import org.baas.baascore.model.Account;
 import org.baas.baascore.model.CoreTransaction;
+import org.baas.baascore.model.Customer;
 import org.baas.baascore.model.TransactionHistory;
 import org.baas.baascore.repository.AccountRepository;
 import org.baas.baascore.repository.CoreTransactionRepository;
+import org.baas.baascore.repository.CustomerRepository;
 import org.baas.baascore.repository.TransactionHistoryRepository;
 import org.baas.baascore.util.StatusType;
 import org.baas.baascore.util.TranType;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -30,8 +26,53 @@ import java.util.List;
 public class CoreTransactionService {
     private final CoreTransactionRepository coreTransactionRepository;
     private final AccountRepository accountRepository;
+    private final CustomerRepository customerRepository;
     private final TransactionHistoryRepository transactionHistoryRepository;
 
+    public TransactionDetailResponse transactionDetail(TransactionDetailRequest transactionDetailRequest) {
+        Account account = accountRepository.findByFintechUseNum(transactionDetailRequest.getFintechUseNum()).orElseThrow(
+                AccountNumberNotFoundException::new
+        );
+        Customer customer = customerRepository.findByIdentityCode(transactionDetailRequest.getIdentityCode()).orElseThrow(
+                IdentityCodeNotFoundException::new
+        );
+        if (!customer.equals(account.getCustomer()))
+            throw new MemberNotEqualsException();
+        Integer selectPeriod = transactionDetailRequest.getSelectPeriod();
+        if(!(selectPeriod == 1 || selectPeriod == 3 || selectPeriod == 6 || selectPeriod == 9))
+            throw new IllegalStateException("올바른 기간을 설정해 주세요.");
+        LocalDateTime filteredDate = LocalDateTime.now().minusMonths(selectPeriod);
+        String transactionType = transactionDetailRequest.getTransactionType();
+        String order = transactionDetailRequest.getOrder();
+        List<TransactionHistory> list = getTransactionHistories(transactionType, account, filteredDate, order);
+        List<TransactionHistoryDto> historyDtoList = list.stream().map(TransactionHistoryDto::from).toList();
+        return TransactionDetailResponse.builder().tranList(historyDtoList).build();
+    }
+
+    private List<TransactionHistory> getTransactionHistories(String transactionType, Account account, LocalDateTime filteredDate, String order) {
+        List<TransactionHistory> list;
+        final String ALL = "ALL";
+        final String DESC = "DESC";
+        final String DEPOSIT = "DEPOSIT";
+        final String WITHDRAW = "WITHDRAW";
+        if(transactionType.equalsIgnoreCase(ALL)) {
+            list = transactionHistoryRepository.findTransactionHistoryAllTranType(account, filteredDate);
+            if(order.equalsIgnoreCase(DESC))
+                list.sort((o1, o2) ->
+                        o2.getCreatedAt().compareTo(o1.getCreatedAt()));
+
+        }
+        else if (transactionType.equalsIgnoreCase(DEPOSIT) || transactionType.equalsIgnoreCase(WITHDRAW)){
+            list = transactionHistoryRepository.findTransactionHistorySelectedTranType(account, filteredDate, TranType.valueOf(transactionType.toUpperCase()));
+            if(order.equalsIgnoreCase(DESC))
+                list.sort((o1, o2) ->
+                        o2.getCreatedAt().compareTo(o1.getCreatedAt()));
+        }
+        else {
+            throw new IllegalStateException("잘못된 TransactionType을 입력하셨습니다.");
+        }
+        return list;
+    }
 
     /**
      * 이체 거래를 처리하고 성공 여부에 따라 거래 내역 상태를 업데이트합니다.
@@ -126,8 +167,8 @@ public class CoreTransactionService {
                 .description(transferRequestDto.getDescription())
                 .build();
 
-        transactionHistoryRepository.save(withdrawHistory);
-        transactionHistoryRepository.save(depositHistory);
+        transactionHistoryRepository.saveAndFlush(withdrawHistory);
+        transactionHistoryRepository.saveAndFlush(depositHistory);
         log.info("거래 내역 생성 완료 - 출금 내역 ID: {}, 입금 내역 ID: {}", withdrawHistory.getId(), depositHistory.getId());
 
         return new TransactionHistory[]{withdrawHistory, depositHistory};
