@@ -3,7 +3,7 @@
 -- Bank 데이터 삽입
 -- bank 테이블에 데이터 삽입
 INSERT INTO bank (id, code, name)
-VALUES (1, '001', '한국은행'),
+VALUES (1, '001', '통합은행'),
        (2, '002', '산업은행'),
        (3, '003', '가상계좌 채번가능 기업은행'),
        (4, '004', '가상계좌 채번가능 국민은행'),
@@ -94,19 +94,19 @@ VALUES ('customer21@example.com', '홍길동', '9001011234237', 'M', '010-1234-5
        ('testuser12@example.com', '강수지', '9508087890123', 'F', '010-3030-7777', '서울시 노원구', '1995-08-08', 'ID012'),
        ('testuser13@example.com', '한기훈', '8901018901234', 'M', '010-4040-8888', '서울시 도봉구', '1989-01-01', 'ID013'),
        ('testuser14@example.com', '서진우', '9005059012345', 'M', '010-5050-9999', '서울시 송파구', '1990-05-05', 'ID014'),
-       ('banks@bank.com', '은행들', '6001019876547', 'F', '010-6060-0000', '서울시 중랑구', '1997-07-07', 'ID015');
+       ('banks@bank.com', '은행', '6001019876547', 'F', '010-6060-0000', '서울시 중랑구', '1997-07-07', 'ID015');
 -- Account 데이터 삽입
 INSERT INTO core_account (id, customer_id, bank_code_id, account_number, balance, currency, account_type,
                           fintech_use_num, is_deleted)
-VALUES (1, 1, 1, '110-1234-5678', 1000000, 'KRW', 'PERSONAL', 'FNUM001', FALSE),
+VALUES (1, 15, 1, '777-7777-7777', 1000000, 'KRW', 'CORPORATE', 'FNUM001', FALSE),
        (2, 2, 2, '120-2345-6789', 2000000, 'KRW', 'PERSONAL', 'FNUM002', FALSE),
        (3, 1, 1, '110-3456-7890', 200000, 'KRW', 'PERSONAL', '0013456789012', FALSE),
        (4, 2, 2, '220-6789-0123', 1500000, 'KRW', 'PERSONAL', '0026789012345', FALSE),
        (5, 3, 3, '330-7890-1234', 300000, 'KRW', 'PERSONAL', '0037890123456', FALSE),
-       (6, 3, 44, '092-0001-0001', 10000000, 'KRW', 'CORPORATE', 'TOSSCORP001', FALSE),
-       (7, 3, 43, '090-0001-0001', 15000000, 'KRW', 'CORPORATE', 'KAKAOCRP001', FALSE),
-       (8, 3, 41, '088-0001-0001', 12000000, 'KRW', 'CORPORATE', 'SHINHAN001', FALSE),
-       (9, 3, 10, '020-0001-0001', 13000000, 'KRW', 'CORPORATE', 'WOORICRP001', FALSE),
+       (6, 15, 44, '092-0001-0001', 10000000, 'KRW', 'CORPORATE', 'TOSSCORP001', FALSE),
+       (7, 15, 43, '090-0001-0001', 15000000, 'KRW', 'CORPORATE', 'KAKAOCRP001', FALSE),
+       (8, 15, 41, '088-0001-0001', 12000000, 'KRW', 'CORPORATE', 'SHINHAN001', FALSE),
+       (9, 15, 10, '020-0001-0001', 13000000, 'KRW', 'CORPORATE', 'WOORICRP001', FALSE),
        (11, 10, 10, '090-1111-2222', 50000000, 'KRW', 'CORPORATE', 'CREWS001', FALSE);
 
 

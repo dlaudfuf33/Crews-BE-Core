@@ -2,18 +2,17 @@ package org.baas.baascore.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.baas.baascore.dto.SubcriptionsRequestDto;
-import org.baas.baascore.dto.SubcriptionsResponseDto;
-import org.baas.baascore.dto.IssueApikeyRequestDto;
-import org.baas.baascore.dto.IssueApikeyResponsetDto;
+import org.baas.baascore.dto.*;
 import org.baas.baascore.excaption.BankNotFoundException;
 import org.baas.baascore.model.Bank;
 import org.baas.baascore.model.Subscribe;
+import org.baas.baascore.repository.AccountRepository;
 import org.baas.baascore.repository.BankRepository;
 import org.baas.baascore.repository.SubscribeRepository;
 import org.baas.baascore.util.SecurityUtils;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -24,6 +23,8 @@ import java.util.Optional;
 public class SubscribeService {
     private final SubscribeRepository subscribeRepository;
     private final BankRepository bankRepository;
+    private final AccountRepository accountRepository;
+    private final CoreTransactionService coreTransactionService;
 
     public IssueApikeyResponsetDto createSubscription(IssueApikeyRequestDto issueApikeyRequestDto) {
 
@@ -32,8 +33,8 @@ public class SubscribeService {
         }
 
 
-        // Bank 엔티티 조회
-        Optional<Bank> foundBank = bankRepository.findById(issueApikeyRequestDto.getBankId());
+        // Bank 엔티티 조회 (통합은행)
+        Optional<Bank> foundBank = bankRepository.findById(1L);
 
         Bank bank;
         if (foundBank.isPresent()) {
@@ -41,10 +42,17 @@ public class SubscribeService {
         } else {
             throw new BankNotFoundException();
         }
+
+        // 결제
+        String companyFinnum = accountRepository.findByAccountNumber(issueApikeyRequestDto.getAccountNumber())
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 계좌 번호 입니다.."))
+                .getFintechUseNum();
+
+        coreTransactionService.transfer(new TransferRequestDto(companyFinnum,"777-7777-7777",new BigDecimal(1_000_000),"구독비 결제"));
         // 엔티티 생성
         Subscribe subscribe = Subscribe.createSubscription(
                 bank,
-                issueApikeyRequestDto.getProductName(),
+                "우리 BaaS API 구독",
                 issueApikeyRequestDto.getBusinessNum(),
                 issueApikeyRequestDto.getCompanyName()
         );
