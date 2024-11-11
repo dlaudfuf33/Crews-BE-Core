@@ -80,21 +80,23 @@ VALUES (1, '001', '통합은행'),
 
 -- Customer 데이터 삽입
 INSERT INTO bank_member (email, name, jumin_number, gender, phone, address, birth, identity)
-VALUES ('customer21@example.com', '홍길동', '9001011234237', 'M', '010-1234-5678', '서울시 강남구', '1990-01-01', 'ID001'),
-       ('customer22@example.com', '김영희', '9202022345428', 'F', '010-2345-6789', '서울시 서초구', '1992-02-02', 'ID002'),
-       ('use2r3@example.com', '이철수', '94030134523489', 'M', '010-3456-7890', '서울시 마포구', '1994-03-01', 'ID003'),
-       ('us2er4@example.com', '박미영', '92010144567259', 'F', '010-4567-8901', '서울시 서초구', '1992-01-01', 'ID004'),
-       ('us2r5@example.com', '정우성', '88020156789112', 'M', '010-5678-9012', '서울시 용산구', '1988-02-01', 'ID005'),
-       ('testuser6@example.com', '김철민', '8501011234567', 'M', '010-6666-1111', '서울시 강서구', '1985-01-01', 'ID006'),
-       ('testuser7@example.com', '박지은', '9305052345678', 'F', '010-7777-2222', '서울시 동작구', '1993-05-05', 'ID007'),
-       ('testuser8@example.com', '이동수', '9103033456789', 'M', '010-8888-3333', '서울시 영등포구', '1991-03-03', 'ID008'),
-       ('testuser9@example.com', '최민경', '9607074567890', 'F', '010-9999-4444', '서울시 성동구', '1996-07-07', 'ID009'),
-       ('crews@crews.org', '크루즈', '001101123456', 'M', '010-9697-9796', '서울시 마포구 상암동', '2024-11-11', 'ID111'),
-       ('testuser11@example.com', '윤도영', '9202026789123', 'F', '010-2020-6666', '서울시 관악구', '1992-02-02', 'ID011'),
-       ('testuser12@example.com', '강수지', '9508087890123', 'F', '010-3030-7777', '서울시 노원구', '1995-08-08', 'ID012'),
-       ('testuser13@example.com', '한기훈', '8901018901234', 'M', '010-4040-8888', '서울시 도봉구', '1989-01-01', 'ID013'),
-       ('testuser14@example.com', '서진우', '9005059012345', 'M', '010-5050-9999', '서울시 송파구', '1990-05-05', 'ID014'),
-       ('banks@bank.com', '은행', '6001019876547', 'F', '010-6060-0000', '서울시 중랑구', '1997-07-07', 'ID015');
+VALUES
+    ('customer21@example.com', '홍길동', '9001011234237', 'M', '010-1234-5678', '서울시 강남구', '1990-01-01', 'A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4Y5Z6A7B8C9D0E1F2G3H4I5J6K7L8M9N0'),
+    ('customer22@example.com', '김영희', '9202022345428', 'F', '010-2345-6789', '서울시 서초구', '1992-02-02', 'B1C2D3E4F5G6H7I8J9K0L1M2N3O4P5Q6R7S8T9U0V1W2X3Y4Z5A6B7C8D9E0F1G2H3I4J5K6L7M8N9'),
+    ('use2r3@example.com', '이철수', '94030134523489', 'M', '010-3456-7890', '서울시 마포구', '1994-03-01', 'C1D2E3F4G5H6I7J8K9L0M1N2O3P4Q5R6S7T8U9V0W1X2Y3Z4A5B6C7D8E9F0G1H2I3J4K5L6M7N8O9P0'),
+    ('us2er4@example.com', '박미영', '92010144567259', 'F', '010-4567-8901', '서울시 서초구', '1992-01-01', 'D1E2F3G4H5I6J7K8L9M0N1O2P3Q4R5S6T7U8V9W0X1Y2Z3A4B5C6D7E8F9G0H1I2J3K4L5M6N7O8P9Q0'),
+    ('us2r5@example.com', '정우성', '88020156789112', 'M', '010-5678-9012', '서울시 용산구', '1988-02-01', 'E1F2G3H4I5J6K7L8M9N0O1P2Q3R4S5T6U7V8W9X0Y1Z2A3B4C5D6E7F8G9H0I1J2K3L4M5N6O7P8Q9'),
+    ('testuser6@example.com', '김철민', '8501011234567', 'M', '010-6666-1111', '서울시 강서구', '1985-01-01', 'F1G2H3I4J5K6L7M8N9O0P1Q2R3S4T5U6V7W8X9Y0Z1A2B3C4D5E6F7G8H9I0J1K2L3M4N5O6P7Q8R9'),
+    ('testuser7@example.com', '박지은', '9305052345678', 'F', '010-7777-2222', '서울시 동작구', '1993-05-05', 'G1H2I3J4K5L6M7N8O9P0Q1R2S3T4U5V6W7X8Y9Z0A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8'),
+    ('testuser8@example.com', '이동수', '9103033456789', 'M', '010-8888-3333', '서울시 영등포구', '1991-03-03', 'H1I2J3K4L5M6N7O8P9Q0R1S2T3U4V5W6X7Y8Z9A0B1C2D3E4F5G6H7I8J9K0L1M2N3O4P5Q6R7S8T9'),
+    ('testuser9@example.com', '최민경', '9607074567890', 'F', '010-9999-4444', '서울시 성동구', '1996-07-07', 'I1J2K3L4M5N6O7P8Q9R0S1T2U3V4W5X6Y7Z8A9B0C1D2E3F4G5H6I7J8K9L0M1N2O3P4Q5R6S7T8U9'),
+    ('crews@crews.org', '크루즈', '001101123456', 'M', '010-9697-9796', '서울시 마포구 상암동', '2024-11-11', 'J1K2L3M4N5O6P7Q8R9S0T1U2V3W4X5Y6Z7A8B9C0D1E2F3G4H5I6J7K8L9M0N1O2P3Q4R5S6T7U8V9'),
+    ('testuser11@example.com', '윤도영', '9202026789123', 'F', '010-2020-6666', '서울시 관악구', '1992-02-02', 'K1L2M3N4O5P6Q7R8S9T0U1V2W3X4Y5Z6A7B8C9D0E1F2G3H4I5J6K7L8M9N0O1P2Q3R4S5T6U7V8W9'),
+    ('testuser12@example.com', '강수지', '9508087890123', 'F', '010-3030-7777', '서울시 노원구', '1995-08-08', 'L1M2N3O4P5Q6R7S8T9U0V1W2X3Y4Z5A6B7C8D9E0F1G2H3I4J5K6L7M8N9O0P1Q2R3S4T5U6V7W8X9'),
+    ('testuser13@example.com', '한기훈', '8901018901234', 'M', '010-4040-8888', '서울시 도봉구', '1989-01-01', 'M1N2O3P4Q5R6S7T8U9V0W1X2Y3Z4A5B6C7D8E9F0G1H2I3J4K5L6M7N8O9P0Q1R2S3T4U5V6W7X8Y9'),
+    ('testuser14@example.com', '서진우', '9005059012345', 'M', '010-5050-9999', '서울시 송파구', '1990-05-05', 'N1O2P3Q4R5S6T7U8V9W0X1Y2Z3A4B5C6D7E8F9G0H1I2J3K4L5M6N7O8P9Q0R1S2T3U4V5W6X7Y8Z9'),
+    ('banks@bank.com', '은행', '6001019876547', 'F', '010-6060-0000', '서울시 중랑구', '1997-07-07', 'O1P2Q3R4S5T6U7V8W9X0Y1Z2A3B4C5D6E7F8G9H0I1J2K3L4M5N6O7P8Q9R0S1T2U3V4W5X6Y7Z8A9');
+
 -- Account 데이터 삽입
 INSERT INTO core_account (id, customer_id, bank_code_id, account_number, balance, currency, account_type,
                           fintech_use_num, is_deleted)

@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS bank_member (
                                            phone        VARCHAR(15)  NOT NULL UNIQUE,
                                            address      VARCHAR(255) NOT NULL,
                                            birth        DATE         NOT NULL,
-                                           identity     VARCHAR(50),
+                                           identity     VARCHAR(255),
                                            created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                            updated_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
