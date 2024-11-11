@@ -16,13 +16,22 @@ import java.util.Optional;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
+    @EntityGraph(attributePaths = {"customer", "bank"})
 
-    // 단순 조회 (락 없이)
+        // 단순 조회 (락 없이)
     Optional<Account> findByAccountNumber(String accountNumber);
 
+    @EntityGraph(attributePaths = {"bank"})
     Optional<Account> findByFintechUseNum(String fintechUseNum);
 
     List<Account> findByCustomerAndIsDeletedAndAccountType(Customer customer, boolean isDeleted, AccountType accountType);
+
+    @Override
+    @EntityGraph(attributePaths = {"customer", "bank"})
+    Account save(Account account);
+
+    @EntityGraph(attributePaths = {"customer", "bank"})
+    List<Account> findByCustomerId(Long customerId);
 
     // 수정 작업을 위한 조회 (JPQL + 락 적용)
     @Query("SELECT a FROM Account a WHERE a.accountNumber = :accountNumber")
@@ -35,9 +44,5 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Account> findByFintechUseNumForUpdate(@Param("fintechUseNum") String fintechUseNum);
 
-
-
-    @EntityGraph(attributePaths = {"customer", "bank"})
-    List<Account> findByCustomerId(Long customerId);
 
 }
