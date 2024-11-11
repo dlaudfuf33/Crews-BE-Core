@@ -1,6 +1,7 @@
 package org.baas.baascore.model;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import org.baas.baascore.util.BaseTimeEntity;
 import org.baas.baascore.util.TranType;
@@ -24,6 +25,7 @@ public class TransactionHistory extends BaseTimeEntity {
     @JoinColumn(name = "core_account_id", nullable = false)
     private Account account;
 
+
     // 카드가 연관된 경우 해당 카드 정보 (선택적 필드)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "core_card", nullable = true)
@@ -42,16 +44,46 @@ public class TransactionHistory extends BaseTimeEntity {
     @Column(name = "after_balance_amt", nullable = false)
     private BigDecimal afterBalanceAmt;
 
-    // 출금 상대 이름 (선택적 필드)
-    @Column(name = "withdraw_name", nullable = true)
-    private String withdrawName;
+    // 출금 상대 이름
+    @Column(name = "counterparty_Name", nullable = false)
+    private String counterpartyName;
 
-    // 출금 상대 계좌 번호 (선택적 필드)
-    @Column(name = "withdraw_account_num", nullable = true)
-    private String withdrawAccountNum;
+    // 출금 상대 계좌 번호
+    @Column(name = "counterparty_account_num", nullable = false)
+    private String counterpartyAccountNum;
+
+    // 상대방 은행 코드 (선택적 필드)
+    @Column(name = "counterparty_bank_code", nullable = false)
+    private String counterpartyBankCode;
 
     // 거래 설명, 최대 50자 (선택적 필드)
     @Column(name = "description", nullable = true, length = 50)
     private String description;
 
+    // CoreTransaction과의 다대일 관계 설정
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "core_transaction_id", nullable = false)
+    private CoreTransaction coreTransaction;
+
+    public TransactionHistory() {
+
+    }
+
+    @Builder
+    public TransactionHistory(Account account, TranType tranType, BigDecimal tranAmt,BigDecimal afterBalanceAmt, Account countryAccount, CoreTransaction coreTransaction,String description) {
+        this.account = account;
+        this.tranType = tranType;
+        this.tranAmt = tranAmt;
+        this.afterBalanceAmt = afterBalanceAmt;
+        this.counterpartyName = countryAccount.getCustomer().getName();
+        this.counterpartyAccountNum = countryAccount.getAccountNumber();
+        this.counterpartyBankCode = countryAccount.getBank().getBankCode();
+        this.coreTransaction = coreTransaction;
+        this.description = description;
+    }
+
+
+    public void recordAfterTransactionBalance(BigDecimal balance) {
+        this.afterBalanceAmt = balance;
+    }
 }
