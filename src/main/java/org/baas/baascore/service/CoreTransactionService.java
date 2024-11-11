@@ -18,9 +18,7 @@ import org.baas.baascore.util.TranType;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +38,8 @@ public class CoreTransactionService {
         if (!customer.equals(account.getCustomer()))
             throw new MemberNotEqualsException();
         Integer selectPeriod = transactionDetailRequest.getSelectPeriod();
+        if(!(selectPeriod == 1 || selectPeriod == 3 || selectPeriod == 6 || selectPeriod == 9))
+            throw new IllegalStateException("올바른 기간을 설정해 주세요.");
         LocalDateTime filteredDate = LocalDateTime.now().minusMonths(selectPeriod);
         String transactionType = transactionDetailRequest.getTransactionType();
         String order = transactionDetailRequest.getOrder();
@@ -50,16 +50,20 @@ public class CoreTransactionService {
 
     private List<TransactionHistory> getTransactionHistories(String transactionType, Account account, LocalDateTime filteredDate, String order) {
         List<TransactionHistory> list;
-        if(transactionType.toUpperCase().equals("ALL")) {
+        final String ALL = "ALL";
+        final String DESC = "DESC";
+        final String DEPOSIT = "DEPOSIT";
+        final String WITHDRAW = "WITHDRAW";
+        if(transactionType.equalsIgnoreCase(ALL)) {
             list = transactionHistoryRepository.findTransactionHistoryAllTranType(account, filteredDate);
-            if(order.toUpperCase().equals("DESC"))
+            if(order.equalsIgnoreCase(DESC))
                 list.sort((o1, o2) ->
                         o2.getCreatedAt().compareTo(o1.getCreatedAt()));
 
         }
-        else if (transactionType.toUpperCase().equals("DEPOSIT") || transactionType.toUpperCase().equals("WITHDRAW")){
+        else if (transactionType.equalsIgnoreCase(DEPOSIT) || transactionType.equalsIgnoreCase(WITHDRAW)){
             list = transactionHistoryRepository.findTransactionHistorySelectedTranType(account, filteredDate, TranType.valueOf(transactionType.toUpperCase()));
-            if(order.toUpperCase().equals("DESC"))
+            if(order.equalsIgnoreCase(DESC))
                 list.sort((o1, o2) ->
                         o2.getCreatedAt().compareTo(o1.getCreatedAt()));
         }
