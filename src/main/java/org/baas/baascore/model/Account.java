@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.baas.baascore.excaption.InsufficientBalanceException;
 import org.baas.baascore.util.AccountType;
 import org.baas.baascore.util.BaseTimeEntity;
 import org.baas.baascore.util.CurrencyType;
@@ -71,4 +72,15 @@ public class Account extends BaseTimeEntity {
     // 한 계좌가 여러 카드를 소유할 수 있도록 양방향 매핑
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
     private List<Card> cards = new ArrayList<>();
+
+    public void subtractFromBalance(BigDecimal amt) {
+        if (this.balance.compareTo(amt) < 0) {
+            throw new InsufficientBalanceException(); // 잔액 부족 예외
+        }
+        this.balance=this.balance.subtract(amt);
+    }
+
+    public void addToBalance(BigDecimal amt) {
+        this.balance = this.balance.add(amt);
+    }
 }

@@ -11,9 +11,11 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TransactionHistoryRepository extends JpaRepository<TransactionHistory,Long> {
+    Optional<TransactionHistory> findByCoreTransactionIdAndAccount_FintechUseNum(Long id, String fintechNum);
 
     @Query("select t from TransactionHistory t where t.account =:account and t.createdAt >= :filteredDate order by t.createdAt ASC")
     @EntityGraph(attributePaths = {"card", "account"})

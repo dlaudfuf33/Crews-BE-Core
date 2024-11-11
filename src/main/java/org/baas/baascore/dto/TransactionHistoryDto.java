@@ -38,7 +38,7 @@ public class TransactionHistoryDto {
                 .description(transactionHistory.getDescription())
                 .tranAmount(transactionHistory.getTranAmt())
                 .afterBalanceAmount(transactionHistory.getAfterBalanceAmt())
-                .withdrawerName(transactionHistory.getWithdrawName())
+                .withdrawerName(transactionHistory.getCounterpartyName())
                 .build();
     }
 }

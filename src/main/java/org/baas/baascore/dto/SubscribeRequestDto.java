@@ -21,7 +21,7 @@ public class SubscribeRequestDto {
         this.companyName = companyName;
     }
     // 엔티티로부터 SubscribeRequestDto를 생성하는 메서드 예시 (필요에 따라 추가)
-    public static SubscribeRequestDto fromEntity(Subscribe subscribe) {
+    public static SubscribeRequestDto of(Subscribe subscribe) {
         return SubscribeRequestDto.builder()
                 .bankId(subscribe.getBank().getId())
                 .productName(subscribe.getProductName())
