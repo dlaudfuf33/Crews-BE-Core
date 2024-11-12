@@ -81,7 +81,7 @@ public class SubscribeService {
     }
 
     @Transactional
-    public int escapeFromSubscriptions(SubcriptionsRequestDto subcriptionsRequestDto, String accessKey) {
+    public int escapeFromSubscriptions(String accessKey) {
         try {
             Subscribe target = subscribeRepository
                     .findByAccessKey(accessKey)

@@ -24,10 +24,10 @@ public class SubscribeController {
     }
 
     @DeleteMapping
-    public ResponseEntity<String> escapeFromSubscriptions(SubcriptionsRequestDto subcriptionsRequestDto, HttpServletRequest request) {
+    public ResponseEntity<String> escapeFromSubscriptions(HttpServletRequest request) {
         try {
             String accessKey = request.getHeader("X-ACCESS-KEY");
-            int result = subscribeService.escapeFromSubscriptions(subcriptionsRequestDto, accessKey);
+            int result = subscribeService.escapeFromSubscriptions(accessKey);
 
             if (result == 1) {
                 // 구독 취소 성공
