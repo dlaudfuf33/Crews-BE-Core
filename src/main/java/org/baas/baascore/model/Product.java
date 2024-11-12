@@ -1,13 +1,19 @@
 package org.baas.baascore.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.baas.baascore.util.BaseTimeEntity;
 
 /***
  * 은행의 상품(모임,개인 통장) 엔티티
  */
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "bank_product")
 public class Product extends BaseTimeEntity {

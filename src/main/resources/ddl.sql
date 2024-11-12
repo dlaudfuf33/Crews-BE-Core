@@ -34,12 +34,25 @@ CREATE TABLE bank_member
     updated_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Product 테이블 생성
+CREATE TABLE bank_product
+(
+    id         BIGINT PRIMARY KEY AUTO_INCREMENT,
+    bank_id    BIGINT       NOT NULL,
+    name       VARCHAR(255) NOT NULL,
+    rate       DOUBLE       NOT NULL,
+    created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (bank_id) REFERENCES bank (id)
+);
+
 -- Account 테이블 생성
 CREATE TABLE core_account
 (
     id              BIGINT PRIMARY KEY AUTO_INCREMENT,
     customer_id     BIGINT         NOT NULL,
     bank_code_id    BIGINT         NOT NULL,
+    product_id      BIGINT         NOT NULL,
     account_number  VARCHAR(20)    NOT NULL UNIQUE,
     balance         DECIMAL(15, 2) NOT NULL,
     currency        VARCHAR(10),
@@ -68,18 +81,6 @@ CREATE TABLE core_card
     updated_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES bank_member (id),
     FOREIGN KEY (account_id) REFERENCES core_account (id)
-);
-
--- Product 테이블 생성
-CREATE TABLE bank_product
-(
-    id         BIGINT PRIMARY KEY AUTO_INCREMENT,
-    bank_id    BIGINT       NOT NULL,
-    name       VARCHAR(255) NOT NULL,
-    rate       DOUBLE       NOT NULL,
-    created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (bank_id) REFERENCES bank (id)
 );
 
 -- Subscribe 테이블 생성
