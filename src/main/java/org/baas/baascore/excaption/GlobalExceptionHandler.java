@@ -174,4 +174,15 @@ public class GlobalExceptionHandler {
     }
 
 
+    @ExceptionHandler(AlreadyCanceledException.class)
+    public ResponseEntity<ErrorResponse> handleAlreadyCanceledException(AlreadyCanceledException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponse.builder()
+                .errorCode(ex.getErrorCode().name())
+                .message(ex.getErrorCode().getMessage())
+                .details(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build());
+    }
+
+
 }

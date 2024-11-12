@@ -1,5 +1,6 @@
 package org.baas.baascore.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baas.baascore.dto.*;
@@ -13,6 +14,7 @@ import org.baas.baascore.util.SecurityUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -48,7 +50,7 @@ public class SubscribeService {
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 계좌 번호 입니다.."))
                 .getFintechUseNum();
 
-        coreTransactionService.transfer(new TransferRequestDto(companyFinnum,"777-7777-7777",new BigDecimal(1_000_000),"구독비 결제"));
+        coreTransactionService.transfer(new TransferRequestDto(companyFinnum, "777-7777-7777", new BigDecimal(1_000_000), "구독비 결제"));
         // 엔티티 생성
         Subscribe subscribe = Subscribe.createSubscription(
                 bank,
@@ -79,4 +81,41 @@ public class SubscribeService {
 
     }
 
+    @Transactional
+    public int escapeFromSubscriptions(SubcriptionsRequestDto subcriptionsRequestDto, String accessKey) {
+        try {
+            Subscribe target = subscribeRepository
+                    .findByAccessKey(accessKey)
+                    .orElseThrow(NoSuchElementException::new);
+
+            if (!target.isSubscribed()) {
+                log.info("{} 는 이미 취소된 구독입니다.", target.getId());
+                return 2; // 이미 취소된 상태
+            }
+
+            target.setSubscribed(false); // 구독 취소
+            return 1; // 성공적으로 취소됨
+
+        } catch (Exception e) {
+            log.error("구독 취소 실패 - Access Key: {}. 에러 메시지: {}", accessKey, e.getMessage(), e);
+            return 0; // 실패
+        }
+
+    }
+
+    public void maskExpiredApiKeys() {
+        List<Subscribe> expiredSubscriptions = subscribeRepository.findAllByExpireDateBefore(LocalDateTime.now());
+
+        for (Subscribe subscribe : expiredSubscriptions) {
+            subscribe.setAccessKey(maskApiKey(subscribe.getAccessKey()));
+        }
+        subscribeRepository.saveAll(expiredSubscriptions);
+    }
+
+    private String maskApiKey(String apiKey) {
+        if (apiKey.length() > 4) {
+            return "****" + apiKey.substring(apiKey.length() - 4);
+        }
+        return "****";
+    }
 }
