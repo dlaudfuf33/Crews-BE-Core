@@ -80,7 +80,7 @@ VALUES (1, '001', '통합은행'),
 
 -- Customer 데이터 삽입
 INSERT INTO bank_member (email, name, jumin_number, gender, phone, address, birth, identity)
-VALUES ('@example.com', '홍길동', '9001011234237', 'M', '010-1234-5678', '서울시 강남구', '1990-01-01',
+VALUES ('hong@example.com', '홍길동', '9001011234237', 'M', '010-1234-5678', '서울시 강남구', '1990-01-01',
         'A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4Y5Z6A7B8C9D0E1F2G3H4I5J6K7L8M9N0'),
        ('banks@bank.com', '은행', '6001019876547', 'F', '010-6060-0000', '서울시 중랑구', '1997-07-07',
         'O1P2Q3R4S5T6U7V8W9X0Y1Z2A3B4C5D6E7F8G9H0I1J2K3L4M5N6O7P8Q9R0S1T2U3V4W5X6Y7Z8A9'),
@@ -151,51 +151,54 @@ VALUES ('@example.com', '홍길동', '9001011234237', 'M', '010-1234-5678', '서
        ('kimminji@fisa3rd.com', '김민지', '9103222111111', 'F', '010-6471-1229', '서울시 강남구', '1991-03-22',
         'Q3JKX8YL1FMP5N9VZ6GD2YTP7LW4HRFC4T9J1RVX8K6D2P5G0MQ9HYZ7J2NL3DWJ');
 
+-- Product 데이터 삽입
+INSERT INTO bank_product (id, bank_id, name, rate)
+VALUES (1, 1, '카카오 모임통장 상품', 1.5),
+       (2, 2, '우리 일반통장 상품', 1.2);
 
 -- Account 데이터 삽입
 INSERT
-INTO core_account (id, customer_id, bank_code_id, account_number, balance, currency, account_type,
+INTO core_account (id, customer_id, bank_code_id, product_id, account_number, balance, currency, account_type,
                    fintech_use_num, is_deleted)
-VALUES (1, 15, 1, '777-7777-7777', 1000000, 'KRW', 'CORPORATE', 'FNUM001', FALSE),
-       (2, 2, 2, '120-2345-6789', 2000000,
-        'KRW', 'PERSONAL', 'FNUM002',
+VALUES (1, 2, 1, 1, '777-7777-7777', 1000000,
+        'KRW', 'CORPORATE', '36e1df7d-e5da-42b6-8f18-169e4b05e816', FALSE),
+       (2, 5, 2, 1, '120-2345-6789', 2000000,
+        'KRW', 'PERSONAL', '9bf53d03-cff5-448a-8c8d-03b36f5c6783',
         FALSE),
-       (3, 1, 1, '110-3456-7890', 200000,
-        'KRW', 'PERSONAL', '0013456789012',
+       (3, 8, 1, 1, '110-3456-7890', 200000,
+        'KRW', 'PERSONAL', 'a7f850c0-8db4-4d12-8cc8-ea4a838fcf18',
         FALSE),
-       (4, 2, 2, '220-6789-0123', 1500000,
-        'KRW', 'PERSONAL', '0026789012345',
+       (4, 9, 10, 1, '220-6789-0123', 1500000,
+        'KRW', 'PERSONAL', '7a93e8ce-ccb3-47a1-b7f6-c30991363005',
         FALSE),
-       (5, 3, 3, '330-7890-1234', 300000,
-        'KRW', 'PERSONAL', '0037890123456',
+       (5, 1, 3, 1, '330-7890-1234', 300000,
+        'KRW', 'PERSONAL', '4f8bd5a5-57b4-4258-ba5b-de9581762bb3',
         FALSE),
-       (6, 15, 44, '092-0001-0001',
+       (6, 2, 44, 1, '092-0001-0001',
         10000000, 'KRW', 'CORPORATE',
-        'TOSSCORP001', FALSE),
-       (7, 15, 43, '090-0001-0001',
+        'cbe1d1d6-c72e-43f9-b6d4-fe1bed13ba3f', FALSE),
+       (7, 2, 43, 1, '090-0001-0001',
         15000000, 'KRW', 'CORPORATE',
-        'KAKAOCRP001', FALSE),
-       (8, 15, 41, '088-0001-0001',
+        '9a34e796-83c2-482c-9c88-a43e45c03547', FALSE),
+       (8, 2, 41, 1, '088-0001-0001',
         12000000, 'KRW', 'CORPORATE',
-        'SHINHAN001', FALSE),
-       (9, 15, 10, '020-0001-0001',
+        'e7d0c434-82a7-4a3d-9d4c-0d8431515623', FALSE),
+       (9, 2, 10, 1, '020-0001-0001',
         13000000, 'KRW', 'CORPORATE',
-        'WOORICRP001', FALSE),
-       (11, 10, 10, '090-1111-2222',
+        'e4f2c142-997a-4dbb-9b91-1f7003a0f219', FALSE),
+       (11, 3, 10, 1, '090-1111-2222',
         50000000, 'KRW', 'CORPORATE',
-        'CREWS001', FALSE);
+        '9e9196e7-0469-4424-8c57-076e6f16a284', FALSE);
 
 
 -- Card 데이터 삽입
 INSERT INTO core_card (id, customer_id, account_id, card_name, card_number, cvc, is_issued, expired_at, card_status)
 VALUES (1, 1, 1, '하나카드', '4862-1234-5678-9012', '123', TRUE, '2025-11-07 00:00:00', TRUE),
-       (2, 2, 2, '국민카드', '4862-2345-6789-0123', '456', TRUE, '2025-11-07 00:00:00', TRUE);
-
--- Product 데이터 삽입
-INSERT INTO bank_product (id, bank_id, name, rate)
-VALUES (1, 1, '카카오 모임통장 상품', 1.5),
-        (2, 2, '우리 일반통장 상품', 1.2);
-
+       (2, 2, 2, '국민카드',
+        '4862-2345-6789-0123',
+        '456', TRUE,
+        '2025-11-07 00:00:00',
+        TRUE);
 
 
 -- Subscribe 데이터 삽입

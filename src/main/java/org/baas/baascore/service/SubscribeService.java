@@ -49,7 +49,6 @@ public class SubscribeService {
         String companyFinnum = accountRepository.findByAccountNumber(issueApikeyRequestDto.getAccountNumber())
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 계좌 번호 입니다.."))
                 .getFintechUseNum();
-
         coreTransactionService.transfer(new TransferRequestDto(companyFinnum, "777-7777-7777", new BigDecimal(1_000_000), "구독비 결제"));
         // 엔티티 생성
         Subscribe subscribe = Subscribe.createSubscription(
