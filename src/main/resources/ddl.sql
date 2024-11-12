@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS core_account (
                                             balance         DECIMAL(15, 2) NOT NULL,
                                             currency        VARCHAR(10),
                                             account_type    VARCHAR(20),
-                                            fintech_use_num VARCHAR(20)    NOT NULL UNIQUE,
+                                            fintech_use_num VARCHAR(255)    NOT NULL UNIQUE,
                                             is_deleted      BOOLEAN        NOT NULL,
                                             created_at      DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                             updated_at      DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
