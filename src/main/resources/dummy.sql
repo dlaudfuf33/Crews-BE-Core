@@ -194,7 +194,9 @@ VALUES (1, 1, 1, '하나카드', '4862-1234-5678-9012', '123', TRUE, '2025-11-07
 -- Product 데이터 삽입
 INSERT INTO bank_product (id, bank_id, name, rate)
 VALUES (1, 1, '카카오 모임통장 상품', 1.5),
-       (3, 2, '우리 일반통장 상품', 1.2);
+        (2, 2, '우리 일반통장 상품', 1.2);
+
+
 
 -- Subscribe 데이터 삽입
 INSERT INTO subscribe (id, bank_id, product_name, business_num, company_name, expire_date, is_subscribe, fee_amount,

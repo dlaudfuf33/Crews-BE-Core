@@ -30,21 +30,35 @@ CREATE TABLE IF NOT EXISTS bank_member (
                                            updated_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Product 테이블 생성
+CREATE TABLE IF NOT EXISTS bank_product
+(
+    id         BIGINT PRIMARY KEY AUTO_INCREMENT,
+    bank_id    BIGINT       NOT NULL,
+    name       VARCHAR(255) NOT NULL,
+    rate       DOUBLE       NOT NULL,
+    created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (bank_id) REFERENCES bank (id)
+);
+
 -- Account 테이블 생성
-CREATE TABLE IF NOT EXISTS core_account (
-                                            id              BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                            customer_id     BIGINT         NOT NULL,
-                                            bank_code_id    BIGINT         NOT NULL,
-                                            account_number  VARCHAR(20)    NOT NULL UNIQUE,
-                                            balance         DECIMAL(15, 2) NOT NULL,
-                                            currency        VARCHAR(10),
-                                            account_type    VARCHAR(20),
-                                            fintech_use_num VARCHAR(255)    NOT NULL UNIQUE,
-                                            is_deleted      BOOLEAN        NOT NULL,
-                                            created_at      DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                            updated_at      DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                            FOREIGN KEY (customer_id) REFERENCES bank_member (id),
-                                            FOREIGN KEY (bank_code_id) REFERENCES bank (id)
+CREATE TABLE IF NOT EXISTS  core_account
+(
+    id              BIGINT PRIMARY KEY AUTO_INCREMENT,
+    customer_id     BIGINT         NOT NULL,
+    bank_code_id    BIGINT         NOT NULL,
+    product_id      BIGINT         NOT NULL,
+    account_number  VARCHAR(20)    NOT NULL UNIQUE,
+    balance         DECIMAL(15, 2) NOT NULL,
+    currency        VARCHAR(10),
+    account_type    VARCHAR(20),
+    fintech_use_num VARCHAR(20)    NOT NULL UNIQUE,
+    is_deleted      BOOLEAN        NOT NULL,
+    created_at      DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES bank_member (id),
+    FOREIGN KEY (bank_code_id) REFERENCES bank (id)
 );
 
 -- Card 테이블 생성
@@ -62,17 +76,6 @@ CREATE TABLE IF NOT EXISTS core_card (
                                          updated_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                          FOREIGN KEY (customer_id) REFERENCES bank_member (id),
                                          FOREIGN KEY (account_id) REFERENCES core_account (id)
-);
-
--- Product 테이블 생성
-CREATE TABLE IF NOT EXISTS bank_product (
-                                            id         BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                            bank_id    BIGINT       NOT NULL,
-                                            name       VARCHAR(255) NOT NULL,
-                                            rate       DOUBLE       NOT NULL,
-                                            created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                            updated_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                            FOREIGN KEY (bank_id) REFERENCES bank (id)
 );
 
 -- Subscribe 테이블 생성
@@ -119,3 +122,5 @@ CREATE TABLE IF NOT EXISTS core_history (
                                             FOREIGN KEY (core_account_id) REFERENCES core_account (id),
                                             FOREIGN KEY (core_card) REFERENCES core_card (id)
 );
+
+

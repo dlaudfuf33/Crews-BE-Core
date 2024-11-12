@@ -35,6 +35,10 @@ public class Account extends BaseTimeEntity {
     @JoinColumn(name = "customer_id", referencedColumnName = "id", nullable = false)
     private Customer customer;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
+    private Product product;
+
     // 한 계좌는 하나의 은행 코드와만 연결됨
     // 계좌가 소속된 은행 정보
     @OneToOne(fetch = FetchType.LAZY)

@@ -36,6 +36,12 @@ public class AccountController {
 
     }
 
+    @PostMapping("/one")
+    public ResponseEntity<AccountOneResponse> accountInfoOne(@RequestBody CommonRequest commonRequest) {
+        return ResponseEntity.ok().body(accountService.accountInfoOne(commonRequest));
+
+    }
+
 
     @PostMapping("/fin-num")
     public ResponseEntity<FintechNumResponse> fintechNum(@RequestBody FintechNumRequest fintechNumRequest) {
