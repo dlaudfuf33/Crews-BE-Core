@@ -9,6 +9,7 @@ import org.baas.baascore.excaption.InsufficientBalanceException;
 import org.baas.baascore.util.AccountType;
 import org.baas.baascore.util.BaseTimeEntity;
 import org.baas.baascore.util.CurrencyType;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -34,6 +35,10 @@ public class Account extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", referencedColumnName = "id", nullable = false)
     private Customer customer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
+    private Product product;
 
     // 한 계좌는 하나의 은행 코드와만 연결됨
     // 계좌가 소속된 은행 정보

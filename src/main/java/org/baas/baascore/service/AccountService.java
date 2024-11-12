@@ -4,14 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baas.baascore.dto.*;
 import org.baas.baascore.excaption.*;
-import org.baas.baascore.model.Account;
-import org.baas.baascore.model.Bank;
-import org.baas.baascore.model.Card;
-import org.baas.baascore.model.Customer;
-import org.baas.baascore.repository.AccountRepository;
-import org.baas.baascore.repository.BankRepository;
-import org.baas.baascore.repository.CardRepository;
-import org.baas.baascore.repository.CustomerRepository;
+import org.baas.baascore.model.*;
+import org.baas.baascore.repository.*;
 import org.baas.baascore.util.AccountType;
 import org.baas.baascore.util.CurrencyType;
 import org.springframework.retry.annotation.Retryable;
@@ -37,6 +31,7 @@ public class AccountService {
     private final BankRepository bankRepository;
     private final CustomerRepository customerRepository;
     private final CardRepository cardRepository;
+    private final ProductRepository productRepository;
 
     public AccountIssuedResponse accountIssued(AccountIssuedRequest accountIssuedRequest){
         Customer customer = customerRepository.findByIdentityCode(accountIssuedRequest.getIdentityCode()).orElseThrow(
@@ -45,11 +40,14 @@ public class AccountService {
         String fintechUseNum = UUID.randomUUID().toString();
         Bank bank = bankRepository.findByBankCode("020").orElseThrow( //"020 - 우리은행 은행코드
                 BankNotFoundException::new);
+        Product product = productRepository.findById(2L).orElseThrow(
+                IllegalStateException::new
+        );
         String accountNumber = getAccountNumber();
         BigDecimal balance = BigDecimal.ZERO;
         CurrencyType currencyType = CurrencyType.KRW;
         AccountType accountType = AccountType.CREW;
-        Account account = Account.builder().customer(customer).bank(bank).accountNumber(accountNumber).balance(balance)
+        Account account = Account.builder().customer(customer).bank(bank).product(product).accountNumber(accountNumber).balance(balance)
                 .currencyType(currencyType).accountType(accountType).fintechUseNum(fintechUseNum).build();
         Account savedAccount = accountRepository.save(account);
         log.info("생성된 계좌번호 : {}, 이름 {}, 식별자번호 {}", accountNumber, customer.getName(), customer.getIdentityCode());
@@ -88,6 +86,19 @@ public class AccountService {
 
     }
 
+    public AccountOneResponse accountInfoOne(CommonRequest commonRequest) {
+        Customer customer = customerRepository.findByIdentityCode(commonRequest.getIdentityCode()).orElseThrow(
+                IdentityCodeNotFoundException::new
+        );
+        Account account = accountRepository.findByFintechUseNum(commonRequest.getFintechUseNum()).orElseThrow(
+                FintechNumberNotFoundException::new
+        );
+        if (!customer.equals(account.getCustomer()))
+            throw new MemberNotEqualsException();
+        log.info("{}({})의 account({})를 조회했습니다.",customer.getName(),customer.getIdentityCode(),account.getAccountNumber());
+        return AccountOneResponse.from(account);
+    }
+
     public FintechNumResponse fintechNum(FintechNumRequest fintechNumRequest) {
         Customer customer = customerRepository.findByIdentityCode(fintechNumRequest.getIdentityCode()).orElseThrow(
                 IdentityCodeNotFoundException::new
@@ -122,8 +133,8 @@ public class AccountService {
         }
         return ONLY_BANK_NUM + randomNum.toString(); // 은행 코드와 랜덤 번호 조합하여 반환
     }
-
     // 고객 ID로 모든 계좌 조회
+
     public List<Account> findAccountsByCustomerId(Long customerId) {
         // 고객 ID로 계좌 조회 후 반환
         return accountRepository.findByCustomerId(customerId);
