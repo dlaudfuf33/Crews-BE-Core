@@ -3,6 +3,7 @@ package org.baas.baascore.controller;
 import lombok.RequiredArgsConstructor;
 import org.baas.baascore.dto.*;
 import org.baas.baascore.excaption.CustomException;
+import org.baas.baascore.excaption.ErrorResponse;
 import org.baas.baascore.service.CoreTransactionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/v1/transfer")
@@ -18,18 +21,43 @@ public class CoreTransactionController {
     private final CoreTransactionService coreTransactionService;
 
     @PostMapping
-    public ResponseEntity<TransferResponseDto> withdraw(@RequestBody TransferRequestDto transferRequestDto) {
+    public ResponseEntity<ApiResponse<TransferResponseDto>> withdraw(@RequestBody TransferRequestDto transferRequestDto) {
         try {
             TransferResponseDto responseDto = coreTransactionService.transfer(transferRequestDto);
-            return ResponseEntity.ok(responseDto); // 성공 시 200 OK와 응답 데이터 반환
+            return ResponseEntity.ok(ApiResponse.<TransferResponseDto>builder()
+                    .data(responseDto)
+                    .success(true)
+                    .build()); // 성공 시 200 OK와 응답 데이터 반환
+
         } catch (CustomException e) {
             // CustomException 발생 시, 예외의 상태 코드와 메시지 반환
-            return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(null);
+            ErrorResponse errorResponse = ErrorResponse.builder()
+                    .errorCode(e.getErrorCode().name())
+                    .message(e.getErrorCode().getMessage())
+                    .details(e.getMessage())
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(ApiResponse.<TransferResponseDto>builder()
+                    .error(errorResponse)
+                    .success(false)
+                    .build());
         } catch (Exception e) {
             // 예상치 못한 예외 처리
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            ErrorResponse errorResponse = ErrorResponse.builder()
+                    .errorCode("INTERNAL_SERVER_ERROR")
+                    .message("서버 내부 오류가 발생했습니다.")
+                    .details(e.getMessage())
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.<TransferResponseDto>builder()
+                    .error(errorResponse)
+                    .success(false)
+                    .build());
         }
     }
+
 
     @PostMapping("/states")
     public TransferStatesResponseDto trxStateCheck(@RequestBody TransferStatesRequestDto transferStatesRequestDto) {

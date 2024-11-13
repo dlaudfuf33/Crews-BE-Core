@@ -33,11 +33,8 @@ public class SubscribeService {
         if (SecurityUtils.isValidBusinessNumber(issueApikeyRequestDto.getBusinessNum())) {
             log.info("사업자등록번호 : {} 인증 성공", issueApikeyRequestDto.getBusinessNum());
         }
-
-
         // Bank 엔티티 조회 (통합은행)
         Optional<Bank> foundBank = bankRepository.findById(1L);
-
         Bank bank;
         if (foundBank.isPresent()) {
             bank = foundBank.get();

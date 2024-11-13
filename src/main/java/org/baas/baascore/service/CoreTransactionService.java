@@ -55,16 +55,15 @@ public class CoreTransactionService {
         final String DESC = "DESC";
         final String DEPOSIT = "DEPOSIT";
         final String WITHDRAW = "WITHDRAW";
-        if(transactionType.equalsIgnoreCase(ALL)) {
+        if (transactionType.equalsIgnoreCase(ALL)) {
             list = transactionHistoryRepository.findTransactionHistoryAllTranType(account, filteredDate);
-            if(order.equalsIgnoreCase(DESC))
+            if (order.equalsIgnoreCase(DESC))
                 list.sort((o1, o2) ->
                         o2.getCreatedAt().compareTo(o1.getCreatedAt()));
 
-        }
-        else if (transactionType.equalsIgnoreCase(DEPOSIT) || transactionType.equalsIgnoreCase(WITHDRAW)){
+        } else if (transactionType.equalsIgnoreCase(DEPOSIT) || transactionType.equalsIgnoreCase(WITHDRAW)) {
             list = transactionHistoryRepository.findTransactionHistorySelectedTranType(account, filteredDate, TranType.valueOf(transactionType.toUpperCase()));
-            if(order.equalsIgnoreCase(DESC))
+            if (order.equalsIgnoreCase(DESC))
                 list.sort((o1, o2) ->
                         o2.getCreatedAt().compareTo(o1.getCreatedAt()));
         } else {
@@ -117,7 +116,6 @@ public class CoreTransactionService {
                     .build();// 응답 생성
         } catch (CustomException e) {
             if (e.getErrorCode() == ErrorCode.INSUFFICIENT_BALANCE) {
-                // 잔액 부족 예외 처리
                 markTransactionFail(withdrawHistory, depositHistory);
                 log.error("잔액 부족으로 이체 실패 - 출금 계좌: {}, 금액: {}",
                         transferRequestDto.getFinUseNum(), transferRequestDto.getAmt());
@@ -128,7 +126,7 @@ public class CoreTransactionService {
             markTransactionFail(withdrawHistory, depositHistory);
             log.error("이체 거래 처리 중 오류 발생 - 출금 계좌: {}, 입금 계좌: {}, 금액: {}",
                     transferRequestDto.getFinUseNum(), transferRequestDto.getRecvAccountNum(), transferRequestDto.getAmt(), e);
-            throw new CustomException(ErrorCode.TRANSFER_FAILED);
+            throw new CustomException(ErrorCode.TRANSFER_FAILED, e);
         }
     }
 
@@ -216,7 +214,7 @@ public class CoreTransactionService {
                         .findByCoreTransactionIdAndAccount_FintechUseNum(
                                 transferStatesRequestDto.getHistoryId(),
                                 transferStatesRequestDto.getFinUseNum())
-                        .orElseThrow(()->new CustomException(ErrorCode.TRANSACTION_NOT_FOUND))
+                        .orElseThrow(() -> new CustomException(ErrorCode.TRANSACTION_NOT_FOUND))
         );
     }
 }
