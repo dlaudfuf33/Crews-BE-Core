@@ -33,7 +33,7 @@ public class CoreTransactionService {
         Account account = accountRepository.findByFintechUseNum(transactionDetailRequest.getFintechUseNum()).orElseThrow(
                 AccountNumberNotFoundException::new
         );
-        Customer customer = customerRepository.findByIdentityCode(transactionDetailRequest.getIdentityCode()).orElseThrow(
+        Customer customer = customerRepository.findByCi(transactionDetailRequest.getCi()).orElseThrow(
                 IdentityCodeNotFoundException::new
         );
         if (!customer.equals(account.getCustomer()))

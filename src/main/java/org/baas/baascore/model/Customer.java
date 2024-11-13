@@ -1,7 +1,10 @@
 package org.baas.baascore.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.baas.baascore.dto.AccountIssuedRequest;
 import org.baas.baascore.util.BaseTimeEntity;
 
@@ -14,6 +17,9 @@ import java.util.List;
  */
 @Getter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "bank_member")
 public class Customer extends BaseTimeEntity {
     // 고객 고유 식별자
@@ -25,32 +31,15 @@ public class Customer extends BaseTimeEntity {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @Column(name = "phone_num", nullable = false, unique = true)
+    private String phoneNum;
+
     // 고객 이름
     @Column(name = "name", nullable = false)
     private String name;
 
-    // 고객 주민번호, 고유해야 함
-    @Column(name = "jumin_number", nullable = false, unique = true)
-    private String juminNumber;
-
-    // 고객 성별 (예: M/F)
-    @Column(name = "gender", nullable = false)
-    private String gender;
-
-    // 고객 전화번호, 고유해야 함
-    @Column(name = "phone", nullable = false, unique = true)
-    private String phoneNum;
-
-    // 고객 주소
-    @Column(name = "address", nullable = false)
-    private String address;
-
-    // 고객 생년월일
-    @Column(name = "birth", nullable = false)
-    private LocalDate birth;
-
-    @Column(name = "identity")
-    private String identityCode;
+    @Column(name = "ci")
+    private String ci;
 
     // 한 고객이 여러 계좌를 소유할 수 있도록 양방향 매핑 추가
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)

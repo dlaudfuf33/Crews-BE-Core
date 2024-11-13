@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class TransactionHistoryDto {
     private String memberName;
-    private String identityCode;
+    private String ci;
     private AccountType accountType;
     private String bankCode;
     private String bankName;
@@ -28,7 +28,7 @@ public class TransactionHistoryDto {
     public static TransactionHistoryDto from(TransactionHistory transactionHistory){
         return TransactionHistoryDto.builder()
                 .memberName(transactionHistory.getAccount().getCustomer().getName())
-                .identityCode(transactionHistory.getAccount().getCustomer().getIdentityCode())
+                .ci(transactionHistory.getAccount().getCustomer().getCi())
                 .accountType(transactionHistory.getAccount().getAccountType())
                 .bankCode(transactionHistory.getAccount().getBank().getBankCode())
                 .bankName(transactionHistory.getAccount().getBank().getBankName())

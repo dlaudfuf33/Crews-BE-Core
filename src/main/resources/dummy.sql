@@ -78,22 +78,22 @@ VALUES ('001', '한국은행'),
        ('292', '엘아이지투자증권');
 
 -- Customer 데이터 삽입
-INSERT INTO bank_member (email, name, jumin_number, gender, phone, address, birth, identity)
-VALUES ('customer21@example.com', '홍길동', '9001011234237', 'M', '010-1234-5678', '서울시 강남구', '1990-01-01', 'ID001'),
-       ('customer22@example.com', '김영희', '9202022345428', 'F', '010-2345-6789', '서울시 서초구', '1992-02-02', 'ID002'),
-       ('use2r3@example.com', '이철수', '94030134523489', 'M', '010-3456-7890', '서울시 마포구', '1994-03-01', 'ID003'),
-       ('us2er4@example.com', '박미영', '92010144567259', 'F', '010-4567-8901', '서울시 서초구', '1992-01-01', 'ID004'),
-       ('us2r5@example.com', '정우성', '88020156789112', 'M', '010-5678-9012', '서울시 용산구', '1988-02-01', 'ID005'),
-       ('testuser6@example.com', '김철민', '8501011234567', 'M', '010-6666-1111', '서울시 강서구', '1985-01-01', 'ID006'),
-       ('testuser7@example.com', '박지은', '9305052345678', 'F', '010-7777-2222', '서울시 동작구', '1993-05-05', 'ID007'),
-       ('testuser8@example.com', '이동수', '9103033456789', 'M', '010-8888-3333', '서울시 영등포구', '1991-03-03', 'ID008'),
-       ('testuser9@example.com', '최민경', '9607074567890', 'F', '010-9999-4444', '서울시 성동구', '1996-07-07', 'ID009'),
-       ('testuser10@example.com', '정하늘', '8709095678901', 'M', '010-1010-5555', '서울시 강북구', '1987-09-09', 'ID010'),
-       ('testuser11@example.com', '윤도영', '9202026789123', 'F', '010-2020-6666', '서울시 관악구', '1992-02-02', 'ID011'),
-       ('testuser12@example.com', '강수지', '9508087890123', 'F', '010-3030-7777', '서울시 노원구', '1995-08-08', 'ID012'),
-       ('testuser13@example.com', '한기훈', '8901018901234', 'M', '010-4040-8888', '서울시 도봉구', '1989-01-01', 'ID013'),
-       ('testuser14@example.com', '서진우', '9005059012345', 'M', '010-5050-9999', '서울시 송파구', '1990-05-05', 'ID014'),
-       ('testuser15@example.com', '유소정', '9707070123456', 'F', '010-6060-0000', '서울시 중랑구', '1997-07-07', 'ID015');
+INSERT INTO bank_member (email, name, phone_num, ci)
+VALUES ('customer21@example.com', '홍길동', '010-1234-5678', 'ID001'),
+       ('customer22@example.com', '김영희', '010-2345-6789', 'ID002'),
+       ('use2r3@example.com', '이철수', '010-3456-7890', 'ID003'),
+       ('us2er4@example.com', '박미영', '010-4567-8901', 'ID004'),
+       ('us2r5@example.com', '정우성', '010-5678-9012', 'ID005'),
+       ('testuser6@example.com', '김철민', '010-6666-1111', 'ID006'),
+       ('testuser7@example.com', '박지은', '010-7777-2222', 'ID007'),
+       ('testuser8@example.com', '이동수', '010-8888-3333', 'ID008'),
+       ('testuser9@example.com', '최민경', '010-9999-4444','ID009'),
+       ('testuser10@example.com', '정하늘', '010-1010-5555', 'ID010'),
+       ('testuser11@example.com', '윤도영', '010-2020-6666', 'ID011'),
+       ('testuser12@example.com', '강수지', '010-3030-7777', 'ID012'),
+       ('testuser13@example.com', '한기훈', '010-4040-8888', 'ID013'),
+       ('testuser14@example.com', '서진우', '010-5050-9999', 'ID014'),
+       ('testuser15@example.com', '유소정', '010-6060-0000', 'ID015');
 -- Account 데이터 삽입
 INSERT INTO core_account (id, customer_id, bank_code_id, product_id, account_number, balance, currency, account_type,
                           fintech_use_num, is_deleted)
@@ -135,10 +135,3 @@ VALUES (1, 1, 1, 'DEPOSIT', 500000, 1500000, '김치도가', '110-1234-5678', '0
 INSERT INTO transaction (id, status)
 VALUES (1, 'SUCCESS'),
        (2, 'SUCCESS');
-
-INSERT INTO core_history( core_account_id,tran_type, tran_amt, after_balance_amt, withdraw_name,withdraw_account_num, description) values
-( 1, 'WITHDRAW', 30000, 20000, 'test', '120-2345-6789', 'test')
-( 1, 'WITHDRAW', 30000, 20000, '편의점이당', '120-2345-6789', '편의점 결제')
-( 1, 'DEPOSIT', 190000, 100000, '편의점 캔디', '120-2345-6789', '편의점 결제');
-( 1, 'WITHDRAW', 100000, 1900000, '편의점', '120-2345-6789', '편의점 결제')
-

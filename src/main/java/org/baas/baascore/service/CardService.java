@@ -37,7 +37,7 @@ public class CardService {
 
     @Transactional
     public CardIssuedResponse cardIssued(CommonRequest commonRequest) {
-        Customer customer = customerRepository.findByIdentityCode(commonRequest.getIdentityCode()).orElseThrow(
+        Customer customer = customerRepository.findByCi(commonRequest.getCi()).orElseThrow(
                 IdentityCodeNotFoundException::new
         );
         Account account = accountRepository.findByFintechUseNum(commonRequest.getFintechUseNum()).orElseThrow(
@@ -74,7 +74,7 @@ public class CardService {
                 CardNumberNotFoundException::new
         );
 
-        Customer customer = customerRepository.findByIdentityCode(cardReissuedRequest.getIdentityCode()).orElseThrow(
+        Customer customer = customerRepository.findByCi(cardReissuedRequest.getCi()).orElseThrow(
                 IdentityCodeNotFoundException::new
         );
 

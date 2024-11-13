@@ -24,12 +24,8 @@ CREATE TABLE bank_member
     id           BIGINT PRIMARY KEY AUTO_INCREMENT,
     email        VARCHAR(255) NOT NULL UNIQUE,
     name         VARCHAR(255) NOT NULL,
-    jumin_number VARCHAR(255) NOT NULL UNIQUE,
-    gender       CHAR(1)      NOT NULL,
-    phone        VARCHAR(15)  NOT NULL UNIQUE,
-    address      VARCHAR(255) NOT NULL,
-    birth        DATE         NOT NULL,
-    identity     VARCHAR(50),
+    phone_num        VARCHAR(15)  NOT NULL UNIQUE,
+    ci     VARCHAR(100),
     created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
