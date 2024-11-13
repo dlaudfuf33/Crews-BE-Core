@@ -33,16 +33,22 @@ public class AccountService {
     private final CardRepository cardRepository;
     private final ProductRepository productRepository;
 
-    public AccountIssuedResponse accountIssued(AccountIssuedRequest accountIssuedRequest){
-        Customer customer = customerRepository.findByIdentityCode(accountIssuedRequest.getIdentityCode()).orElseThrow(
-                IdentityCodeNotFoundException::new
-        );
+    public AccountIssuedResponse accountIssued(AccountIssuedRequest accountIssuedRequest) {
+        Customer customer = customerRepository
+                .findByIdentityCode(accountIssuedRequest.getIdentityCode())
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
+                );
         String fintechUseNum = UUID.randomUUID().toString();
-        Bank bank = bankRepository.findByBankCode("020").orElseThrow( //"020 - 우리은행 은행코드
-                BankNotFoundException::new);
-        Product product = productRepository.findById(2L).orElseThrow(
-                IllegalStateException::new
-        );
+        Bank bank = bankRepository.findByBankCode("020")//"020 - 우리은행 은행코드
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.BANK_NOT_FOUND)
+
+                );
+        Product product = productRepository.findById(2L)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.PRODUCT_NOT_FOUND)
+                );
         String accountNumber = getAccountNumber();
         BigDecimal balance = BigDecimal.ZERO;
         CurrencyType currencyType = CurrencyType.KRW;
@@ -56,63 +62,81 @@ public class AccountService {
     }
 
     public AccountDeleteResponse accountDelete(AccountDeleteRequest accountDeleteRequest) {
-        Customer customer = customerRepository.findByIdentityCode(accountDeleteRequest.getIdentityCode()).orElseThrow(
-                IdentityCodeNotFoundException::new
-        );
-        Account account = accountRepository.findByFintechUseNum(accountDeleteRequest.getFintechUseNum()).orElseThrow(
-                FintechNumberNotFoundException::new
-        );
+        Customer customer = customerRepository
+                .findByIdentityCode(accountDeleteRequest.getIdentityCode())
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
+                );
+        Account account = accountRepository
+                .findByFintechUseNum(accountDeleteRequest.getFintechUseNum())
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.FINTECHCODE_NOT_FOUND)
+
+                );
         if (!customer.equals(account.getCustomer()))
-            throw new MemberNotEqualsException();
+            throw new CustomException(ErrorCode.MEMBER_NOT_EQUALS);
         else if (!account.getBank().getBankCode().equals("020"))
             throw new IllegalStateException("우리은행의 계좌가 아닙니다.");
         else if (account.getBalance().compareTo(BigDecimal.ZERO) != 0)
-            throw new BalanceNotZeroException();
+            throw new CustomException(ErrorCode.BALANCE_NOT_ZERO);
         account.accountDeleted(true);
         return AccountDeleteResponse.from(account.isDeleted());
     }
 
     public AccountInfoResponse accountInfo(AccountInfoRequest accountInfoRequest) {
-        Customer customer = customerRepository.findByIdentityCode(accountInfoRequest.getIdentityCode()).orElseThrow(
-                IdentityCodeNotFoundException::new
-        );
-        List<Account> accountList = accountRepository.findByCustomerAndIsDeletedAndAccountType(customer, false, AccountType.PERSONAL);
-        List<Card> cardList = cardRepository.findByCustomerAndCardStatusTrueAndExpiredAtGreaterThan(customer, LocalDateTime.now());
+        Customer customer = customerRepository
+                .findByIdentityCode(accountInfoRequest.getIdentityCode())
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
+                );
+        List<Account> accountList
+                = accountRepository.findByCustomerAndIsDeletedAndAccountType(customer, false, AccountType.PERSONAL);
+        List<Card> cardList
+                = cardRepository.findByCustomerAndCardStatusTrueAndExpiredAtGreaterThan(customer, LocalDateTime.now());
 
 
-        List<AccountIssuedResponse> changedAccountList = accountList.stream().map(AccountIssuedResponse::from).toList();
-        List<CardListDTO> chagedCardList = cardList.stream().map(CardListDTO::from).toList();
+        List<AccountIssuedResponse> changedAccountList
+                = accountList.stream().map(AccountIssuedResponse::from).toList();
+        List<CardListDTO> chagedCardList
+                = cardList.stream().map(CardListDTO::from).toList();
         return AccountInfoResponse.builder().accountList(changedAccountList).cardList(chagedCardList).build();
 
     }
 
     public AccountOneResponse accountInfoOne(CommonRequest commonRequest) {
-        Customer customer = customerRepository.findByIdentityCode(commonRequest.getIdentityCode()).orElseThrow(
-                IdentityCodeNotFoundException::new
-        );
-        Account account = accountRepository.findByFintechUseNum(commonRequest.getFintechUseNum()).orElseThrow(
-                FintechNumberNotFoundException::new
-        );
+        Customer customer = customerRepository
+                .findByIdentityCode(commonRequest.getIdentityCode())
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
+                );
+        Account account = accountRepository
+                .findByFintechUseNum(commonRequest.getFintechUseNum())
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.FINTECHCODE_NOT_FOUND)
+                );
         if (!customer.equals(account.getCustomer()))
-            throw new MemberNotEqualsException();
-        log.info("{}({})의 account({})를 조회했습니다.",customer.getName(),customer.getIdentityCode(),account.getAccountNumber());
+            throw new CustomException(ErrorCode.MEMBER_NOT_EQUALS);
+        log.info("{}({})의 account({})를 조회했습니다.",
+                customer.getName(), customer.getIdentityCode(), account.getAccountNumber());
         return AccountOneResponse.from(account);
     }
 
     public FintechNumResponse fintechNum(FintechNumRequest fintechNumRequest) {
-        Customer customer = customerRepository.findByIdentityCode(fintechNumRequest.getIdentityCode()).orElseThrow(
-                IdentityCodeNotFoundException::new
-        );
+        Customer customer = customerRepository
+                .findByIdentityCode(fintechNumRequest.getIdentityCode())
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.FINTECHCODE_NOT_FOUND)
+                );
 
         String accountNumber = fintechNumRequest.getAccountNumber();
-        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(
-                AccountNumberNotFoundException::new
-        );
+        Account account = accountRepository
+                .findByAccountNumber(accountNumber)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.ACCOUNTNUMBER_NOT_FOUND)
+                );
         if (!customer.equals(account.getCustomer()))
-            throw new MemberNotEqualsException();
-
+            throw new CustomException(ErrorCode.MEMBER_NOT_EQUALS);
         return FintechNumResponse.from(account);
-
     }
 
     @Retryable
@@ -122,7 +146,7 @@ public class AccountService {
         if (optionalAccount.isEmpty()) {
             return accountNumber;
         }
-        throw new AccountDuplicatedException();
+        throw new CustomException(ErrorCode.ACCOUNTNUMBER_DUPLICATED);
     }
 
     public static String createAccountNumber() {
@@ -133,20 +157,20 @@ public class AccountService {
         }
         return ONLY_BANK_NUM + randomNum.toString(); // 은행 코드와 랜덤 번호 조합하여 반환
     }
-    // 고객 ID로 모든 계좌 조회
 
+    // 고객 ID로 모든 계좌 조회
     public List<Account> findAccountsByCustomerId(Long customerId) {
         // 고객 ID로 계좌 조회 후 반환
         return accountRepository.findByCustomerId(customerId);
     }
 
     public List<AccountInitResponseDto> findAccountInit(MemberInitRequestDto memberInitRequestDto) {
-        log.info("{}   {}  {}",memberInitRequestDto,memberInitRequestDto.getName(),memberInitRequestDto.getPhoneNumber());
+        log.info("{}   {}  {}", memberInitRequestDto, memberInitRequestDto.getName(), memberInitRequestDto.getPhoneNumber());
         // Optional을 사용해 고객을 찾고 예외를 던지도록 간결화
         Customer customer = customerRepository.findByNameAndPhoneNum(
                 memberInitRequestDto.getName(),
                 memberInitRequestDto.getPhoneNumber()
-        ).orElseThrow(() -> new IllegalStateException("해당 이름과 전화번호의 고객을 찾을 수 없습니다."));
+        ).orElseThrow(() -> new CustomException(ErrorCode.CUSTOMER_NOT_FOUND));
 
         // 고객 ID로 계좌 정보 찾기
         return accountRepository.findByCustomerId(customer.getId()).stream()

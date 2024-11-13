@@ -4,7 +4,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baas.baascore.dto.*;
-import org.baas.baascore.excaption.BankNotFoundException;
+import org.baas.baascore.excaption.CustomException;
+import org.baas.baascore.excaption.ErrorCode;
 import org.baas.baascore.model.Bank;
 import org.baas.baascore.model.Subscribe;
 import org.baas.baascore.repository.AccountRepository;
@@ -42,21 +43,14 @@ public class SubscribeService {
         if (foundBank.isPresent()) {
             bank = foundBank.get();
         } else {
-            throw new BankNotFoundException();
+            throw new CustomException(ErrorCode.BANK_NOT_FOUND);
         }
 
         // 결제
-        String companyFinnum = accountRepository.findByAccountNumber(issueApikeyRequestDto.getAccountNumber())
-                .orElseThrow(() -> new IllegalArgumentException("잘못된 계좌 번호 입니다.."))
-                .getFintechUseNum();
+        String companyFinnum = accountRepository.findByAccountNumber(issueApikeyRequestDto.getAccountNumber()).orElseThrow(() -> new CustomException(ErrorCode.WRONG_ACCOUNTNUMBER)).getFintechUseNum();
         coreTransactionService.transfer(new TransferRequestDto(companyFinnum, "777-7777-7777", new BigDecimal(1_000_000), "구독비 결제"));
         // 엔티티 생성
-        Subscribe subscribe = Subscribe.createSubscription(
-                bank,
-                "우리 BaaS API 구독",
-                issueApikeyRequestDto.getBusinessNum(),
-                issueApikeyRequestDto.getCompanyName()
-        );
+        Subscribe subscribe = Subscribe.createSubscription(bank, "우리 BaaS API 구독", issueApikeyRequestDto.getBusinessNum(), issueApikeyRequestDto.getCompanyName());
 
         // 구독 정보 저장
         subscribeRepository.save(subscribe);
@@ -72,39 +66,30 @@ public class SubscribeService {
                 .findSubscribesByCompanyNameAndBusinessNum(
                         subcriptionsRequestDto.getCompanyName(),
                         subcriptionsRequestDto.getBusinessNum())
-                .orElseThrow(() -> new NoSuchElementException("해당 정보로 구독중인 서비스 없음."));
-
-        return subscribes.stream()
-                .map(SubcriptionsResponseDto::of)
-                .toList();
+                .orElseThrow(() -> new CustomException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
+        return subscribes.stream().map(SubcriptionsResponseDto::of).toList();
 
     }
 
     @Transactional
-    public int escapeFromSubscriptions(String accessKey) {
+    public void escapeFromSubscriptions(String accessKey) {
         try {
-            Subscribe target = subscribeRepository
-                    .findByAccessKey(accessKey)
-                    .orElseThrow(NoSuchElementException::new);
-
+            Subscribe target = subscribeRepository.findByAccessKey(accessKey).orElseThrow(() -> new CustomException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
             if (!target.isSubscribed()) {
                 log.info("{} 는 이미 취소된 구독입니다.", target.getId());
-                return 2; // 이미 취소된 상태
+                throw new CustomException(ErrorCode.ALREADY_CANCELED);
             }
-
             target.setSubscribed(false); // 구독 취소
-            return 1; // 성공적으로 취소됨
-
+            log.info("구독이 성공적으로 취소되었습니다. Access Key: {}", accessKey);
         } catch (Exception e) {
-            log.error("구독 취소 실패 - Access Key: {}. 에러 메시지: {}", accessKey, e.getMessage(), e);
-            return 0; // 실패
+            // 그 외 일반적인 예외 처리
+            log.error("구독 취소 중 알 수 없는 오류 발생 - Access Key: {}. 에러 메시지: {}", accessKey, e.getMessage(), e);
+            throw new CustomException(ErrorCode.UNSUBSCRIBE_FAILED);
         }
-
     }
 
     public void maskExpiredApiKeys() {
         List<Subscribe> expiredSubscriptions = subscribeRepository.findAllByExpireDateBefore(LocalDateTime.now());
-
         for (Subscribe subscribe : expiredSubscriptions) {
             subscribe.setAccessKey(maskApiKey(subscribe.getAccessKey()));
         }

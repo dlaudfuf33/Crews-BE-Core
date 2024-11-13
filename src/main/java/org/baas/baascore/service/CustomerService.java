@@ -2,6 +2,8 @@ package org.baas.baascore.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.baas.baascore.excaption.CustomException;
+import org.baas.baascore.excaption.ErrorCode;
 import org.baas.baascore.model.Customer;
 import org.baas.baascore.repository.CustomerRepository;
 import org.baas.baascore.util.ResidentNumberEncryptor;
@@ -26,7 +28,7 @@ public class CustomerService {
         // 이름과 전화번호로 고객을 조회
         Optional<Customer> customerOptional = customerRepository.findByNameAndPhoneNum(name, phoneNum);
         if (customerOptional.isEmpty()) {
-            throw new IllegalArgumentException("해당 이름과 전화번호를 가진 고객을 찾을 수 없습니다.");
+            throw new CustomException(ErrorCode.CUSTOMER_NOT_FOUND);
         }
         return customerOptional.get().getId();
     }

@@ -30,16 +30,19 @@ public class CoreTransactionService {
     private final TransactionHistoryRepository transactionHistoryRepository;
 
     public TransactionDetailResponse transactionDetail(TransactionDetailRequest transactionDetailRequest) {
-        Account account = accountRepository.findByFintechUseNum(transactionDetailRequest.getFintechUseNum()).orElseThrow(
-                AccountNumberNotFoundException::new
-        );
-        Customer customer = customerRepository.findByIdentityCode(transactionDetailRequest.getIdentityCode()).orElseThrow(
-                IdentityCodeNotFoundException::new
-        );
+        Account account
+                = accountRepository.findByFintechUseNum(transactionDetailRequest.getFintechUseNum())
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.ACCOUNTNUMBER_NOT_FOUND)
+                );
+        Customer customer = customerRepository.findByIdentityCode(transactionDetailRequest.getIdentityCode())
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
+                );
         if (!customer.equals(account.getCustomer()))
-            throw new MemberNotEqualsException();
+            throw new CustomException(ErrorCode.MEMBER_NOT_EQUALS);
         Integer selectPeriod = transactionDetailRequest.getSelectPeriod();
-        if(!(selectPeriod == 1 || selectPeriod == 3 || selectPeriod == 6 || selectPeriod == 9))
+        if (!(selectPeriod == 1 || selectPeriod == 3 || selectPeriod == 6 || selectPeriod == 9))
             throw new IllegalStateException("올바른 기간을 설정해 주세요.");
         LocalDateTime filteredDate = LocalDateTime.now().minusMonths(selectPeriod);
         String transactionType = transactionDetailRequest.getTransactionType();
@@ -55,21 +58,19 @@ public class CoreTransactionService {
         final String DESC = "DESC";
         final String DEPOSIT = "DEPOSIT";
         final String WITHDRAW = "WITHDRAW";
-        if(transactionType.equalsIgnoreCase(ALL)) {
+        if (transactionType.equalsIgnoreCase(ALL)) {
             list = transactionHistoryRepository.findTransactionHistoryAllTranType(account, filteredDate);
-            if(order.equalsIgnoreCase(DESC))
+            if (order.equalsIgnoreCase(DESC))
                 list.sort((o1, o2) ->
                         o2.getCreatedAt().compareTo(o1.getCreatedAt()));
 
-        }
-        else if (transactionType.equalsIgnoreCase(DEPOSIT) || transactionType.equalsIgnoreCase(WITHDRAW)){
+        } else if (transactionType.equalsIgnoreCase(DEPOSIT) || transactionType.equalsIgnoreCase(WITHDRAW)) {
             list = transactionHistoryRepository.findTransactionHistorySelectedTranType(account, filteredDate, TranType.valueOf(transactionType.toUpperCase()));
-            if(order.equalsIgnoreCase(DESC))
+            if (order.equalsIgnoreCase(DESC))
                 list.sort((o1, o2) ->
                         o2.getCreatedAt().compareTo(o1.getCreatedAt()));
-        }
-        else {
-            throw new IllegalStateException("잘못된 TransactionType을 입력하셨습니다.");
+        } else {
+            throw new CustomException(ErrorCode.WRONG_TRANSACTION_TYPE);
         }
         return list;
     }
@@ -87,9 +88,9 @@ public class CoreTransactionService {
 
         // 출금 계좌와 입금 계좌 찾기 (각각 한 번씩만 조회)
         Account fromAccount = accountRepository.findByFintechUseNumForUpdate(transferRequestDto.getFinUseNum())
-                .orElseThrow(WithdrawNotFoundException::new);
+                .orElseThrow(() -> new CustomException(ErrorCode.WITHDRAW_ACCOUNT_NOT_FOUND));
         Account toAccount = accountRepository.findByAccountNumberForUpdate(transferRequestDto.getRecvAccountNum())
-                .orElseThrow(DepositNotFoundException::new);
+                .orElseThrow(() -> new CustomException(ErrorCode.DEPOSIT_ACCOUNT_NOT_FOUND));
 
         // 거래 내역 생성 (송금 및 수신 내역 동시에 생성)
         TransactionHistory[] histories = issueHistory(transferRequestDto, fromAccount, toAccount);
@@ -116,18 +117,20 @@ public class CoreTransactionService {
                     .amount(withdrawHistory.getTranAmt())
                     .afterAmt(withdrawHistory.getAccount().getBalance())
                     .build();// 응답 생성
-        } catch (InsufficientBalanceException e) {
-            // 잔액 부족 예외는 그대로 전달
-            markTransactionFail(withdrawHistory, depositHistory);
-            log.error("잔액 부족으로 이체 실패 - 출금 계좌: {}, 금액: {}",
-                    transferRequestDto.getFinUseNum(), transferRequestDto.getAmt());
-            throw e;
+        } catch (CustomException e) {
+            if (e.getErrorCode() == ErrorCode.INSUFFICIENT_BALANCE) {
+                // 잔액 부족 예외 처리
+                markTransactionFail(withdrawHistory, depositHistory);
+                log.error("잔액 부족으로 이체 실패 - 출금 계좌: {}, 금액: {}",
+                        transferRequestDto.getFinUseNum(), transferRequestDto.getAmt());
+            }
+            throw e;  // 예외 재발생
         } catch (Exception e) {
             // 기타 예외에 대해 실패 처리
             markTransactionFail(withdrawHistory, depositHistory);
             log.error("이체 거래 처리 중 오류 발생 - 출금 계좌: {}, 입금 계좌: {}, 금액: {}",
                     transferRequestDto.getFinUseNum(), transferRequestDto.getRecvAccountNum(), transferRequestDto.getAmt(), e);
-            throw new TransferFailedException(e);
+            throw new CustomException(ErrorCode.TRANSFER_FAILED);
         }
     }
 
@@ -215,7 +218,7 @@ public class CoreTransactionService {
                         .findByCoreTransactionIdAndAccount_FintechUseNum(
                                 transferStatesRequestDto.getHistoryId(),
                                 transferStatesRequestDto.getFinUseNum())
-                        .orElseThrow(TransactionNotFoundException::new)
+                        .orElseThrow(()->new CustomException(ErrorCode.TRANSACTION_NOT_FOUND))
         );
     }
 }

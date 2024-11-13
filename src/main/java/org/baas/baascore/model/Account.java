@@ -5,7 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.baas.baascore.excaption.InsufficientBalanceException;
+import org.baas.baascore.excaption.CustomException;
+import org.baas.baascore.excaption.ErrorCode;
 import org.baas.baascore.util.AccountType;
 import org.baas.baascore.util.BaseTimeEntity;
 import org.baas.baascore.util.CurrencyType;
@@ -79,7 +80,7 @@ public class Account extends BaseTimeEntity {
 
     public void subtractFromBalance(BigDecimal amt) {
         if (this.balance.compareTo(amt) < 0) {
-            throw new InsufficientBalanceException(); // 잔액 부족 예외
+            throw new CustomException(ErrorCode.INSUFFICIENT_BALANCE); // 잔액 부족 예외
         }
         this.balance=this.balance.subtract(amt);
     }
