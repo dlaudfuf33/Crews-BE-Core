@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -34,17 +35,19 @@ public class CardService {
 
     @Transactional
     public CardIssuedResponse cardIssued(CommonRequest commonRequest) {
-        Customer customer = customerRepository.findByIdentityCode(commonRequest.getIdentityCode())
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
-                );
-        Account account = accountRepository.findByFintechUseNum(commonRequest.getFintechUseNum())
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.FINTECHCODE_NOT_FOUND)
-                );
+        Customer customer = customerRepository.findByCi(commonRequest.getCi()).orElseThrow(
+                () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
+        );
+        Account account = accountRepository.findByFintechUseNum(commonRequest.getFintechUseNum()).orElseThrow(
+                () -> new CustomException(ErrorCode.FINTECHCODE_NOT_FOUND)
+        );
         if (!account.getBank().getBankCode().equals(BANK_CODE)) {
             throw new IllegalStateException("우리은행의 계좌가 아닙니다.");
         }
+        List<Card> cardList = cardRepository.findByCustomerAndCardStatusTrueAndExpiredAtGreaterThan(customer, LocalDateTime.now());
+        if (!cardList.isEmpty())
+            throw new CustomException(ErrorCode.CARDNUMBER_DUPLICATED);
+
         Card card = createCard(account, customer);
         Card savedCard = cardRepository.save(card);
         return CardIssuedResponse.from(savedCard);
@@ -70,10 +73,9 @@ public class CardService {
                         () -> new CustomException(ErrorCode.CARDNUMBER_NOT_FOUND)
                 );
 
-        Customer customer = customerRepository.findByIdentityCode(cardReissuedRequest.getIdentityCode())
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
-                );
+        Customer customer = customerRepository.findByCi(cardReissuedRequest.getCi()).orElseThrow(
+                () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
+        );
 
         if (!card.getCustomer().equals(customer)) {
             throw new IllegalStateException("카드소유주와 서비스 요청자기 다릅니다.");
@@ -98,7 +100,7 @@ public class CardService {
 
     @Retryable
     private String getCardNumber() {
-        String cardNumber = createNumber(8, CARD_PREFIX);
+        String cardNumber = createNumber(9, CARD_PREFIX);
         Optional<Card> optionalCard = cardRepository.findByCardNumber(cardNumber);
 
         if (optionalCard.isEmpty()) {

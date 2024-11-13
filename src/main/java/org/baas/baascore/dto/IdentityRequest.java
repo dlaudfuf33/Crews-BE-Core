@@ -9,5 +9,5 @@ import lombok.Getter;
 public class IdentityRequest {
 
     @NotBlank
-    private String identityCode;
+    private String ci;
 }

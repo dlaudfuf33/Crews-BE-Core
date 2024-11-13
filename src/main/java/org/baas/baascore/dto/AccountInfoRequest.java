@@ -7,5 +7,5 @@ import lombok.Getter;
 public class AccountInfoRequest {
 
     @NotBlank
-    private String identityCode;
+    private String ci;
 }

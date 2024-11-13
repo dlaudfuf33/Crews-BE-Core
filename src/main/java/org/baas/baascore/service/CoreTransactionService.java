@@ -30,15 +30,12 @@ public class CoreTransactionService {
     private final TransactionHistoryRepository transactionHistoryRepository;
 
     public TransactionDetailResponse transactionDetail(TransactionDetailRequest transactionDetailRequest) {
-        Account account
-                = accountRepository.findByFintechUseNum(transactionDetailRequest.getFintechUseNum())
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.ACCOUNTNUMBER_NOT_FOUND)
-                );
-        Customer customer = customerRepository.findByIdentityCode(transactionDetailRequest.getIdentityCode())
-                .orElseThrow(
-                        () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
-                );
+        Account account = accountRepository.findByFintechUseNum(transactionDetailRequest.getFintechUseNum()).orElseThrow(
+                () -> new CustomException(ErrorCode.ACCOUNTNUMBER_NOT_FOUND)
+        );
+        Customer customer = customerRepository.findByCi(transactionDetailRequest.getCi()).orElseThrow(
+                () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
+        );
         if (!customer.equals(account.getCustomer()))
             throw new CustomException(ErrorCode.MEMBER_NOT_EQUALS);
         Integer selectPeriod = transactionDetailRequest.getSelectPeriod();
@@ -58,15 +55,16 @@ public class CoreTransactionService {
         final String DESC = "DESC";
         final String DEPOSIT = "DEPOSIT";
         final String WITHDRAW = "WITHDRAW";
-        if (transactionType.equalsIgnoreCase(ALL)) {
+        if(transactionType.equalsIgnoreCase(ALL)) {
             list = transactionHistoryRepository.findTransactionHistoryAllTranType(account, filteredDate);
-            if (order.equalsIgnoreCase(DESC))
+            if(order.equalsIgnoreCase(DESC))
                 list.sort((o1, o2) ->
                         o2.getCreatedAt().compareTo(o1.getCreatedAt()));
 
-        } else if (transactionType.equalsIgnoreCase(DEPOSIT) || transactionType.equalsIgnoreCase(WITHDRAW)) {
+        }
+        else if (transactionType.equalsIgnoreCase(DEPOSIT) || transactionType.equalsIgnoreCase(WITHDRAW)){
             list = transactionHistoryRepository.findTransactionHistorySelectedTranType(account, filteredDate, TranType.valueOf(transactionType.toUpperCase()));
-            if (order.equalsIgnoreCase(DESC))
+            if(order.equalsIgnoreCase(DESC))
                 list.sort((o1, o2) ->
                         o2.getCreatedAt().compareTo(o1.getCreatedAt()));
         } else {

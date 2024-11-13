@@ -8,7 +8,7 @@ import lombok.Getter;
 public class TransactionDetailRequest {
 
     @NotBlank
-    private String identityCode;
+    private String ci;
 
     @NotBlank
     private String fintechUseNum;

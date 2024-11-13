@@ -7,7 +7,7 @@ import lombok.Getter;
 public class CardReissuedRequest {
 
     @NotBlank
-    private String identityCode;
+    private String ci;
 
     @NotBlank
     private String fintechUseNum;
