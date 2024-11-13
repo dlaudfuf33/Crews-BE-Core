@@ -79,48 +79,83 @@ VALUES (1, '001', '통합은행'),
 
 
 -- Customer 데이터 삽입
-<<<<<<< HEAD
 INSERT INTO bank_member (email, name, phone_num, ci)
-VALUES ('customer21@example.com', '홍길동', '010-1234-5678', 'ID001'),
-       ('customer22@example.com', '김영희', '010-2345-6789', 'ID002'),
-       ('use2r3@example.com', '이철수', '010-3456-7890', 'ID003'),
-       ('us2er4@example.com', '박미영', '010-4567-8901', 'ID004'),
-       ('us2r5@example.com', '정우성', '010-5678-9012', 'ID005'),
-       ('testuser6@example.com', '김철민', '010-6666-1111', 'ID006'),
-       ('testuser7@example.com', '박지은', '010-7777-2222', 'ID007'),
-       ('testuser8@example.com', '이동수', '010-8888-3333', 'ID008'),
-       ('testuser9@example.com', '최민경', '010-9999-4444','ID009'),
-       ('testuser10@example.com', '정하늘', '010-1010-5555', 'ID010'),
-       ('testuser11@example.com', '윤도영', '010-2020-6666', 'ID011'),
-       ('testuser12@example.com', '강수지', '010-3030-7777', 'ID012'),
-       ('testuser13@example.com', '한기훈', '010-4040-8888', 'ID013'),
-       ('testuser14@example.com', '서진우', '010-5050-9999', 'ID014'),
-       ('testuser15@example.com', '유소정', '010-6060-0000', 'ID015');
--- Account 데이터 삽입
-INSERT INTO core_account (id, customer_id, bank_code_id, product_id, account_number, balance, currency, account_type,
-                          fintech_use_num, is_deleted)
-VALUES (1, 1, 1, 1, '110-1234-5678', 1000000, 'KRW', 'PERSONAL', 'FNUM001', FALSE),
-       (2, 2, 2, 1, '120-2345-6789', 2000000, 'KRW', 'PERSONAL', 'FNUM002', FALSE),
-       (3, 1, 1, 1, '110-3456-7890', 200000, 'KRW', 'PERSONAL', '0013456789012', FALSE),
-       (4, 2, 2, 2, '220-6789-0123', 1500000, 'KRW', 'PERSONAL', '0026789012345', FALSE),
-       (5, 3, 3, 2, '330-7890-1234', 300000, 'KRW', 'PERSONAL', '0037890123456', FALSE);
-
--- Card 데이터 삽입
-INSERT INTO core_card (id, customer_id, account_id, card_name, card_number, cvc, is_issued, expired_at, card_status)
-VALUES (1, 1, 1, '하나카드', '4862-1234-5678-9012', '123', TRUE, '2025-11-07 00:00:00', TRUE),
-       (2, 2, 2, '국민카드', '4862-2345-6789-0123', '456', TRUE, '2025-11-07 00:00:00', TRUE);
-
--- Product 데이터 삽입
-INSERT INTO bank_product (id, bank_id, name, rate)
-VALUES (1, 1, '카카오 모임통장 상품', 1.5),
-       (2, 2, '우리 일반통장 상품', 1.2);
+VALUES
+       ('customer21@example.com', '홍길동', '010-1234-5678', 'ID001'),
+       ('banks@bank.com', '은행', '010-6060-0000',
+        'O1P2Q3R4S5T6U7V8W9X0Y1Z2A3B4C5D6E7F8G9H0I1J2K3L4M5N6O7P8Q9R0S1T2U3V4W5X6Y7Z8A9'),
+       ('leedoee@fisa3rd.com', '이도이', '010-1214-5618',
+        'E3NQJ5HV1KYU6LVC8XRM4GFDU9W1A4QJ2HOS6F7TJV3BX5YW8Q4Z5R9AL7Q8MSFP'),
+       ('gongyejin@fisa3rd.com', '공예진', '010-2460-8434',
+        'B7XW3OJPU9CM4E5FL1KZX2S9VTGA5N8Q5R6TJ7RZ1HVM0DCK3QF3SYPG6L2MXIUE'),
+       ('kimhyebin@fisa3rd.com', '김혜빈',  '010-3853-9931',
+        'H9GSD1YQ8WVC7A4ZJ8KRY3MT5FB1E6LUI4WZ0X3OPM2T5P8NAQ7JX9UC6L2YFDRN'),
+       ('kangjaeyeon@fisa3rd.com', '강재연', '010-2453-5350',
+        'J7KP2XZR1QYF6W4MU8HRT3NQ9L5B7OCX2Q5J1X9OVF6CY7WL4J6D9RB8W2RTN3UD'),
+       ('kwakjieun@fisa3rd.com', '곽지은','010-6251-9696',
+        'U9HTY6SQ3FXP5K4WJ7NBZ2YL9OVQ8N5RW3ZC1M8DFG7VY4CR6X2JD7PK8Z5DRJQE'),
+       ('kimchangyoung@fisa3rd.com', '김창영', '010-9209-8699',
+        'N3FX6PYD1RWJ9L5TZ4KRM3HT0VQ8J6ZX5B1G7C2PU4YN1WDB2K9F8RLQ3TJM2VSF'),
+       ('yuseunga@fisa3rd.com', '유승아','010-3257-8903',
+        'Y4WJP7HT1LFX2C6VB8QM9NT5GKQ3X8FZ1H2D5R0OJ9KP6YCU3M7L9RBZ4Z8N1QVU'),
+       ('hongchanye@fisa3rd.com', '홍찬의', '010-6157-3613',
+        'B9FTX3JH6NQY5L2VR0MJ8OP7SW2D4CZQ4V6M1G7XK9YU5ECA3N1P8LZQ3K8JW2XE'),
+       ('oseonmin@fisa3rd.com', '오선민', '010-8003-6612',
+        'P5CRL8VY7NZJ3H0KF4WQ9MXD6R8U2SVJ2B1Y5T3J0LXW9JUE8G0F7RPZ1N6DWQTX'),
+       ('jungseokjin@fisa3rd.com', '정석진', '010-9768-4636',
+        'L2NJH8XY9RFT5W4DU1QJ3MKP6CY0V9ZS7G5X2B1OV4PY7LFE3Q6D8RJZ5M3WV1KT'),
+       ('kimseoyeon@fisa3rd.com', '김서연', '010-8494-1863',
+        'M7SU6E1VTRDYVUWNCBJOR5BQHLEHGOSN7DDPO292OP1K3BGYKBGC5RWVPARV23ZO'),
+       ('anchanwoong@fisa3rd.com', '안찬웅', '010-7177-9411',
+        'S9QYU8JF3N0PLX5TK8BV1ZR6D3J5L8WQ4M1P7KCZ2HNR9YVE7T4J2FMB1X6G9WPR'),
+       ('leemyungruyl@fisa3rd.com', '이명렬', '010-6026-2912',
+        'X3VT9YDF6LJP2Z7KC4WR1HT0MQ5O8LBX7N2F4R9EV6UK5MAY8G1W3RYP2N7V6STQ'),
+       ('bangseonggyung@fisa3rd.com', '방성경', '010-2941-9427',
+        'Q8KZR1HY9JLF5W6TX3GM2N0VC7PY4BUD7R3X4L5OK1VJ9EFU8H2N8MZQ6P1Y3TVJ'),
+       ('kimhyunwoo@fisa3rd.com', '김현우', '010-2826-6991',
+        'F7MYK1HQ8JTX2L5WP3VN9M0ZG5QR6NSB0Q4J2PYR8VD6LWCE9N8B5GFT2C4RXZQJ'),
+       ('kimhocheol@fisa3rd.com', '김호철','010-6568-9080',
+        'U4CNY2FJ9WLG8Q3TX7RZ1KV0PH5O6MJZ6D2P5SYQ1NXF4VB3J6R7DLXT5M3F1WVQ'),
+       ('parkjunhyun@fisa3rd.com', '박준현', '010-3034-6670',
+        'R0GZG736SV99B63RHTJD4X2DYMV4B4DL39D50YD1DLK0BAL2OB87NYNLSM1T2XM3'),
+       ('kilga-eun@fisa3rd.com', '길가은', '010-3102-4245',
+        'R9JXP4DY6MFL2N5KT8CZ7G0VW3U5Y1SR1B6Q3R2HP8FX4LN7T0Z3MWV1K9JN7ZFE'),
+       ('gongsoyeon@fisa3rd.com', '공소연', '010-7123-9332',
+        'N6WXJ1RP8FYV5L2DK0QZ9H7TM4JP3SXB2R8Y3MGF1UYN7VL6J5C9LTQ5B3P4SVUJ'),
+       ('kanghyunwoo@fisa3rd.com', '강현우',  '010-2929-2403',
+        'J7CT9FYV4NKL3W5PM2LZX8RT1QS6DYUJ2B1HW7N3OXPR4V9KA0QZ3BX8F5M9T6UE'),
+       ('leehyunah@fisa3rd.com', '이현아', '010-9362-2741',
+        'O8FRW6YV2KPL3Z5MX9JHC0BD1GQ7N4TS5L2UX3J7OQWY4K9F0N1TV5ZD3M8JL6PU'),
+       ('sinwonsub@fisa3rd.com', '신원섭', '010-3727-3763',
+        'Y4VFN8RM1JLW6K9T2CXP3BQ7SZ1Q5H0UG8LD2X5KY9RP3TFM0W7HNZ6G9L4TXSVJ'),
+       ('goojabin@fisa3rd.com', '구자빈', '010-7993-5847',
+        'Q8JWF2NZ5T4L1K6RP9MX0GDB3SL3V7TY4V5PJ0KU7HZ8L3YM6Q1D9WZ4R8NT5XUF'),
+       ('kimyoungseong@fisa3rd.com', '김영성', '010-2564-6171',
+        'M2QVR4JP6YZX8N3WK7LD9HTF5B1J3P4LX0OY2K5WU9ZR7L1PX6NF3BGD0V5W9CXM'),
+       ('leeseonghee@fisa3rd.com', '이성희', '010-6331-9972',
+        'N9XZ1PKY3TF6W4JU2ML5C8RQ8V7Y5DZW4H3LX2BQ9OJ8MT5R7Z6G2NYF0LPV3DJC'),
+       ('ginamseok@fisa3rd.com', '기남석', '010-3473-8732',
+        'K4RBT3MX9F7W6N8Z5LCP2JY1DQ6HVYXR7O9FQ1PL3GZ3Y0J4U5XZ6SV3V2HJ8MTQ'),
+       ('leeguehan@fisa3rd.com', '이규한', '010-7099-9207',
+        'J2QNM3TZ5F7LX4PK6R8G9BD8VY1OWYJL3C5Z1LR9SW6JY4FX8P0TV2DQ3C5NP1RM'),
+       ('jungseongyun@fisa3rd.com', '정성윤',  '010-5500-1506',
+        'Y8TVW6PJ4RNX2L9ZM3LK8BQ5FD7Q4XUH6P2OY5V9MRX7N3ZT1B1DX0KG3F9YW4ZJ'),
+       ('joeyeeun@fisa3rd.com', '조예은', '010-5719-4942',
+        'V5NX1QKZ8RJT4M2LG6CD7FVP3B9HYWQR3Z7J1OK8TF6YP5CZ9L0DX4WY2Q4N7TPR'),
+       ('choiyoonjung@fisa3rd.com', '최윤정',  '010-7398-7706',
+        'R9VX1QZF8MKY6T2PL4CD7GWR3J0HWU5D1Y6J5BF3ZX8QK4LM7P2NV1LZ4N3D9TWP'),
+       ('kangsephil@fisa3rd.com', '강세필',  '010-9844-2006',
+        'K2YFN3WX8TLJ4P7MK0VR9DQ4HX7J6FZN5L1YW8BX3GJZ6D5PY4C9MTK2Q8RP3SJN'),
+       ('limjihyuk@fisa3rd.com', '임지혁',  '010-3254-3064',
+        'B9XW1YMK3TPJ6F8ZN0VR4QD7NY5G3JWP7M2LX5CZ8YKH1TV9G0QJ3PL4F2RV6DJK'),
+       ('kimminji@fisa3rd.com', '김민지', '010-6471-1229',
+        'Q3JKX8YL1FMP5N9VZ6GD2YTP7LW4HRFC4T9J1RVX8K6D2P5G0MQ9HYZ7J2NL3DWJ');
 
 -- Account 데이터 삽입
 INSERT
 INTO core_account (id, customer_id, bank_code_id, product_id, account_number, balance, currency, account_type,
                    fintech_use_num, is_deleted)
-VALUES (1, 2, 1, 1, '777-7777-7777', 1000000,
-        'KRW', 'CORPORATE', '36e1df7d-e5da-42b6-8f18-169e4b05e816', FALSE),
+VALUES (1, 1, 1, 1, '110-1234-5678', 1000000, 'KRW', 'PERSONAL', 'FNUM001', FALSE),
        (2, 5, 2, 1, '120-2345-6789', 2000000,
         'KRW', 'PERSONAL', '9bf53d03-cff5-448a-8c8d-03b36f5c6783',
         FALSE),
@@ -149,16 +184,15 @@ VALUES (1, 2, 1, 1, '777-7777-7777', 1000000,
         50000000, 'KRW', 'CORPORATE',
         '9e9196e7-0469-4424-8c57-076e6f16a284', FALSE);
 
-
 -- Card 데이터 삽입
 INSERT INTO core_card (id, customer_id, account_id, card_name, card_number, cvc, is_issued, expired_at, card_status)
 VALUES (1, 1, 1, '하나카드', '4862-1234-5678-9012', '123', TRUE, '2025-11-07 00:00:00', TRUE),
-       (2, 2, 2, '국민카드',
-        '4862-2345-6789-0123',
-        '456', TRUE,
-        '2025-11-07 00:00:00',
-        TRUE);
+       (2, 2, 2, '국민카드', '4862-2345-6789-0123', '456', TRUE, '2025-11-07 00:00:00', TRUE);
 
+-- Product 데이터 삽입
+INSERT INTO bank_product (id, bank_id, name, rate)
+VALUES (1, 1, '카카오 모임통장 상품', 1.5),
+       (2, 2, '우리 일반통장 상품', 1.2);
 
 -- Subscribe 데이터 삽입
 INSERT INTO subscribe (id, bank_id, product_name, business_num, company_name, expire_date, is_subscribe, fee_amount,
