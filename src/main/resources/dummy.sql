@@ -135,3 +135,10 @@ VALUES (1, 1, 1, 'DEPOSIT', 500000, 1500000, '김치도가', '110-1234-5678', '0
 INSERT INTO transaction (id, status)
 VALUES (1, 'SUCCESS'),
        (2, 'SUCCESS');
+
+INSERT INTO core_history( core_account_id,tran_type, tran_amt, after_balance_amt, withdraw_name,withdraw_account_num, description) values
+( 1, 'WITHDRAW', 30000, 20000, 'test', '120-2345-6789', 'test')
+( 1, 'WITHDRAW', 30000, 20000, '편의점이당', '120-2345-6789', '편의점 결제')
+( 1, 'DEPOSIT', 190000, 100000, '편의점 캔디', '120-2345-6789', '편의점 결제');
+( 1, 'WITHDRAW', 100000, 1900000, '편의점', '120-2345-6789', '편의점 결제')
+

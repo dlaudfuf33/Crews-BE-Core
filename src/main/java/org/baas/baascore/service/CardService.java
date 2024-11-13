@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -45,6 +46,10 @@ public class CardService {
         if(!account.getBank().getBankCode().equals(BANK_CODE)) {
             throw new IllegalStateException("우리은행의 계좌가 아닙니다.");
         }
+        List<Card> cardList = cardRepository.findByCustomerAndCardStatusTrueAndExpiredAtGreaterThan(customer, LocalDateTime.now());
+        if(!cardList.isEmpty())
+            throw new CardDuplicatedException();
+
         Card card = createCard(account, customer);
         Card savedCard = cardRepository.save(card);
         return CardIssuedResponse.from(savedCard);
@@ -95,7 +100,7 @@ public class CardService {
 
     @Retryable
     private String getCardNumber() {
-        String cardNumber = createNumber(8, CARD_PREFIX);
+        String cardNumber = createNumber(9, CARD_PREFIX);
         Optional<Card> optionalCard = cardRepository.findByCardNumber(cardNumber);
 
         if(optionalCard.isEmpty()){
