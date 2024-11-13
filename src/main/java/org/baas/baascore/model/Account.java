@@ -9,7 +9,6 @@ import org.baas.baascore.excaption.InsufficientBalanceException;
 import org.baas.baascore.util.AccountType;
 import org.baas.baascore.util.BaseTimeEntity;
 import org.baas.baascore.util.CurrencyType;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

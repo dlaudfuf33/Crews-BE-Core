@@ -5,10 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.baas.baascore.dto.AccountIssuedRequest;
+import lombok.Setter;
 import org.baas.baascore.util.BaseTimeEntity;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Setter
 @Table(name = "bank_member")
 public class Customer extends BaseTimeEntity {
     // 고객 고유 식별자

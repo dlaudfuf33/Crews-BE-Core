@@ -2,6 +2,7 @@ package org.baas.baascore.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 import org.baas.baascore.excaption.ErrorCode;
 import org.baas.baascore.excaption.HashingAlgorithmNotFoundException;
 import org.baas.baascore.util.BaseTimeEntity;
@@ -18,6 +19,7 @@ import java.util.UUID;
  * 구독 및 API 키를 관리하는 Subscribe 엔티티
  */
 @Getter
+@Setter
 @Entity
 @Table(name = "subscribe")
 public class Subscribe extends BaseTimeEntity {
@@ -94,7 +96,13 @@ public class Subscribe extends BaseTimeEntity {
         // 기타 필드 설정
         subscribe.isSubscribed = true;
 
-        subscribe.expireDate = LocalDateTime.now().plusMonths(12); // 예: 12개월 후 만료
+        subscribe.expireDate = LocalDateTime.now()
+                .plusMonths(12) // 12개월 후
+                .minusDays(1) // 하루 전날로 설정
+                .withHour(23) // 23시
+                .withMinute(59) // 59분
+                .withSecond(0) // 초는 0으로 설정
+                .withNano(0); // 나노초는 0으로 설정
         subscribe.feeAmt = BigDecimal.valueOf(100_000); // 기본 구독료 설정
 
         // 액세스 키와 시크릿 키 생성 및 설정

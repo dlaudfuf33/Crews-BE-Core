@@ -21,6 +21,7 @@ public enum ErrorCode {
     TRANSFER_FAILED("이체 거래 처리 중 오류가 발생했습니다."),
     WITHDRAW_ACCOUNT_NOT_FOUND("출금 계좌를 찾을 수 없습니다."),
     DEPOSIT_ACCOUNT_NOT_FOUND("입금 계좌를 찾을 수 없습니다."),
+    ALREADY_CANCELED("이미 취소된 구독입니다."),
     TRANSACTION_NOT_FOUND("해당 거래내역을 찾을 수 없습니다.");
 
     private final String message;

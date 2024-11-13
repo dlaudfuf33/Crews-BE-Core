@@ -1,17 +1,22 @@
 package org.baas.baascore.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.baas.baascore.dto.SubscribeRequestDto;
-import org.baas.baascore.dto.SubscribeResponseDto;
+import org.baas.baascore.dto.*;
 import org.baas.baascore.excaption.BankNotFoundException;
 import org.baas.baascore.model.Bank;
 import org.baas.baascore.model.Subscribe;
+import org.baas.baascore.repository.AccountRepository;
 import org.baas.baascore.repository.BankRepository;
 import org.baas.baascore.repository.SubscribeRepository;
 import org.baas.baascore.util.SecurityUtils;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -20,15 +25,18 @@ import java.util.Optional;
 public class SubscribeService {
     private final SubscribeRepository subscribeRepository;
     private final BankRepository bankRepository;
+    private final AccountRepository accountRepository;
+    private final CoreTransactionService coreTransactionService;
 
-    public SubscribeResponseDto createSubscription(SubscribeRequestDto subscribeRequestDto) {
+    public IssueApikeyResponsetDto createSubscription(IssueApikeyRequestDto issueApikeyRequestDto) {
 
-        if (SecurityUtils.isValidBusinessNumber(subscribeRequestDto.getBusinessNum())) {
-            log.info("사업자등록번호 : {} 인증 성공", subscribeRequestDto.getBusinessNum());
+        if (SecurityUtils.isValidBusinessNumber(issueApikeyRequestDto.getBusinessNum())) {
+            log.info("사업자등록번호 : {} 인증 성공", issueApikeyRequestDto.getBusinessNum());
         }
 
-        // Bank 엔티티 조회
-        Optional<Bank> foundBank = bankRepository.findById(subscribeRequestDto.getBankId());
+
+        // Bank 엔티티 조회 (통합은행)
+        Optional<Bank> foundBank = bankRepository.findById(1L);
 
         Bank bank;
         if (foundBank.isPresent()) {
@@ -36,12 +44,18 @@ public class SubscribeService {
         } else {
             throw new BankNotFoundException();
         }
+
+        // 결제
+        String companyFinnum = accountRepository.findByAccountNumber(issueApikeyRequestDto.getAccountNumber())
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 계좌 번호 입니다.."))
+                .getFintechUseNum();
+        coreTransactionService.transfer(new TransferRequestDto(companyFinnum, "777-7777-7777", new BigDecimal(1_000_000), "구독비 결제"));
         // 엔티티 생성
         Subscribe subscribe = Subscribe.createSubscription(
                 bank,
-                subscribeRequestDto.getProductName(),
-                subscribeRequestDto.getBusinessNum(),
-                subscribeRequestDto.getCompanyName()
+                "우리 BaaS API 구독",
+                issueApikeyRequestDto.getBusinessNum(),
+                issueApikeyRequestDto.getCompanyName()
         );
 
         // 구독 정보 저장
@@ -49,8 +63,58 @@ public class SubscribeService {
         log.info("{}가(사업자등록번호{}) 구독 시작, api 키 발급 완료", subscribe.getCompanyName(), subscribe.getBusinessNum());
 
         // 클라이언트에게 반환할 DTO 생성
-        return new SubscribeResponseDto(subscribe.getAccessKey(), subscribe.getPlainSecretKey());
+        return new IssueApikeyResponsetDto(subscribe.getAccessKey(), subscribe.getPlainSecretKey());
     }
 
 
+    public List<SubcriptionsResponseDto> getSubscriptions(SubcriptionsRequestDto subcriptionsRequestDto) {
+        List<Subscribe> subscribes = subscribeRepository
+                .findSubscribesByCompanyNameAndBusinessNum(
+                        subcriptionsRequestDto.getCompanyName(),
+                        subcriptionsRequestDto.getBusinessNum())
+                .orElseThrow(() -> new NoSuchElementException("해당 정보로 구독중인 서비스 없음."));
+
+        return subscribes.stream()
+                .map(SubcriptionsResponseDto::of)
+                .toList();
+
+    }
+
+    @Transactional
+    public int escapeFromSubscriptions(String accessKey) {
+        try {
+            Subscribe target = subscribeRepository
+                    .findByAccessKey(accessKey)
+                    .orElseThrow(NoSuchElementException::new);
+
+            if (!target.isSubscribed()) {
+                log.info("{} 는 이미 취소된 구독입니다.", target.getId());
+                return 2; // 이미 취소된 상태
+            }
+
+            target.setSubscribed(false); // 구독 취소
+            return 1; // 성공적으로 취소됨
+
+        } catch (Exception e) {
+            log.error("구독 취소 실패 - Access Key: {}. 에러 메시지: {}", accessKey, e.getMessage(), e);
+            return 0; // 실패
+        }
+
+    }
+
+    public void maskExpiredApiKeys() {
+        List<Subscribe> expiredSubscriptions = subscribeRepository.findAllByExpireDateBefore(LocalDateTime.now());
+
+        for (Subscribe subscribe : expiredSubscriptions) {
+            subscribe.setAccessKey(maskApiKey(subscribe.getAccessKey()));
+        }
+        subscribeRepository.saveAll(expiredSubscriptions);
+    }
+
+    private String maskApiKey(String apiKey) {
+        if (apiKey.length() > 4) {
+            return "****" + apiKey.substring(apiKey.length() - 4);
+        }
+        return "****";
+    }
 }
