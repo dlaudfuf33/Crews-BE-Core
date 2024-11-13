@@ -42,7 +42,7 @@ public class CardService {
                 () -> new CustomException(ErrorCode.FINTECHCODE_NOT_FOUND)
         );
         if (!account.getBank().getBankCode().equals(BANK_CODE)) {
-            throw new IllegalStateException("우리은행의 계좌가 아닙니다.");
+            throw new CustomException(ErrorCode.WRONG_BANK);
         }
         List<Card> cardList = cardRepository.findByCustomerAndCardStatusTrueAndExpiredAtGreaterThan(customer, LocalDateTime.now());
         if (!cardList.isEmpty())
@@ -78,7 +78,7 @@ public class CardService {
         );
 
         if (!card.getCustomer().equals(customer)) {
-            throw new IllegalStateException("카드소유주와 서비스 요청자기 다릅니다.");
+            throw new CustomException(ErrorCode.CARD_OWNER_MISMATCH);
         }
 
         Account account = accountRepository.findByFintechUseNum(cardReissuedRequest.getFintechUseNum())
@@ -87,9 +87,9 @@ public class CardService {
                 );
 
         if (!card.getAccount().equals(account)) {
-            throw new IllegalStateException("카드와 연결되어있는 계좌가 핀테크번호의 계좌와 다릅니다.");
+            throw new CustomException(ErrorCode.ACCOUNT_MISMATCH_WITH_CARD);
         } else if (!card.getAccount().getBank().getBankCode().equals(BANK_CODE)) {
-            throw new IllegalStateException("우리은행의 계좌의 카드가 아닙니다.");
+            throw new CustomException(ErrorCode.CARD_NOT_FROM_WOORI_BANK);
         }
 
         card.changeCardStatus(false);

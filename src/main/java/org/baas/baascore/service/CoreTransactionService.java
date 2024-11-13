@@ -40,7 +40,7 @@ public class CoreTransactionService {
             throw new CustomException(ErrorCode.MEMBER_NOT_EQUALS);
         Integer selectPeriod = transactionDetailRequest.getSelectPeriod();
         if (!(selectPeriod == 1 || selectPeriod == 3 || selectPeriod == 6 || selectPeriod == 9))
-            throw new IllegalStateException("올바른 기간을 설정해 주세요.");
+            throw new CustomException(ErrorCode.WRONG_PERIOD);
         LocalDateTime filteredDate = LocalDateTime.now().minusMonths(selectPeriod);
         String transactionType = transactionDetailRequest.getTransactionType();
         String order = transactionDetailRequest.getOrder();
