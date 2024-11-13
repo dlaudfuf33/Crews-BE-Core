@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Builder
 public class AccountOneResponse {
     private String memberName;
-    private String identityCode;
+    private String ci;
     private AccountType accountType;
     private String bankCode;
     private String bankName;
@@ -27,7 +27,7 @@ public class AccountOneResponse {
     public static AccountOneResponse from(Account account){
         return AccountOneResponse.builder()
                 .memberName(account.getCustomer().getName())
-                .identityCode(account.getCustomer().getIdentityCode())
+                .ci(account.getCustomer().getCi())
                 .accountType(account.getAccountType())
                 .bankCode(account.getBank().getBankCode())
                 .bankName(account.getBank().getBankName())

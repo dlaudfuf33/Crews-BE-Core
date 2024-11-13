@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 public class AccountIssuedResponse {
     private String memberName;
-    private String identityCode;
+    private String ci;
     private AccountType accountType;
     private String bankCode;
     private String bankName;
@@ -26,7 +26,7 @@ public class AccountIssuedResponse {
     public static AccountIssuedResponse from(Account account){
         return AccountIssuedResponse.builder()
                 .memberName(account.getCustomer().getName())
-                .identityCode(account.getCustomer().getIdentityCode())
+                .ci(account.getCustomer().getCi())
                 .accountType(account.getAccountType())
                 .bankCode(account.getBank().getBankCode())
                 .bankName(account.getBank().getBankName())

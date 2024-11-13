@@ -8,7 +8,7 @@ import org.hibernate.validator.constraints.Length;
 public class FintechNumRequest {
 
     @NotBlank
-    private String identityCode;
+    private String ci;
 
     @NotBlank
     @Length(min = 10,max = 14)

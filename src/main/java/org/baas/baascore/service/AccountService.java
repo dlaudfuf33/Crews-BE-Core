@@ -34,7 +34,7 @@ public class AccountService {
     private final ProductRepository productRepository;
 
     public AccountIssuedResponse accountIssued(AccountIssuedRequest accountIssuedRequest){
-        Customer customer = customerRepository.findByIdentityCode(accountIssuedRequest.getIdentityCode()).orElseThrow(
+        Customer customer = customerRepository.findByCi(accountIssuedRequest.getCi()).orElseThrow(
                 IdentityCodeNotFoundException::new
         );
         String fintechUseNum = UUID.randomUUID().toString();
@@ -50,13 +50,13 @@ public class AccountService {
         Account account = Account.builder().customer(customer).bank(bank).product(product).accountNumber(accountNumber).balance(balance)
                 .currencyType(currencyType).accountType(accountType).fintechUseNum(fintechUseNum).build();
         Account savedAccount = accountRepository.save(account);
-        log.info("생성된 계좌번호 : {}, 이름 {}, 식별자번호 {}", accountNumber, customer.getName(), customer.getIdentityCode());
+        log.info("생성된 계좌번호 : {}, 이름 {}, 식별자번호 {}", accountNumber, customer.getName(), customer.getCi());
         return AccountIssuedResponse.from(savedAccount);
 
     }
 
     public AccountDeleteResponse accountDelete(AccountDeleteRequest accountDeleteRequest) {
-        Customer customer = customerRepository.findByIdentityCode(accountDeleteRequest.getIdentityCode()).orElseThrow(
+        Customer customer = customerRepository.findByCi(accountDeleteRequest.getCi()).orElseThrow(
                 IdentityCodeNotFoundException::new
         );
         Account account = accountRepository.findByFintechUseNum(accountDeleteRequest.getFintechUseNum()).orElseThrow(
@@ -73,7 +73,7 @@ public class AccountService {
     }
 
     public AccountInfoResponse accountInfo(AccountInfoRequest accountInfoRequest) {
-        Customer customer = customerRepository.findByIdentityCode(accountInfoRequest.getIdentityCode()).orElseThrow(
+        Customer customer = customerRepository.findByCi(accountInfoRequest.getCi()).orElseThrow(
                 IdentityCodeNotFoundException::new
         );
         List<Account> accountList = accountRepository.findByCustomerAndIsDeletedAndAccountType(customer, false, AccountType.PERSONAL);
@@ -87,7 +87,7 @@ public class AccountService {
     }
 
     public AccountOneResponse accountInfoOne(CommonRequest commonRequest) {
-        Customer customer = customerRepository.findByIdentityCode(commonRequest.getIdentityCode()).orElseThrow(
+        Customer customer = customerRepository.findByCi(commonRequest.getCi()).orElseThrow(
                 IdentityCodeNotFoundException::new
         );
         Account account = accountRepository.findByFintechUseNum(commonRequest.getFintechUseNum()).orElseThrow(
@@ -95,12 +95,12 @@ public class AccountService {
         );
         if (!customer.equals(account.getCustomer()))
             throw new MemberNotEqualsException();
-        log.info("{}({})의 account({})를 조회했습니다.",customer.getName(),customer.getIdentityCode(),account.getAccountNumber());
+        log.info("{}({})의 account({})를 조회했습니다.",customer.getName(),customer.getCi(),account.getAccountNumber());
         return AccountOneResponse.from(account);
     }
 
     public FintechNumResponse fintechNum(FintechNumRequest fintechNumRequest) {
-        Customer customer = customerRepository.findByIdentityCode(fintechNumRequest.getIdentityCode()).orElseThrow(
+        Customer customer = customerRepository.findByCi(fintechNumRequest.getCi()).orElseThrow(
                 IdentityCodeNotFoundException::new
         );
 
