@@ -2,7 +2,7 @@ package org.baas.baascore.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import org.baas.baascore.dto.AccountIssuedRequest;
+import lombok.Setter;
 import org.baas.baascore.util.BaseTimeEntity;
 
 import java.time.LocalDate;
@@ -14,6 +14,7 @@ import java.util.List;
  */
 @Getter
 @Entity
+@Setter
 @Table(name = "bank_member")
 public class Customer extends BaseTimeEntity {
     // 고객 고유 식별자

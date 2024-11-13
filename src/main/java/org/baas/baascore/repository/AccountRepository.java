@@ -18,7 +18,7 @@ import java.util.Optional;
 public interface AccountRepository extends JpaRepository<Account, Long> {
     @EntityGraph(attributePaths = {"customer", "bank"})
 
-        // 단순 조회 (락 없이)
+    // 단순 조회 (락 없이)
     Optional<Account> findByAccountNumber(String accountNumber);
 
     @EntityGraph(attributePaths = {"bank"})
