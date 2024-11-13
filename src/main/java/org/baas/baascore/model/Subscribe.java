@@ -36,7 +36,7 @@ public class Subscribe extends BaseTimeEntity {
     private String productName;
 
     // 사업자 등록 번호
-    @Column(name = "business_num", nullable = false)
+    @Column(name = "business_num", nullable = false,length = 15)
     private String businessNum;
 
     // 구독회사명

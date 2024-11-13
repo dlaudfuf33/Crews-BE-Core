@@ -47,7 +47,7 @@ public class Account extends BaseTimeEntity {
     private Bank bank;
 
     // 계좌 번호, 시스템 내에서 고유함
-    @Column(name = "account_number", nullable = false, unique = true)
+    @Column(name = "account_number", nullable = false, unique = true, length = 20)
     private String accountNumber;
 
     // 계좌 잔액, 0 이상만 허용됨
@@ -65,7 +65,7 @@ public class Account extends BaseTimeEntity {
     private AccountType accountType;
 
     // 클라이언트(서비스)와 사용자(고객) 쌍의 식별번호
-    @Column(name = "fintech_use_num",nullable = false, unique = true)
+    @Column(name = "fintech_use_num", nullable = false, unique = true)
     private String fintechUseNum;
 
     @Column(name = "is_deleted", columnDefinition = "boolean default false")
@@ -74,6 +74,7 @@ public class Account extends BaseTimeEntity {
     public void accountDeleted(boolean deleted) {
         isDeleted = deleted;
     }
+
     // 한 계좌가 여러 카드를 소유할 수 있도록 양방향 매핑
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
     private List<Card> cards = new ArrayList<>();
@@ -82,7 +83,7 @@ public class Account extends BaseTimeEntity {
         if (this.balance.compareTo(amt) < 0) {
             throw new CustomException(ErrorCode.INSUFFICIENT_BALANCE); // 잔액 부족 예외
         }
-        this.balance=this.balance.subtract(amt);
+        this.balance = this.balance.subtract(amt);
     }
 
     public void addToBalance(BigDecimal amt) {

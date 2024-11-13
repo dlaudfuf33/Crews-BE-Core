@@ -39,11 +39,11 @@ public class Card extends BaseTimeEntity {
     private String cardName;
 
     // 카드 번호 (예: 4862-6842-1836-4591)
-    @Column(name = "card_number", nullable = false, unique = true)
+    @Column(name = "card_number", nullable = false, unique = true,length = 20)
     private String cardNumber;
 
     // // 카드 CVC 코드 (보안 코드 직불카드에 기재된 3~4자리 숫자)
-    @Column(name = "cvc", nullable = false)
+    @Column(name = "cvc", nullable = false,length = 4)
     private String cvc;
 
     // 실물 카드 발급 여부
