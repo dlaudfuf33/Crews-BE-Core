@@ -4,10 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.baas.baascore.dto.CardIssuedResponse;
 import org.baas.baascore.dto.CardReissuedRequest;
 import org.baas.baascore.dto.CommonRequest;
-import org.baas.baascore.excaption.CardDuplicatedException;
-import org.baas.baascore.excaption.CardNumberNotFoundException;
-import org.baas.baascore.excaption.FintechNumberNotFoundException;
-import org.baas.baascore.excaption.IdentityCodeNotFoundException;
+import org.baas.baascore.excaption.CustomException;
+import org.baas.baascore.excaption.ErrorCode;
 import org.baas.baascore.model.Account;
 import org.baas.baascore.model.Card;
 import org.baas.baascore.model.Customer;
@@ -38,17 +36,17 @@ public class CardService {
     @Transactional
     public CardIssuedResponse cardIssued(CommonRequest commonRequest) {
         Customer customer = customerRepository.findByCi(commonRequest.getCi()).orElseThrow(
-                IdentityCodeNotFoundException::new
+                () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
         );
         Account account = accountRepository.findByFintechUseNum(commonRequest.getFintechUseNum()).orElseThrow(
-                FintechNumberNotFoundException::new
+                () -> new CustomException(ErrorCode.FINTECHCODE_NOT_FOUND)
         );
-        if(!account.getBank().getBankCode().equals(BANK_CODE)) {
-            throw new IllegalStateException("우리은행의 계좌가 아닙니다.");
+        if (!account.getBank().getBankCode().equals(BANK_CODE)) {
+            throw new CustomException(ErrorCode.WRONG_BANK);
         }
         List<Card> cardList = cardRepository.findByCustomerAndCardStatusTrueAndExpiredAtGreaterThan(customer, LocalDateTime.now());
-        if(!cardList.isEmpty())
-            throw new CardDuplicatedException();
+        if (!cardList.isEmpty())
+            throw new CustomException(ErrorCode.CARDNUMBER_DUPLICATED);
 
         Card card = createCard(account, customer);
         Card savedCard = cardRepository.save(card);
@@ -56,7 +54,7 @@ public class CardService {
 
     }
 
-    private Card createCard(Account account, Customer customer){
+    private Card createCard(Account account, Customer customer) {
         String cardNumber = getCardNumber();
         String cvc = createNumber(3, "");
         boolean isIssued = true; //발급여부
@@ -70,26 +68,28 @@ public class CardService {
     @Transactional
     public CardIssuedResponse cardReissued(CardReissuedRequest cardReissuedRequest) {
         Card card = cardRepository.findByCardNumberAndCardStatusTrueAndExpiredAtGreaterThan(
-                cardReissuedRequest.getCardNumber(),LocalDateTime.now()).orElseThrow(
-                CardNumberNotFoundException::new
-        );
+                        cardReissuedRequest.getCardNumber(), LocalDateTime.now())
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.CARDNUMBER_NOT_FOUND)
+                );
 
         Customer customer = customerRepository.findByCi(cardReissuedRequest.getCi()).orElseThrow(
-                IdentityCodeNotFoundException::new
+                () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
         );
 
-        if(!card.getCustomer().equals(customer)) {
-            throw new IllegalStateException("카드소유주와 서비스 요청자기 다릅니다.");
+        if (!card.getCustomer().equals(customer)) {
+            throw new CustomException(ErrorCode.CARD_OWNER_MISMATCH);
         }
 
-        Account account = accountRepository.findByFintechUseNum(cardReissuedRequest.getFintechUseNum()).orElseThrow(
-                FintechNumberNotFoundException::new
-        );
+        Account account = accountRepository.findByFintechUseNum(cardReissuedRequest.getFintechUseNum())
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.FINTECHCODE_NOT_FOUND)
+                );
 
         if (!card.getAccount().equals(account)) {
-            throw new IllegalStateException("카드와 연결되어있는 계좌가 핀테크번호의 계좌와 다릅니다.");
+            throw new CustomException(ErrorCode.ACCOUNT_MISMATCH_WITH_CARD);
         } else if (!card.getAccount().getBank().getBankCode().equals(BANK_CODE)) {
-            throw new IllegalStateException("우리은행의 계좌의 카드가 아닙니다.");
+            throw new CustomException(ErrorCode.CARD_NOT_FROM_WOORI_BANK);
         }
 
         card.changeCardStatus(false);
@@ -103,10 +103,10 @@ public class CardService {
         String cardNumber = createNumber(9, CARD_PREFIX);
         Optional<Card> optionalCard = cardRepository.findByCardNumber(cardNumber);
 
-        if(optionalCard.isEmpty()){
+        if (optionalCard.isEmpty()) {
             return cardNumber;
         }
-        throw new CardDuplicatedException();
+        throw new CustomException(ErrorCode.CARDNUMBER_DUPLICATED);
     }
 
     private String createNumber(int count, String prefix) {

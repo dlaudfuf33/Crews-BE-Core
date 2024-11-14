@@ -3,8 +3,8 @@ package org.baas.baascore.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.baas.baascore.excaption.CustomException;
 import org.baas.baascore.excaption.ErrorCode;
-import org.baas.baascore.excaption.HashingAlgorithmNotFoundException;
 import org.baas.baascore.util.BaseTimeEntity;
 
 import java.math.BigDecimal;
@@ -36,7 +36,7 @@ public class Subscribe extends BaseTimeEntity {
     private String productName;
 
     // 사업자 등록 번호
-    @Column(name = "business_num", nullable = false)
+    @Column(name = "business_num", nullable = false,length = 15)
     private String businessNum;
 
     // 구독회사명
@@ -120,7 +120,7 @@ public class Subscribe extends BaseTimeEntity {
             byte[] hash = digest.digest(secretKey.getBytes(StandardCharsets.UTF_8));
             return Base64.getEncoder().encodeToString(hash);
         } catch (NoSuchAlgorithmException e) {
-            throw new HashingAlgorithmNotFoundException(ErrorCode.HASH_ALGORITHM_NOT_FOUND);
+            throw new CustomException(ErrorCode.HASH_ALGORITHM_NOT_FOUND);
         }
     }
 
