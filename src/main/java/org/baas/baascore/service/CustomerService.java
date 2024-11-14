@@ -5,7 +5,6 @@ import org.baas.baascore.excaption.CustomException;
 import org.baas.baascore.excaption.ErrorCode;
 import org.baas.baascore.model.Customer;
 import org.baas.baascore.repository.CustomerRepository;
-import org.baas.baascore.util.ResidentNumberEncryptor;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,7 +13,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CustomerService {
     private final CustomerRepository customerRepository;
-    private final ResidentNumberEncryptor residentNumberEncryptor;
 
     /**
      * 이름 과 폰번호로 회원 Id를 찾아오는 메서드
