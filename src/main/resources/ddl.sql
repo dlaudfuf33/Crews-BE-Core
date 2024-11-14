@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS bank_member
     id           BIGINT PRIMARY KEY AUTO_INCREMENT,
     email        VARCHAR(255) NOT NULL UNIQUE,
     name         VARCHAR(255) NOT NULL,
-    phone_num        VARCHAR(15)  NOT NULL UNIQUE,
-    ci     VARCHAR(100),
+    phone_num        VARCHAR(11)  NOT NULL UNIQUE,
+    ci     VARCHAR(88),
     created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS  core_account
     customer_id     BIGINT         NOT NULL,
     bank_code_id    BIGINT         NOT NULL,
     product_id      BIGINT         NOT NULL,
-    account_number  VARCHAR(20)    NOT NULL UNIQUE,
+    account_number  VARCHAR(14)    NOT NULL UNIQUE,
     balance         DECIMAL(38, 2) NOT NULL,  -- balance의 정밀도를 늘려 38,2로 변경
     currency        VARCHAR(10),
     account_type    VARCHAR(20),
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS core_card (
                                          customer_id BIGINT       NOT NULL,
                                          account_id  BIGINT       NOT NULL,
                                          card_name   VARCHAR(255) NOT NULL,
-                                         card_number VARCHAR(20)  NOT NULL UNIQUE,
+                                         card_number VARCHAR(16)  NOT NULL UNIQUE,
                                          cvc         VARCHAR(4)   NOT NULL,
                                          is_issued   BOOLEAN      NOT NULL,
                                          expired_at  DATETIME     NOT NULL,

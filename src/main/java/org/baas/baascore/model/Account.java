@@ -47,7 +47,7 @@ public class Account extends BaseTimeEntity {
     private Bank bank;
 
     // 계좌 번호, 시스템 내에서 고유함
-    @Column(name = "account_number", nullable = false, unique = true, length = 20)
+    @Column(name = "account_number", nullable = false, unique = true, length = 14)
     private String accountNumber;
 
     // 계좌 잔액, 0 이상만 허용됨
