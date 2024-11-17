@@ -1,8 +1,8 @@
 package org.baas.baascore.util;
 
 import lombok.extern.slf4j.Slf4j;
-import org.baas.baascore.excaption.CustomException;
-import org.baas.baascore.excaption.ErrorCode;
+import org.baas.baascore.exception.CustomException;
+import org.baas.baascore.exception.ErrorCode;
 import org.baas.baascore.model.Subscribe;
 import org.baas.baascore.repository.SubscribeRepository;
 

@@ -115,7 +115,7 @@ INTO core_account (id, customer_id, bank_code_id, product_id, account_number, ba
 VALUES (1, 2, 1, 1, '77777777777', 10000000000000,
         'KRW', 'PERSONAL', '9df5bf03-cf53-4a48-8c6d-03b8c36f5783', FALSE),
        (2, 5, 2, 1, '12023456789', 2000000,
-        'KRW', 'PERSONAL', '9bf53d03-cff5-448a-8c8d-03b36f5c6783',
+        'KRW', 'PERSONAL', '9bf53d03-cff5-448a-8c8d-03b36f5c6784',
         FALSE),
        (3, 8, 1, 1, '11034567890', 200000,
         'KRW', 'PERSONAL', 'a7f850c0-8db4-4d12-8cc8-ea4a838fcf18',

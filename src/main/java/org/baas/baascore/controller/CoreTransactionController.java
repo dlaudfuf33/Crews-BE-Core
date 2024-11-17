@@ -2,8 +2,8 @@ package org.baas.baascore.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.baas.baascore.dto.*;
-import org.baas.baascore.excaption.CustomException;
-import org.baas.baascore.excaption.ErrorResponse;
+import org.baas.baascore.exception.CustomException;
+import org.baas.baascore.exception.ErrorResponse;
 import org.baas.baascore.service.CoreTransactionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

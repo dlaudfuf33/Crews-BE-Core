@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baas.baascore.dto.*;
 import org.baas.baascore.service.AccountService;
+import org.baas.baascore.util.AccountType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class AccountController {
 
     @PostMapping
     public ResponseEntity<AccountIssuedResponse> accountIssued(@RequestBody AccountIssuedRequest accountIssuedRequest) {
-        return ResponseEntity.ok().body(accountService.accountIssued(accountIssuedRequest));
+        return ResponseEntity.ok().body(accountService.accountIssued(accountIssuedRequest, AccountType.CREW));
 
     }
 

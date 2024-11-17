@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.baas.baascore.dto.SubcriptionsRequestDto;
 import org.baas.baascore.dto.SubcriptionsResponseDto;
-import org.baas.baascore.excaption.CustomException;
+import org.baas.baascore.exception.CustomException;
 import org.baas.baascore.service.SubscribeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

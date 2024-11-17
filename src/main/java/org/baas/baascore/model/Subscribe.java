@@ -3,8 +3,8 @@ package org.baas.baascore.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.baas.baascore.excaption.CustomException;
-import org.baas.baascore.excaption.ErrorCode;
+import org.baas.baascore.exception.CustomException;
+import org.baas.baascore.exception.ErrorCode;
 import org.baas.baascore.util.BaseTimeEntity;
 
 import java.math.BigDecimal;
