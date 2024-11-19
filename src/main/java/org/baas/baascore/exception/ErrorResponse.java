@@ -1,4 +1,4 @@
-package org.baas.baascore.excaption;
+package org.baas.baascore.exception;
 
 import lombok.Builder;
 import lombok.Getter;

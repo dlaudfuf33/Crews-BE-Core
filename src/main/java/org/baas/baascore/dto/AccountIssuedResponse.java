@@ -2,6 +2,8 @@ package org.baas.baascore.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
+
 import org.baas.baascore.model.Account;
 import org.baas.baascore.util.AccountType;
 
@@ -10,6 +12,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@Setter
 public class AccountIssuedResponse {
     private String memberName;
     private String ci;

@@ -1,6 +1,8 @@
 package org.baas.baascore.controller;
 
 import lombok.RequiredArgsConstructor;
+
+import org.baas.baascore.dto.AccountIssuedResponse;
 import org.baas.baascore.dto.CIRequest;
 import org.baas.baascore.dto.IdentityRequest;
 import org.baas.baascore.service.CIService;
@@ -17,7 +19,7 @@ public class CiController {
     private final CIService ciService;
 
     @PostMapping("/ci")
-    public String ciSave(@RequestBody CIRequest ci){
+    public AccountIssuedResponse ciSave(@RequestBody CIRequest ci){
         return ciService.ciSave(ci);
     }
 }

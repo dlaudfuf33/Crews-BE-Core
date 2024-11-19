@@ -1,8 +1,8 @@
 package org.baas.baascore.service;
 
 import lombok.RequiredArgsConstructor;
-import org.baas.baascore.excaption.CustomException;
-import org.baas.baascore.excaption.ErrorCode;
+import org.baas.baascore.exception.CustomException;
+import org.baas.baascore.exception.ErrorCode;
 import org.baas.baascore.model.Customer;
 import org.baas.baascore.repository.CustomerRepository;
 import org.springframework.stereotype.Service;

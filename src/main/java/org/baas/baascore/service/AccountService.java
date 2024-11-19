@@ -3,7 +3,7 @@ package org.baas.baascore.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baas.baascore.dto.*;
-import org.baas.baascore.excaption.*;
+import org.baas.baascore.exception.*;
 import org.baas.baascore.model.*;
 import org.baas.baascore.repository.*;
 import org.baas.baascore.util.AccountType;
@@ -33,7 +33,7 @@ public class AccountService {
     private final CardRepository cardRepository;
     private final ProductRepository productRepository;
 
-    public AccountIssuedResponse accountIssued(AccountIssuedRequest accountIssuedRequest) {
+    public AccountIssuedResponse accountIssued(AccountIssuedRequest accountIssuedRequest, AccountType accountTypeCrew) {
         Customer customer = customerRepository.findByCi(accountIssuedRequest.getCi()).orElseThrow(
                 () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
         );
@@ -47,9 +47,8 @@ public class AccountService {
         String accountNumber = getAccountNumber();
         BigDecimal balance = BigDecimal.ZERO;
         CurrencyType currencyType = CurrencyType.KRW;
-        AccountType accountType = AccountType.CREW;
-        Account account = Account.builder().customer(customer).bank(bank).product(product).accountNumber(accountNumber).balance(balance)
-                .currencyType(currencyType).accountType(accountType).fintechUseNum(fintechUseNum).build();
+		Account account = Account.builder().customer(customer).bank(bank).product(product).accountNumber(accountNumber).balance(balance)
+                .currencyType(currencyType).accountType(accountTypeCrew).fintechUseNum(fintechUseNum).build();
         Account savedAccount = accountRepository.save(account);
         log.info("생성된 계좌번호 : {}, 이름 {}, 식별자번호 {}", accountNumber, customer.getName(), customer.getCi());
         return AccountIssuedResponse.from(savedAccount);
