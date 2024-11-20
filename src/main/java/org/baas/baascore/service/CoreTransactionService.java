@@ -46,7 +46,7 @@ public class CoreTransactionService {
         String order = transactionDetailRequest.getOrder();
         List<TransactionHistory> list = getTransactionHistories(transactionType, account, filteredDate, order);
         List<TransactionHistoryDto> historyDtoList = list.stream().map(TransactionHistoryDto::from).toList();
-        return TransactionDetailResponse.builder().tranList(historyDtoList).build();
+        return TransactionDetailResponse.builder().tranList(historyDtoList).accountNumber(account.getAccountNumber()).build();
     }
 
     private List<TransactionHistory> getTransactionHistories(String transactionType, Account account, LocalDateTime filteredDate, String order) {
