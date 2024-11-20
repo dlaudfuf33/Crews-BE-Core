@@ -17,7 +17,7 @@ public class TransactionHistoryDto {
     private AccountType accountType;
     private String bankCode;
     private String bankName;
-    private String accountNumber;
+    private String counterpartyAccountNum;
     private TranType tranType;
     private LocalDateTime transactionTime;
     private String description;
@@ -32,7 +32,7 @@ public class TransactionHistoryDto {
                 .accountType(transactionHistory.getAccount().getAccountType())
                 .bankCode(transactionHistory.getAccount().getBank().getBankCode())
                 .bankName(transactionHistory.getAccount().getBank().getBankName())
-                .accountNumber(transactionHistory.getAccount().getAccountNumber())
+                .counterpartyAccountNum(transactionHistory.getCounterpartyAccountNum())
                 .tranType(transactionHistory.getTranType())
                 .transactionTime(transactionHistory.getCreatedAt())
                 .description(transactionHistory.getDescription())
