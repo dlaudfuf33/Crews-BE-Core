@@ -13,6 +13,7 @@ import org.baas.baascore.repository.AccountRepository;
 import org.baas.baascore.repository.CoreTransactionRepository;
 import org.baas.baascore.repository.CustomerRepository;
 import org.baas.baascore.repository.TransactionHistoryRepository;
+import org.baas.baascore.util.AccountType;
 import org.baas.baascore.util.StatusType;
 import org.baas.baascore.util.TranType;
 import org.springframework.stereotype.Service;
@@ -36,8 +37,9 @@ public class CoreTransactionService {
         Customer customer = customerRepository.findByCi(transactionDetailRequest.getCi()).orElseThrow(
                 () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
         );
-        if (!customer.equals(account.getCustomer()))
+        if (!customer.equals(account.getCustomer()) && account.getAccountType().equals(AccountType.PERSONAL)){
             throw new CustomException(ErrorCode.MEMBER_NOT_EQUALS);
+        }
         Integer selectPeriod = transactionDetailRequest.getSelectPeriod();
         if (!(selectPeriod == 1 || selectPeriod == 3 || selectPeriod == 6 || selectPeriod == 9))
             throw new CustomException(ErrorCode.WRONG_PERIOD);
@@ -50,6 +52,8 @@ public class CoreTransactionService {
                 .accountNumber(account.getAccountNumber())
                 .productName(account.getProduct().getProductName())
                 .balance(account.getBalance())
+                .bankCode(account.getBank().getBankCode())
+                .bankName(account.getBank().getBankName())
                 .build();
     }
 

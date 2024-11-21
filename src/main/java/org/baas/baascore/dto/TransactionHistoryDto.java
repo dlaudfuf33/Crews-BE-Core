@@ -12,11 +12,8 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class TransactionHistoryDto {
-    private String memberName;
-    private String ci;
-    private AccountType accountType;
-    private String bankCode;
-    private String bankName;
+
+    private String counterpartyBankCode;
     private String counterpartyAccountNum;
     private TranType tranType;
     private LocalDateTime transactionTime;
@@ -27,11 +24,7 @@ public class TransactionHistoryDto {
 
     public static TransactionHistoryDto from(TransactionHistory transactionHistory){
         return TransactionHistoryDto.builder()
-                .memberName(transactionHistory.getAccount().getCustomer().getName())
-                .ci(transactionHistory.getAccount().getCustomer().getCi())
-                .accountType(transactionHistory.getAccount().getAccountType())
-                .bankCode(transactionHistory.getAccount().getBank().getBankCode())
-                .bankName(transactionHistory.getAccount().getBank().getBankName())
+                .counterpartyBankCode(transactionHistory.getCounterpartyBankCode())
                 .counterpartyAccountNum(transactionHistory.getCounterpartyAccountNum())
                 .tranType(transactionHistory.getTranType())
                 .transactionTime(transactionHistory.getCreatedAt())
