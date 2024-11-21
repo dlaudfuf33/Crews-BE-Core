@@ -48,7 +48,9 @@ public class CoreTransactionService {
         List<TransactionHistoryDto> historyDtoList = list.stream().map(TransactionHistoryDto::from).toList();
         return TransactionDetailResponse.builder().tranList(historyDtoList)
                 .accountNumber(account.getAccountNumber())
-                .productName(account.getProduct().getProductName()).build();
+                .productName(account.getProduct().getProductName())
+                .balance(account.getBalance())
+                .build();
     }
 
     private List<TransactionHistory> getTransactionHistories(String transactionType, Account account, LocalDateTime filteredDate, String order) {

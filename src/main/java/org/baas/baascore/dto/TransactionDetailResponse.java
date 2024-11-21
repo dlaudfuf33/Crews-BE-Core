@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class TransactionDetailResponse {
 
     private String accountNumber;
     private String productName;
+    private BigDecimal balance;
 
     @Builder.Default
     private List<TransactionHistoryDto> tranList = new ArrayList<>();
