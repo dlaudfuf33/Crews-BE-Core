@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 @Getter
 @Builder
-public class AccountInitResponseDto {
+public class  AccountInitResponseDto {
     private String customerName;
     private String bankName;
     private String accountNumber;
