@@ -1,9 +1,9 @@
-package org.baas.baascore.dto;
+package org.baas.baascore.dto.request;
 
 import lombok.Getter;
 
 @Getter
-public class TransferStatesRequestDto {
+public class TransferStatesRequest {
 
     /**
      * 거래의 고유 식별자 (거래 내역 ID)

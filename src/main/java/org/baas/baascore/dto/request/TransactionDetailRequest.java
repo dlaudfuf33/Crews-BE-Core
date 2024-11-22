@@ -1,4 +1,4 @@
-package org.baas.baascore.dto;
+package org.baas.baascore.dto.request;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;

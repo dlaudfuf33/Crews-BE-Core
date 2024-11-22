@@ -3,8 +3,15 @@ package org.baas.baascore.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.baas.baascore.dto.*;
-import org.baas.baascore.exception.*;
+import org.baas.baascore.dto.TransactionHistoryDto;
+import org.baas.baascore.dto.request.TransactionDetailRequest;
+import org.baas.baascore.dto.request.TransferRequest;
+import org.baas.baascore.dto.request.TransferStatesRequest;
+import org.baas.baascore.dto.response.TransactionDetailResponse;
+import org.baas.baascore.dto.response.TransferResponse;
+import org.baas.baascore.dto.response.TransferStatesResponse;
+import org.baas.baascore.exception.CustomException;
+import org.baas.baascore.exception.ErrorCode;
 import org.baas.baascore.model.Account;
 import org.baas.baascore.model.CoreTransaction;
 import org.baas.baascore.model.Customer;
@@ -83,29 +90,29 @@ public class CoreTransactionService {
     /**
      * 이체 거래를 처리하고 성공 여부에 따라 거래 내역 상태를 업데이트합니다.
      *
-     * @param transferRequestDto 이체 요청 정보를 담고 있는 DTO
+     * @param transferRequest 이체 요청 정보를 담고 있는 DTO
      * @return 이체 결과를 담고 있는 TransferResponseDto
      */
     @Transactional
-    public TransferResponseDto transfer(TransferRequestDto transferRequestDto) {
+    public TransferResponse transfer(TransferRequest transferRequest) {
         log.info("이체 거래 시작 - 출금 계좌: {}, 입금 계좌: {}, 금액: {}",
-                transferRequestDto.getFinUseNum(), transferRequestDto.getRecvAccountNum(), transferRequestDto.getAmt());
+                transferRequest.getFinUseNum(), transferRequest.getRecvAccountNum(), transferRequest.getAmt());
 
         // 출금 계좌와 입금 계좌 찾기 (각각 한 번씩만 조회)
-        Account fromAccount = accountRepository.findByFintechUseNumForUpdate(transferRequestDto.getFinUseNum())
+        Account fromAccount = accountRepository.findByFintechUseNumForUpdate(transferRequest.getFinUseNum())
                 .orElseThrow(() -> new CustomException(ErrorCode.WITHDRAW_ACCOUNT_NOT_FOUND));
-        Account toAccount = accountRepository.findByAccountNumberForUpdate(transferRequestDto.getRecvAccountNum())
+        Account toAccount = accountRepository.findByAccountNumberForUpdate(transferRequest.getRecvAccountNum())
                 .orElseThrow(() -> new CustomException(ErrorCode.DEPOSIT_ACCOUNT_NOT_FOUND));
 
         // 거래 내역 생성 (송금 및 수신 내역 동시에 생성)
-        TransactionHistory[] histories = issueHistory(transferRequestDto, fromAccount, toAccount);
+        TransactionHistory[] histories = issueHistory(transferRequest, fromAccount, toAccount);
         TransactionHistory withdrawHistory = histories[0];
         TransactionHistory depositHistory = histories[1];
 
         try {
             // 출금 및 입금 처리
-            fromAccount.subtractFromBalance(transferRequestDto.getAmt());
-            toAccount.addToBalance(transferRequestDto.getAmt());
+            fromAccount.subtractFromBalance(transferRequest.getAmt());
+            toAccount.addToBalance(transferRequest.getAmt());
 
             accountRepository.save(fromAccount);
             accountRepository.save(toAccount);
@@ -114,7 +121,7 @@ public class CoreTransactionService {
             // 거래 내역 상태 업데이트 (성공)
             markTransactionSuccess(withdrawHistory, depositHistory);
             log.info("이체 거래 성공 - 상태 업데이트 완료");
-            return TransferResponseDto.builder()
+            return TransferResponse.builder()
                     .historyId(withdrawHistory.getCoreTransaction().getId())
                     .recvName(depositHistory.getAccount().getCustomer().getName())
                     .recvBankcode(depositHistory.getAccount().getBank().getBankCode())
@@ -126,14 +133,14 @@ public class CoreTransactionService {
             if (e.getErrorCode() == ErrorCode.INSUFFICIENT_BALANCE) {
                 markTransactionFail(withdrawHistory, depositHistory);
                 log.error("잔액 부족으로 이체 실패 - 출금 계좌: {}, 금액: {}",
-                        transferRequestDto.getFinUseNum(), transferRequestDto.getAmt());
+                        transferRequest.getFinUseNum(), transferRequest.getAmt());
             }
             throw e;  // 예외 재발생
         } catch (Exception e) {
             // 기타 예외에 대해 실패 처리
             markTransactionFail(withdrawHistory, depositHistory);
             log.error("이체 거래 처리 중 오류 발생 - 출금 계좌: {}, 입금 계좌: {}, 금액: {}",
-                    transferRequestDto.getFinUseNum(), transferRequestDto.getRecvAccountNum(), transferRequestDto.getAmt(), e);
+                    transferRequest.getFinUseNum(), transferRequest.getRecvAccountNum(), transferRequest.getAmt(), e);
             throw new CustomException(ErrorCode.TRANSFER_FAILED, e);
         }
     }
@@ -141,12 +148,12 @@ public class CoreTransactionService {
     /**
      * 이체 요청에 따른 거래 내역을 생성합니다. (송금 내역과 수신 내역)
      *
-     * @param transferRequestDto 이체 요청 정보를 담고 있는 DTO
+     * @param transferRequest 이체 요청 정보를 담고 있는 DTO
      * @param fromAccount        송금하는 계좌 정보
      * @param toAccount          수신하는 계좌 정보
      * @return 송금 및 수신 내역을 포함하는 TransactionHistory 배열
      */
-    private TransactionHistory[] issueHistory(TransferRequestDto transferRequestDto, Account fromAccount, Account toAccount) {
+    private TransactionHistory[] issueHistory(TransferRequest transferRequest, Account fromAccount, Account toAccount) {
         log.info("거래 내역 생성 - 출금 계좌: {}, 입금 계좌: {}", fromAccount.getId(), toAccount.getId());
 
         // CoreTransaction 인스턴스를 각각 생성하여 PENDING 상태로 설정
@@ -156,22 +163,22 @@ public class CoreTransactionService {
         TransactionHistory withdrawHistory = TransactionHistory.builder()
                 .account(fromAccount)
                 .tranType(TranType.WITHDRAW)
-                .tranAmt(transferRequestDto.getAmt())
-                .afterBalanceAmt(fromAccount.getBalance().subtract(transferRequestDto.getAmt()))
+                .tranAmt(transferRequest.getAmt())
+                .afterBalanceAmt(fromAccount.getBalance().subtract(transferRequest.getAmt()))
                 .countryAccount(toAccount)
                 .coreTransaction(tradeTrx)
-                .description(transferRequestDto.getDescription())
+                .description(transferRequest.getDescription())
                 .build();
 
         // 입금 거래 내역 생성
         TransactionHistory depositHistory = TransactionHistory.builder()
                 .account(toAccount)
                 .tranType(TranType.DEPOSIT)
-                .tranAmt(transferRequestDto.getAmt())
-                .afterBalanceAmt(toAccount.getBalance().add(transferRequestDto.getAmt()))
+                .tranAmt(transferRequest.getAmt())
+                .afterBalanceAmt(toAccount.getBalance().add(transferRequest.getAmt()))
                 .countryAccount(fromAccount)
                 .coreTransaction(tradeTrx)
-                .description(transferRequestDto.getDescription())
+                .description(transferRequest.getDescription())
                 .build();
 
         transactionHistoryRepository.saveAndFlush(withdrawHistory);
@@ -216,12 +223,12 @@ public class CoreTransactionService {
      *
      * @return TransferStatesResponseDto
      */
-    public TransferStatesResponseDto getTransactionStatus(TransferStatesRequestDto transferStatesRequestDto) {
-        return TransferStatesResponseDto.of(
+    public TransferStatesResponse getTransactionStatus(TransferStatesRequest transferStatesRequest) {
+        return TransferStatesResponse.from(
                 transactionHistoryRepository
                         .findByCoreTransactionIdAndAccount_FintechUseNum(
-                                transferStatesRequestDto.getHistoryId(),
-                                transferStatesRequestDto.getFinUseNum())
+                                transferStatesRequest.getHistoryId(),
+                                transferStatesRequest.getFinUseNum())
                         .orElseThrow(() -> new CustomException(ErrorCode.TRANSACTION_NOT_FOUND))
         );
     }

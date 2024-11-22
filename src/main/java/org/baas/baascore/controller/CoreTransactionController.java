@@ -1,7 +1,13 @@
 package org.baas.baascore.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.baas.baascore.dto.*;
+import org.baas.baascore.dto.request.TransactionDetailRequest;
+import org.baas.baascore.dto.request.TransferRequest;
+import org.baas.baascore.dto.request.TransferStatesRequest;
+import org.baas.baascore.dto.response.ApiResponse;
+import org.baas.baascore.dto.response.TransactionDetailResponse;
+import org.baas.baascore.dto.response.TransferResponse;
+import org.baas.baascore.dto.response.TransferStatesResponse;
 import org.baas.baascore.exception.CustomException;
 import org.baas.baascore.exception.ErrorResponse;
 import org.baas.baascore.service.CoreTransactionService;
@@ -21,16 +27,14 @@ public class CoreTransactionController {
     private final CoreTransactionService coreTransactionService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<TransferResponseDto>> withdraw(@RequestBody TransferRequestDto transferRequestDto) {
+    public ResponseEntity<ApiResponse<TransferResponse>> withdraw(@RequestBody TransferRequest transferRequest) {
         try {
-            TransferResponseDto responseDto = coreTransactionService.transfer(transferRequestDto);
-            return ResponseEntity.ok(ApiResponse.<TransferResponseDto>builder()
+            TransferResponse responseDto = coreTransactionService.transfer(transferRequest);
+            return ResponseEntity.ok(ApiResponse.<TransferResponse>builder()
                     .data(responseDto)
                     .success(true)
-                    .build()); // 성공 시 200 OK와 응답 데이터 반환
-
+                    .build());
         } catch (CustomException e) {
-            // CustomException 발생 시, 예외의 상태 코드와 메시지 반환
             ErrorResponse errorResponse = ErrorResponse.builder()
                     .errorCode(e.getErrorCode().name())
                     .message(e.getErrorCode().getMessage())
@@ -38,12 +42,11 @@ public class CoreTransactionController {
                     .timestamp(LocalDateTime.now())
                     .build();
 
-            return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(ApiResponse.<TransferResponseDto>builder()
+            return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(ApiResponse.<TransferResponse>builder()
                     .error(errorResponse)
                     .success(false)
                     .build());
         } catch (Exception e) {
-            // 예상치 못한 예외 처리
             ErrorResponse errorResponse = ErrorResponse.builder()
                     .errorCode("INTERNAL_SERVER_ERROR")
                     .message("서버 내부 오류가 발생했습니다.")
@@ -51,7 +54,7 @@ public class CoreTransactionController {
                     .timestamp(LocalDateTime.now())
                     .build();
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.<TransferResponseDto>builder()
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.<TransferResponse>builder()
                     .error(errorResponse)
                     .success(false)
                     .build());
@@ -60,8 +63,8 @@ public class CoreTransactionController {
 
 
     @PostMapping("/states")
-    public TransferStatesResponseDto trxStateCheck(@RequestBody TransferStatesRequestDto transferStatesRequestDto) {
-        return coreTransactionService.getTransactionStatus(transferStatesRequestDto);
+    public TransferStatesResponse trxStateCheck(@RequestBody TransferStatesRequest transferStatesRequest) {
+        return coreTransactionService.getTransactionStatus(transferStatesRequest);
     }
 
     @PostMapping("/details")

@@ -2,8 +2,8 @@ package org.baas.baascore.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.baas.baascore.dto.SubcriptionsRequestDto;
-import org.baas.baascore.dto.SubcriptionsResponseDto;
+import org.baas.baascore.dto.request.SubcriptionsRequest;
+import org.baas.baascore.dto.response.SubcriptionsResponse;
 import org.baas.baascore.exception.CustomException;
 import org.baas.baascore.service.SubscribeService;
 import org.springframework.http.HttpStatus;
@@ -20,8 +20,8 @@ public class SubscribeController {
 
 
     @PostMapping("/states")
-    public ResponseEntity<List<SubcriptionsResponseDto>> getSubcriptionsstatement(@RequestBody SubcriptionsRequestDto subcriptionsRequestDto) {
-        return ResponseEntity.ok(subscribeService.getSubscriptions(subcriptionsRequestDto));
+    public ResponseEntity<List<SubcriptionsResponse>> getSubcriptionsstatement(@RequestBody SubcriptionsRequest subcriptionsRequest) {
+        return ResponseEntity.ok(subscribeService.getSubscriptions(subcriptionsRequest));
     }
 
     @DeleteMapping
@@ -41,8 +41,8 @@ public class SubscribeController {
 
 
     @PostMapping("/details")
-    public ResponseEntity<List<SubcriptionsResponseDto>> getSubcribeLise(@RequestBody SubcriptionsRequestDto
-                                                                                 subcriptionsRequestDto) {
-        return ResponseEntity.ok(subscribeService.getSubscriptions(subcriptionsRequestDto));
+    public ResponseEntity<List<SubcriptionsResponse>> getSubcribeLise(@RequestBody SubcriptionsRequest
+                                                                                 subcriptionsRequest) {
+        return ResponseEntity.ok(subscribeService.getSubscriptions(subcriptionsRequest));
     }
 }

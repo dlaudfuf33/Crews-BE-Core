@@ -1,4 +1,4 @@
-package org.baas.baascore.dto;
+package org.baas.baascore.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 @Getter
 @Builder
-public class  AccountInitResponseDto {
+public class AccountInitResponse {
     private String customerName;
     private String bankName;
     private String accountNumber;
@@ -18,8 +18,8 @@ public class  AccountInitResponseDto {
     private LocalDate createdAt;
     private LocalDate updatedAt;
 
-    public AccountInitResponseDto(String customerName, String bankName, String accountNumber, String accountType,
-                                  BigDecimal balance, LocalDate createdAt, LocalDate updatedAt) {
+    public AccountInitResponse(String customerName, String bankName, String accountNumber, String accountType,
+                               BigDecimal balance, LocalDate createdAt, LocalDate updatedAt) {
         this.customerName = customerName;
         this.bankName = bankName;
         this.accountNumber = accountNumber;
@@ -30,8 +30,8 @@ public class  AccountInitResponseDto {
     }
 
     // Account 엔티티를 AccountInitResponseDto로 변환하는 정적 메서드 추가
-    public static AccountInitResponseDto fromEntity(Account account) {
-        return AccountInitResponseDto.builder()
+    public static AccountInitResponse from(Account account) {
+        return AccountInitResponse.builder()
                 .customerName(account.getCustomer().getName())
                 .bankName(account.getBank().getBankName())
                 .accountNumber(account.getAccountNumber())

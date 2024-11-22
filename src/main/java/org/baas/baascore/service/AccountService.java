@@ -2,8 +2,11 @@ package org.baas.baascore.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.baas.baascore.dto.*;
-import org.baas.baascore.exception.*;
+import org.baas.baascore.dto.CardListDTO;
+import org.baas.baascore.dto.request.*;
+import org.baas.baascore.dto.response.*;
+import org.baas.baascore.exception.CustomException;
+import org.baas.baascore.exception.ErrorCode;
 import org.baas.baascore.model.*;
 import org.baas.baascore.repository.*;
 import org.baas.baascore.util.AccountType;
@@ -140,17 +143,17 @@ public class AccountService {
         return accountRepository.findByCustomerId(customerId);
     }
 
-    public List<AccountInitResponseDto> findAccountInit(MemberInitRequestDto memberInitRequestDto) {
-        log.info("{}   {}  {}", memberInitRequestDto, memberInitRequestDto.getName(), memberInitRequestDto.getPhoneNumber());
+    public List<AccountInitResponse> findAccountInit(MemberInitRequest memberInitRequest) {
+        log.info("{}   {}  {}", memberInitRequest, memberInitRequest.getName(), memberInitRequest.getPhoneNumber());
         // Optional을 사용해 고객을 찾고 예외를 던지도록 간결화
         Customer customer = customerRepository.findByNameAndPhoneNum(
-                memberInitRequestDto.getName(),
-                memberInitRequestDto.getPhoneNumber()
+                memberInitRequest.getName(),
+                memberInitRequest.getPhoneNumber()
         ).orElseThrow(() -> new CustomException(ErrorCode.CUSTOMER_NOT_FOUND));
 
         // 고객 ID로 계좌 정보 찾기
         return accountRepository.findByCustomerId(customer.getId()).stream()
-                .map(AccountInitResponseDto::fromEntity)
+                .map(AccountInitResponse::from)
                 .toList();
     }
 }

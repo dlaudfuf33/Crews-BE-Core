@@ -1,4 +1,4 @@
-package org.baas.baascore.dto;
+package org.baas.baascore.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 @Getter
 @Builder
-public class TransferResponseDto {
+public class TransferResponse {
 
     /**
      * 거래의 고유 식별자 (거래 내역 ID)

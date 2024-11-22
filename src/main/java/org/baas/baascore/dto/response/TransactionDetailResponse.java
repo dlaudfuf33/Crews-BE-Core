@@ -1,9 +1,10 @@
-package org.baas.baascore.dto;
+package org.baas.baascore.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.baas.baascore.dto.TransactionHistoryDto;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
