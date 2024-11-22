@@ -33,10 +33,8 @@ public class CoreTransactionController {
             return ResponseEntity.ok(ApiResponse.<TransferResponse>builder()
                     .data(responseDto)
                     .success(true)
-                    .build()); // 성공 시 200 OK와 응답 데이터 반환
-
+                    .build());
         } catch (CustomException e) {
-            // CustomException 발생 시, 예외의 상태 코드와 메시지 반환
             ErrorResponse errorResponse = ErrorResponse.builder()
                     .errorCode(e.getErrorCode().name())
                     .message(e.getErrorCode().getMessage())
@@ -49,7 +47,6 @@ public class CoreTransactionController {
                     .success(false)
                     .build());
         } catch (Exception e) {
-            // 예상치 못한 예외 처리
             ErrorResponse errorResponse = ErrorResponse.builder()
                     .errorCode("INTERNAL_SERVER_ERROR")
                     .message("서버 내부 오류가 발생했습니다.")
