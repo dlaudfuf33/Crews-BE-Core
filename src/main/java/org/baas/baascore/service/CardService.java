@@ -1,9 +1,9 @@
 package org.baas.baascore.service;
 
 import lombok.RequiredArgsConstructor;
-import org.baas.baascore.dto.CardIssuedResponse;
-import org.baas.baascore.dto.CardReissuedRequest;
-import org.baas.baascore.dto.CommonRequest;
+import org.baas.baascore.dto.request.CardReissuedRequest;
+import org.baas.baascore.dto.request.CommonRequest;
+import org.baas.baascore.dto.response.CardIssuedResponse;
 import org.baas.baascore.exception.CustomException;
 import org.baas.baascore.exception.ErrorCode;
 import org.baas.baascore.model.Account;

@@ -1,10 +1,8 @@
 package org.baas.baascore.controller;
 
 import lombok.RequiredArgsConstructor;
-
-import org.baas.baascore.dto.AccountIssuedResponse;
-import org.baas.baascore.dto.CIRequest;
-import org.baas.baascore.dto.IdentityRequest;
+import org.baas.baascore.dto.request.CIRequest;
+import org.baas.baascore.dto.response.AccountIssuedResponse;
 import org.baas.baascore.service.CIService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

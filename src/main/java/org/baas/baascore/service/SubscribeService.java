@@ -3,7 +3,11 @@ package org.baas.baascore.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.baas.baascore.dto.*;
+import org.baas.baascore.dto.request.IssueApikeyRequest;
+import org.baas.baascore.dto.request.SubcriptionsRequest;
+import org.baas.baascore.dto.request.TransferRequest;
+import org.baas.baascore.dto.response.IssueApikeyResponset;
+import org.baas.baascore.dto.response.SubcriptionsResponse;
 import org.baas.baascore.exception.CustomException;
 import org.baas.baascore.exception.ErrorCode;
 import org.baas.baascore.model.Bank;
@@ -28,10 +32,10 @@ public class SubscribeService {
     private final AccountRepository accountRepository;
     private final CoreTransactionService coreTransactionService;
 
-    public IssueApikeyResponsetDto createSubscription(IssueApikeyRequestDto issueApikeyRequestDto) {
+    public IssueApikeyResponset createSubscription(IssueApikeyRequest issueApikeyRequest) {
 
-        if (SecurityUtils.isValidBusinessNumber(issueApikeyRequestDto.getBusinessNum())) {
-            log.info("사업자등록번호 : {} 인증 성공", issueApikeyRequestDto.getBusinessNum());
+        if (SecurityUtils.isValidBusinessNumber(issueApikeyRequest.getBusinessNum())) {
+            log.info("사업자등록번호 : {} 인증 성공", issueApikeyRequest.getBusinessNum());
         }
         // Bank 엔티티 조회 (통합은행)
         Optional<Bank> foundBank = bankRepository.findById(1L);
@@ -43,27 +47,27 @@ public class SubscribeService {
         }
 
         // 결제
-        String companyFinnum = accountRepository.findByAccountNumber(issueApikeyRequestDto.getAccountNumber()).orElseThrow(() -> new CustomException(ErrorCode.WRONG_ACCOUNTNUMBER)).getFintechUseNum();
-        coreTransactionService.transfer(new TransferRequestDto(companyFinnum, "777-7777-7777", new BigDecimal(1_000_000), "구독비 결제"));
+        String companyFinnum = accountRepository.findByAccountNumber(issueApikeyRequest.getAccountNumber()).orElseThrow(() -> new CustomException(ErrorCode.WRONG_ACCOUNTNUMBER)).getFintechUseNum();
+        coreTransactionService.transfer(new TransferRequest(companyFinnum, "777-7777-7777", new BigDecimal(1_000_000), "구독비 결제"));
         // 엔티티 생성
-        Subscribe subscribe = Subscribe.createSubscription(bank, "우리 BaaS API 구독", issueApikeyRequestDto.getBusinessNum(), issueApikeyRequestDto.getCompanyName());
+        Subscribe subscribe = Subscribe.createSubscription(bank, "우리 BaaS API 구독", issueApikeyRequest.getBusinessNum(), issueApikeyRequest.getCompanyName());
 
         // 구독 정보 저장
         subscribeRepository.save(subscribe);
         log.info("{}가(사업자등록번호{}) 구독 시작, api 키 발급 완료", subscribe.getCompanyName(), subscribe.getBusinessNum());
 
         // 클라이언트에게 반환할 DTO 생성
-        return new IssueApikeyResponsetDto(subscribe.getAccessKey(), subscribe.getPlainSecretKey());
+        return new IssueApikeyResponset(subscribe.getAccessKey(), subscribe.getPlainSecretKey());
     }
 
 
-    public List<SubcriptionsResponseDto> getSubscriptions(SubcriptionsRequestDto subcriptionsRequestDto) {
+    public List<SubcriptionsResponse> getSubscriptions(SubcriptionsRequest subcriptionsRequest) {
         List<Subscribe> subscribes = subscribeRepository
                 .findSubscribesByCompanyNameAndBusinessNum(
-                        subcriptionsRequestDto.getCompanyName(),
-                        subcriptionsRequestDto.getBusinessNum())
+                        subcriptionsRequest.getCompanyName(),
+                        subcriptionsRequest.getBusinessNum())
                 .orElseThrow(() -> new CustomException(ErrorCode.SUBSCRIPTION_NOT_FOUND));
-        return subscribes.stream().map(SubcriptionsResponseDto::of).toList();
+        return subscribes.stream().map(SubcriptionsResponse::from).toList();
 
     }
 

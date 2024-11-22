@@ -1,4 +1,4 @@
-package org.baas.baascore.dto;
+package org.baas.baascore.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class TransferStatesResponseDto {
+public class TransferStatesResponse {
     /**
      * 트랜젝션의 고유 식별자 (트랜젝션 ID)
      */
@@ -29,8 +29,8 @@ public class TransferStatesResponseDto {
     private StatusType state;
 
 
-    public static TransferStatesResponseDto of(TransactionHistory transactionHistory) {
-        return TransferStatesResponseDto.builder()
+    public static TransferStatesResponse from(TransactionHistory transactionHistory) {
+        return TransferStatesResponse.builder()
                 .tranId(transactionHistory.getCoreTransaction().getId())
                 .historyId(transactionHistory.getId())
                 .reqAt(transactionHistory.getCreatedAt())

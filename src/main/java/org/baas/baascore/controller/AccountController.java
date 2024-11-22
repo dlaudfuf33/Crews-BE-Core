@@ -3,7 +3,8 @@ package org.baas.baascore.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.baas.baascore.dto.*;
+import org.baas.baascore.dto.request.*;
+import org.baas.baascore.dto.response.*;
 import org.baas.baascore.service.AccountService;
 import org.baas.baascore.util.AccountType;
 import org.springframework.http.ResponseEntity;
@@ -51,8 +52,8 @@ public class AccountController {
 
 
     @PostMapping("/info/init")
-    public ResponseEntity<List<AccountInitResponseDto>> getAccountInfo(@RequestBody MemberInitRequestDto memberRequestDtoDto) {
-        List<AccountInitResponseDto> accountInfoList = accountService.findAccountInit(memberRequestDtoDto);
+    public ResponseEntity<List<AccountInitResponse>> getAccountInfo(@RequestBody MemberInitRequest memberRequestDtoDto) {
+        List<AccountInitResponse> accountInfoList = accountService.findAccountInit(memberRequestDtoDto);
         return ResponseEntity.ok(accountInfoList);
     }
 }

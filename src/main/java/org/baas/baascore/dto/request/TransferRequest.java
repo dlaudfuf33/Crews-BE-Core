@@ -1,12 +1,11 @@
-package org.baas.baascore.dto;
+package org.baas.baascore.dto.request;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 
 @Getter
-public class TransferRequestDto {
+public class TransferRequest {
 
     /**
      * 출금 계좌의 핀테크 이용 번호
@@ -28,7 +27,7 @@ public class TransferRequestDto {
      */
     private final String description;
 
-    public TransferRequestDto(String finUseNum, String recvAccountNum, BigDecimal amt, String description) {
+    public TransferRequest(String finUseNum, String recvAccountNum, BigDecimal amt, String description) {
         this.finUseNum = finUseNum;
         this.recvAccountNum = recvAccountNum;
         this.amt = amt;

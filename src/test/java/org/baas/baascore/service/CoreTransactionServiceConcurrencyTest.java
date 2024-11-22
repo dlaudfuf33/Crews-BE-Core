@@ -1,7 +1,7 @@
 package org.baas.baascore.service;
 
-import org.baas.baascore.dto.TransferRequestDto;
-import org.baas.baascore.dto.TransferResponseDto;
+import org.baas.baascore.dto.request.TransferRequest;
+import org.baas.baascore.dto.response.TransferResponse;
 import org.baas.baascore.model.Account;
 import org.baas.baascore.repository.AccountRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,14 +59,14 @@ class CoreTransactionServiceConcurrencyTest {
         ExecutorService executorService = Executors.newFixedThreadPool(100); // 50개의 스레드 풀 사용
         CountDownLatch latch = new CountDownLatch(threadCount);  // 모든 스레드 종료 대기
 
-        List<TransferResponseDto> responses = new ArrayList<>();
+        List<TransferResponse> responses = new ArrayList<>();
         List<Exception> exceptions = new ArrayList<>();
 
         for (int i = 0; i < threadCount; i++) {
             executorService.execute(() -> {
                 try {
-                    TransferRequestDto requestDto = new TransferRequestDto(finUseNum, recvAccountNum, amt, description);
-                    TransferResponseDto response = coreTransactionService.transfer(requestDto);
+                    TransferRequest requestDto = new TransferRequest(finUseNum, recvAccountNum, amt, description);
+                    TransferResponse response = coreTransactionService.transfer(requestDto);
                     synchronized (responses) {
                         responses.add(response);
                     }
