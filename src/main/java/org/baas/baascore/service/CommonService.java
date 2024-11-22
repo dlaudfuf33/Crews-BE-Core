@@ -9,6 +9,7 @@ import org.baas.baascore.dto.response.AccountIssuedResponse;
 import org.baas.baascore.dto.response.ProductAllResponse;
 import org.baas.baascore.dto.response.ProductResponse;
 import org.baas.baascore.model.Customer;
+import org.baas.baascore.model.Product;
 import org.baas.baascore.repository.CustomerRepository;
 import org.baas.baascore.repository.ProductRepository;
 import org.baas.baascore.util.AccountType;
@@ -59,6 +60,8 @@ public class CommonService {
     }
 
     public ProductAllResponse getAllProductInfo() {
-        return ProductAllResponse.builder().products(productRepository.findAll().stream().map(ProductResponse::from).toList()).build();
+        List<Product> productList = productRepository.findAll();
+        if(productList.isEmpty()) return ProductAllResponse.builder().build();
+        return ProductAllResponse.builder().products(productList.stream().map(ProductResponse::from).toList()).build();
     }
 }
