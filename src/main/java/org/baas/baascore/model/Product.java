@@ -30,7 +30,11 @@ public class Product extends BaseTimeEntity {
     @Column(name= "name",nullable = false)
     private String productName;
 
-    // 상품 이자율
-    @Column(name= "rate",nullable = false)
-    private double rate;
+    // 상품 최고이자율
+    @Column(name= "highest_rate",nullable = false)
+    private double highestRate;
+
+    // 상품 최저이자율
+    @Column(name= "lowest_rate",nullable = false)
+    private double lowestRate;
 }

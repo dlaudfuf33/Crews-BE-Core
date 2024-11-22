@@ -104,9 +104,9 @@ VALUES ('customer21@example.com', '크루즈', '01012345678', 'StWtvgc2xY6IhtUhk
        ('kanghyunwoo@fisa3rd.com', '강현우', '01029292403', 'Pn+HTBYdB3cmmZx4GyEUhYHeeoYMK81Ncb67F2/GgwC1tVu6YUAn90jttuqeZULnZ5KS3BAkUgoB/+V7cny8PQ==');
 
 -- Product 데이터 삽입
-INSERT INTO bank_product (id, bank_id, name, rate)
-VALUES (1, 1, '카카오 모임통장 상품', 1.5),
-       (2, 2, '우리 일반통장 상품', 1.2);
+INSERT INTO bank_product (id, bank_id, name, highest_rate, lowest_rate)
+VALUES (1, 1, '카카오 모임통장 상품', 2.0, 1.5),
+       (2, 2, '우리 일반통장 상품', 2.3, 1.2);
 
 -- Account 데이터 삽입
 INSERT

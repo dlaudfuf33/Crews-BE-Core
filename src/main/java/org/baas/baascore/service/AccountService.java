@@ -2,7 +2,6 @@ package org.baas.baascore.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.baas.baascore.dto.CardListDTO;
 import org.baas.baascore.dto.request.*;
 import org.baas.baascore.dto.response.*;
 import org.baas.baascore.exception.CustomException;
@@ -84,7 +83,7 @@ public class AccountService {
 
 
         List<AccountIssuedResponse> changedAccountList = accountList.stream().map(AccountIssuedResponse::from).toList();
-        List<CardListDTO> chagedCardList = cardList.stream().map(CardListDTO::from).toList();
+        List<CardListResponse> chagedCardList = cardList.stream().map(CardListResponse::from).toList();
         return AccountInfoResponse.builder().accountList(changedAccountList).cardList(chagedCardList).build();
 
     }
