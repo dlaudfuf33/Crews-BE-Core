@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.baas.baascore.dto.TransactionHistoryDto;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -23,5 +22,5 @@ public class TransactionDetailResponse {
     private String bankName;
 
     @Builder.Default
-    private List<TransactionHistoryDto> tranList = new ArrayList<>();
+    private List<TransactionHistoryResponse> tranList = new ArrayList<>();
 }

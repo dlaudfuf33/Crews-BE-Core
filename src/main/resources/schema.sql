@@ -34,7 +34,8 @@ CREATE TABLE IF NOT EXISTS bank_product
     id         BIGINT PRIMARY KEY AUTO_INCREMENT,
     bank_id    BIGINT       NOT NULL,
     name       VARCHAR(255) NOT NULL,
-    rate       DOUBLE       NOT NULL,
+    highest_rate       DOUBLE       NOT NULL,
+    lowest_rate      DOUBLE       NOT NULL,
     created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (bank_id) REFERENCES bank (id)

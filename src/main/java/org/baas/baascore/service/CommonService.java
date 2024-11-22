@@ -6,22 +6,35 @@ import org.baas.baascore.dto.request.AccountIssuedRequest;
 import org.baas.baascore.dto.request.CIRequest;
 import org.baas.baascore.dto.request.TransferRequest;
 import org.baas.baascore.dto.response.AccountIssuedResponse;
+import org.baas.baascore.dto.response.ProductAllResponse;
+import org.baas.baascore.dto.response.ProductResponse;
 import org.baas.baascore.model.Customer;
 import org.baas.baascore.repository.CustomerRepository;
+import org.baas.baascore.repository.ProductRepository;
 import org.baas.baascore.util.AccountType;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CIService {
+public class CommonService {
 
     private final CustomerRepository customerRepository;
     private final AccountService accountService;
     private final CoreTransactionService coreTransactionService;
+    private final ProductRepository productRepository;
+    private static String WOORI_BANK;
+
+    @Value("${bank.woori}")
+    public void setWooriBank(String wooriBank) {
+        WOORI_BANK = wooriBank;
+    }
+
 
     @Transactional
     public AccountIssuedResponse ciSave(CIRequest ciRequest){
@@ -38,10 +51,14 @@ public class CIService {
         AccountIssuedRequest accountIssuedRequest = AccountIssuedRequest.builder().ci(ciRequest.getCi()).build();
         AccountIssuedResponse accountIssuedResponse = accountService.accountIssued(accountIssuedRequest,
             AccountType.PERSONAL);
-        TransferRequest transferRequest = new TransferRequest("9df5bf03-cf53-4a48-8c6d-03b8c36f5783",accountIssuedResponse.getAccountNumber(),
+        TransferRequest transferRequest = new TransferRequest(WOORI_BANK,accountIssuedResponse.getAccountNumber(),
             BigDecimal.valueOf(500000),"초기 지원금");
         coreTransactionService.transfer(transferRequest);
         accountIssuedResponse.setBalance(BigDecimal.valueOf(500000));
         return accountIssuedResponse;
+    }
+
+    public ProductAllResponse getAllProductInfo() {
+        return ProductAllResponse.builder().products(productRepository.findAll().stream().map(ProductResponse::from).toList()).build();
     }
 }

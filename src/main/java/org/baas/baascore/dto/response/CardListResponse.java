@@ -1,4 +1,4 @@
-package org.baas.baascore.dto;
+package org.baas.baascore.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class CardListDTO {
+public class CardListResponse {
     private String memberName;
     private String bankCode;
     private String bankName;
@@ -17,8 +17,8 @@ public class CardListDTO {
     private LocalDateTime updateAt;
     private String cardNumber;
 
-    public static CardListDTO from(Card card){
-        return CardListDTO.builder()
+    public static CardListResponse from(Card card){
+        return CardListResponse.builder()
                 .memberName(card.getCustomer().getName())
                 .bankCode(card.getAccount().getBank().getBankCode())
                 .bankName(card.getAccount().getBank().getBankName())

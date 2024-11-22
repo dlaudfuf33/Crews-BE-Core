@@ -1,9 +1,8 @@
-package org.baas.baascore.dto;
+package org.baas.baascore.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
 import org.baas.baascore.model.TransactionHistory;
-import org.baas.baascore.util.AccountType;
 import org.baas.baascore.util.TranType;
 
 import java.math.BigDecimal;
@@ -11,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class TransactionHistoryDto {
+public class TransactionHistoryResponse {
 
     private String counterpartyBankCode;
     private String counterpartyAccountNum;
@@ -22,8 +21,8 @@ public class TransactionHistoryDto {
     private BigDecimal afterBalanceAmount;
     private String withdrawerName;
 
-    public static TransactionHistoryDto from(TransactionHistory transactionHistory){
-        return TransactionHistoryDto.builder()
+    public static TransactionHistoryResponse from(TransactionHistory transactionHistory){
+        return TransactionHistoryResponse.builder()
                 .counterpartyBankCode(transactionHistory.getCounterpartyBankCode())
                 .counterpartyAccountNum(transactionHistory.getCounterpartyAccountNum())
                 .tranType(transactionHistory.getTranType())

@@ -3,7 +3,7 @@ package org.baas.baascore.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.baas.baascore.dto.TransactionHistoryDto;
+import org.baas.baascore.dto.response.TransactionHistoryResponse;
 import org.baas.baascore.dto.request.TransactionDetailRequest;
 import org.baas.baascore.dto.request.TransferRequest;
 import org.baas.baascore.dto.request.TransferStatesRequest;
@@ -54,7 +54,7 @@ public class CoreTransactionService {
         String transactionType = transactionDetailRequest.getTransactionType();
         String order = transactionDetailRequest.getOrder();
         List<TransactionHistory> list = getTransactionHistories(transactionType, account, filteredDate, order);
-        List<TransactionHistoryDto> historyDtoList = list.stream().map(TransactionHistoryDto::from).toList();
+        List<TransactionHistoryResponse> historyDtoList = list.stream().map(TransactionHistoryResponse::from).toList();
         return TransactionDetailResponse.builder().tranList(historyDtoList)
                 .accountNumber(account.getAccountNumber())
                 .productName(account.getProduct().getProductName())
