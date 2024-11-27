@@ -50,11 +50,20 @@ public class AccountController {
         return ResponseEntity.ok().body(accountService.fintechNum(fintechNumRequest));
     }
 
+    @PostMapping("/fin-nums")
+    public ResponseEntity<MultiFintechNumsResponse> multiFintechNum(@RequestBody MultiFintechNumRequest multiFintechNumRequest) {
+        return ResponseEntity.ok().body(accountService.multiFintechNum(multiFintechNumRequest));
+    }
+
 
     @PostMapping("/info/init")
-    public ResponseEntity<List<AccountInitResponse>> getAccountInfo(@RequestBody MemberInitRequest memberRequestDtoDto) {
-        List<AccountInitResponse> accountInfoList = accountService.findAccountInit(memberRequestDtoDto);
-        return ResponseEntity.ok(accountInfoList);
+    public ResponseEntity<AccountsInfoResponse> getAccountInfo(@RequestBody MemberInitRequest memberRequestDtoDto) {
+        return ResponseEntity.ok(accountService.findAccountInfo(memberRequestDtoDto));
+    }
+
+    @PostMapping("/info/balance")
+    public ResponseEntity<List<FintechBalancePairResponse>> getAccountBalance(@RequestBody BalanceLoadRequest balanceLoadRequest) {
+        return ResponseEntity.ok(accountService.getBalance(balanceLoadRequest));
     }
 }
 
