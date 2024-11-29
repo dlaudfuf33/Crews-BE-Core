@@ -71,6 +71,9 @@ public class Account extends BaseTimeEntity {
     @Column(name = "is_deleted", columnDefinition = "boolean default false")
     private boolean isDeleted;
 
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
+    private List<TransactionHistory> transactionHistories = new ArrayList<>();
+
     public void accountDeleted(boolean deleted) {
         isDeleted = deleted;
     }

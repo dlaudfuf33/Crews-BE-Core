@@ -3,13 +3,19 @@ package org.baas.baascore.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baas.baascore.dto.request.AccountIssuedRequest;
+import org.baas.baascore.dto.request.BalanceInfoRequest;
 import org.baas.baascore.dto.request.CIRequest;
 import org.baas.baascore.dto.request.TransferRequest;
 import org.baas.baascore.dto.response.AccountIssuedResponse;
+import org.baas.baascore.dto.response.BalanceInfoResponse;
 import org.baas.baascore.dto.response.ProductAllResponse;
 import org.baas.baascore.dto.response.ProductResponse;
+import org.baas.baascore.exception.CustomException;
+import org.baas.baascore.exception.ErrorCode;
+import org.baas.baascore.model.Account;
 import org.baas.baascore.model.Customer;
 import org.baas.baascore.model.Product;
+import org.baas.baascore.repository.AccountRepository;
 import org.baas.baascore.repository.CustomerRepository;
 import org.baas.baascore.repository.ProductRepository;
 import org.baas.baascore.util.AccountType;
@@ -29,6 +35,7 @@ public class CommonService {
     private final AccountService accountService;
     private final CoreTransactionService coreTransactionService;
     private final ProductRepository productRepository;
+    private final AccountRepository accountRepository;
     private static String WOORI_BANK;
 
     @Value("${bank.woori}")
@@ -63,5 +70,20 @@ public class CommonService {
         List<Product> productList = productRepository.findAll();
         if(productList.isEmpty()) return ProductAllResponse.builder().build();
         return ProductAllResponse.builder().products(productList.stream().map(ProductResponse::from).toList()).build();
+    }
+
+    public BalanceInfoResponse getBalanceInfo(BalanceInfoRequest balanceInfoRequest) {
+        Account account = accountRepository.findByFintechUseNum(balanceInfoRequest.getFintecUseNum()).orElseThrow(
+                () -> new CustomException(ErrorCode.ACCOUNTNUMBER_NOT_FOUND)
+        );
+
+        Account recvAccount = accountRepository.findByFintechUseNum(balanceInfoRequest.getRecvFintecUseNum()).orElseThrow(
+                () -> new CustomException(ErrorCode.ACCOUNTNUMBER_NOT_FOUND)
+        );
+
+        return BalanceInfoResponse.builder().accountNumber(account.getAccountNumber()).afterBalanceAmt(account.getBalance())
+                .recvAccountNumber(recvAccount.getAccountNumber()).recvAfterBalanceAmt(recvAccount.getBalance())
+                .build();
+
     }
 }
