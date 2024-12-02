@@ -56,6 +56,11 @@ public class AccountController {
         List<AccountInitResponse> accountInfoList = accountService.findAccountInit(memberRequestDtoDto);
         return ResponseEntity.ok(accountInfoList);
     }
+
+    @PostMapping("/info/date")
+    public ResponseEntity<TransactionDetailResponse> getAccountInfoOfDate(@RequestBody AccountInfoOfDate accountInfoOfDate) {
+        return ResponseEntity.ok().body(accountService.getAccountInfoOfDate(accountInfoOfDate));
+    }
 }
 
 
