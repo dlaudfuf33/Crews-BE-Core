@@ -3,13 +3,10 @@ package org.baas.baascore.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.baas.baascore.dto.response.TransactionHistoryResponse;
+import org.baas.baascore.dto.response.*;
 import org.baas.baascore.dto.request.TransactionDetailRequest;
 import org.baas.baascore.dto.request.TransferRequest;
 import org.baas.baascore.dto.request.TransferStatesRequest;
-import org.baas.baascore.dto.response.TransactionDetailResponse;
-import org.baas.baascore.dto.response.TransferResponse;
-import org.baas.baascore.dto.response.TransferStatesResponse;
 import org.baas.baascore.exception.CustomException;
 import org.baas.baascore.exception.ErrorCode;
 import org.baas.baascore.model.Account;
@@ -44,7 +41,7 @@ public class CoreTransactionService {
         Customer customer = customerRepository.findByCi(transactionDetailRequest.getCi()).orElseThrow(
                 () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
         );
-        if (!customer.equals(account.getCustomer()) && account.getAccountType().equals(AccountType.PERSONAL)){
+        if (!customer.equals(account.getCustomer()) && account.getAccountType().equals(AccountType.PERSONAL)) {
             throw new CustomException(ErrorCode.MEMBER_NOT_EQUALS);
         }
         Integer selectPeriod = transactionDetailRequest.getSelectPeriod();
@@ -149,12 +146,14 @@ public class CoreTransactionService {
      * 이체 요청에 따른 거래 내역을 생성합니다. (송금 내역과 수신 내역)
      *
      * @param transferRequest 이체 요청 정보를 담고 있는 DTO
-     * @param fromAccount        송금하는 계좌 정보
-     * @param toAccount          수신하는 계좌 정보
+     * @param fromAccount     송금하는 계좌 정보
+     * @param toAccount       수신하는 계좌 정보
      * @return 송금 및 수신 내역을 포함하는 TransactionHistory 배열
      */
     private TransactionHistory[] issueHistory(TransferRequest transferRequest, Account fromAccount, Account toAccount) {
         log.info("거래 내역 생성 - 출금 계좌: {}, 입금 계좌: {}", fromAccount.getId(), toAccount.getId());
+
+        String descriptionTmp = transferRequest.getDescription() == null ? "" : transferRequest.getDescription();
 
         // CoreTransaction 인스턴스를 각각 생성하여 PENDING 상태로 설정
         CoreTransaction tradeTrx = createPendingTransaction();
@@ -167,7 +166,7 @@ public class CoreTransactionService {
                 .afterBalanceAmt(fromAccount.getBalance().subtract(transferRequest.getAmt()))
                 .countryAccount(toAccount)
                 .coreTransaction(tradeTrx)
-                .description(transferRequest.getDescription())
+                .description(descriptionTmp)
                 .build();
 
         // 입금 거래 내역 생성
