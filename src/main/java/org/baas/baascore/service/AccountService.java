@@ -43,7 +43,7 @@ public class AccountService {
         Bank bank = bankRepository.findByBankCode("020").orElseThrow( //"020 - 우리은행 은행코드
                 () -> new CustomException(ErrorCode.BANK_NOT_FOUND)
         );
-        Product product = productRepository.findById(2L).orElseThrow(
+        Product product = productRepository.findById(accountIssuedRequest.getProductId()).orElseThrow(
                 () -> new CustomException(ErrorCode.BANK_NOT_FOUND)
         );
         String accountNumber = getAccountNumber();

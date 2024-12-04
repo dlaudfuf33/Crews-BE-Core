@@ -13,13 +13,14 @@ public class ThreadLocalLogTrace implements LogTrace {
 	private static final String COMPLETE_PREFIX = "<--";
 	private static final String EX_PREFIX = "<X-";
 
+	private static final String TRACEID = "traceId";
 	private String message;
 
 	@Override
 	public TraceStatus begin(String message) {
 		this.message = message;
 		syncTraceId();
-		String traceId = MDC.get("traceId");
+		String traceId = MDC.get(TRACEID);
 		TraceId traceId1 = new TraceId(traceId.split("\\.")[1], Integer.parseInt(traceId.split("\\.")[0]));
 
 		Long startTimeMs = System.currentTimeMillis();
@@ -62,18 +63,8 @@ public class ThreadLocalLogTrace implements LogTrace {
 		releaseTraceId();
 	}
 
-//	private Object getSession() {
-//		ServletRequestAttributes servletRequestAttribute = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
-//		Object attribute = null;
-//		if (servletRequestAttribute != null) {
-//			attribute = servletRequestAttribute.getAttribute(SessionConst.LOGIN_MEMBER,
-//				RequestAttributes.SCOPE_SESSION);
-//		}
-//		return attribute;
-//	}
-
 	private void syncTraceId() {
-		String traceId = MDC.get("traceId");
+		String traceId = MDC.get(TRACEID);
 		if (traceId == null) {
 			TraceId traceId1 = new TraceId();
 			MDC.put("traceId", traceId1.getMdcStr());
@@ -85,8 +76,7 @@ public class ThreadLocalLogTrace implements LogTrace {
 	}
 
 	private void releaseTraceId() {
-//		Object session = getSession();
-		String traceId = MDC.get("traceId");
+		String traceId = MDC.get(TRACEID);
 		TraceId traceId1 = new TraceId(traceId.split("\\.")[1], Integer.parseInt(traceId.split("\\.")[0]));
 		if (traceId1.isFirstLevel()) {
 			MDC.clear();
