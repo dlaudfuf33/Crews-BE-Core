@@ -56,7 +56,7 @@ public class CommonService {
                 .build();
             customerRepository.save(makeCustomer);
         }
-        AccountIssuedRequest accountIssuedRequest = AccountIssuedRequest.builder().ci(ciRequest.getCi()).build();
+        AccountIssuedRequest accountIssuedRequest = AccountIssuedRequest.builder().ci(ciRequest.getCi()).productId(2L).build();
         AccountIssuedResponse accountIssuedResponse = accountService.accountIssued(accountIssuedRequest,
             AccountType.PERSONAL);
         TransferRequest transferRequest = new TransferRequest(WOORI_BANK,accountIssuedResponse.getAccountNumber(),
