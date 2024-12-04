@@ -28,4 +28,11 @@ public interface TransactionHistoryRepository extends JpaRepository<TransactionH
                                                                     @Param("filteredDate") LocalDateTime filteredDate,
                                                                     @Param("transactionType") TranType transactionType);
 
+
+    @Query("SELECT t FROM TransactionHistory t WHERE t.account =:account AND FUNCTION('YEAR', t.createdAt) = :year AND FUNCTION('MONTH', t.createdAt) = :month AND t.tranType = :transactionType ORDER BY t.createdAt DESC")
+    List<TransactionHistory> findTransactionHistoryYearAndMonth(@Param("account") Account account,
+        @Param("year") Integer year,
+        @Param("month") Integer month,
+        @Param("transactionType") TranType transactionType);
+
 }
