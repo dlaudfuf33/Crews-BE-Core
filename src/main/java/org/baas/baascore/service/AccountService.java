@@ -34,6 +34,8 @@ public class AccountService {
     private final CustomerRepository customerRepository;
     private final CardRepository cardRepository;
     private final ProductRepository productRepository;
+    private final TransactionHistoryRepository transactionHistoryRepository;
+
 
     public AccountIssuedResponse accountIssued(AccountIssuedRequest accountIssuedRequest, AccountType accountTypeCrew) {
         Customer customer = customerRepository.findByCi(accountIssuedRequest.getCi()).orElseThrow(
@@ -154,5 +156,29 @@ public class AccountService {
         return accountRepository.findByCustomerId(customer.getId()).stream()
                 .map(AccountInitResponse::from)
                 .toList();
+    }
+
+    public TransactionDetailResponse getAccountInfoOfDate(AccountInfoOfDate accountInfoOfDate) {
+
+        Account account = accountRepository.findByFintechUseNum(accountInfoOfDate.getFintechUseNum()).orElseThrow(
+            () -> new CustomException(ErrorCode.ACCOUNTNUMBER_NOT_FOUND)
+        );
+        Customer customer = customerRepository.findByCi(accountInfoOfDate.getCi()).orElseThrow(
+            () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
+        );
+        if (!customer.equals(account.getCustomer()) && account.getAccountType().equals(AccountType.PERSONAL)){
+            throw new CustomException(ErrorCode.MEMBER_NOT_EQUALS);
+        }
+        List<TransactionHistory> list = transactionHistoryRepository.findTransactionHistoryYearAndMonth(
+            account, accountInfoOfDate.getYear(), accountInfoOfDate.getMonth(), accountInfoOfDate.getTranType());
+
+        List<TransactionHistoryResponse> historyDtoList = list.stream().map(TransactionHistoryResponse::from).toList();
+        return TransactionDetailResponse.builder().tranList(historyDtoList)
+            .accountNumber(account.getAccountNumber())
+            .productName(account.getProduct().getProductName())
+            .balance(account.getBalance())
+            .bankCode(account.getBank().getBankCode())
+            .bankName(account.getBank().getBankName())
+            .build();
     }
 }
