@@ -3,13 +3,13 @@
 -- Bank 데이터 삽입
 -- bank 테이블에 데이터 삽입
 INSERT INTO bank (id, code, name, bank_image)
-VALUES (1, '001', '통합은행', 'https://hwamockyee.s3.ap-northeast-2.amazonaws.com/crews/banklogo/woori.png'),
-       (4, '004', '가상계좌 채번가능 국민은행', 'https://hwamockyee.s3.ap-northeast-2.amazonaws.com/crews/banklogo/kb.png'),
-       (10, '020', '가상계좌 채번가능 우리은행', 'https://hwamockyee.s3.ap-northeast-2.amazonaws.com/crews/banklogo/woori.png'),
-       (40, '081', '가상계좌 채번가능 하나은행', 'https://hwamockyee.s3.ap-northeast-2.amazonaws.com/crews/banklogo/hana.png'),
-       (43, '090', '카카오뱅크', 'https://hwamockyee.s3.ap-northeast-2.amazonaws.com/crews/banklogo/kakao.png'),
-       (44, '092', '토스뱅크', 'https://hwamockyee.s3.ap-northeast-2.amazonaws.com/crews/banklogo/toss.png'),
-       (41, '088', '가상계좌 채번가능 신한은행', 'https://hwamockyee.s3.ap-northeast-2.amazonaws.com/crews/banklogo/shinhan.png');
+VALUES (1, '001', '통합은행', 'https://djogyo1sj025q.cloudfront.net/banklogo/001.png'),
+       (4, '004', '가상계좌 채번가능 국민은행', 'https://djogyo1sj025q.cloudfront.net/banklogo/004.png'),
+       (10, '020', '가상계좌 채번가능 우리은행', 'https://djogyo1sj025q.cloudfront.net/banklogo/020.png'),
+       (40, '081', '가상계좌 채번가능 하나은행', 'https://djogyo1sj025q.cloudfront.net/banklogo/081.png'),
+       (43, '090', '카카오뱅크', 'https://djogyo1sj025q.cloudfront.net/banklogo/090.png'),
+       (44, '092', '토스뱅크', 'https://djogyo1sj025q.cloudfront.net/banklogo/092.png'),
+       (41, '088', '가상계좌 채번가능 신한은행', 'https://djogyo1sj025q.cloudfront.net/banklogo/088.png');
 INSERT INTO bank (id, code, name)
 VALUES (2, '002', '산업은행'),
        (3, '003', '가상계좌 채번가능 기업은행'),
