@@ -21,7 +21,7 @@ public class TransactionHistory extends BaseTimeEntity {
     private Long id;
 
     // 거래가 발생한 계좌
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "core_account_id", nullable = false)
     private Account account;
 

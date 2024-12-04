@@ -14,6 +14,7 @@ public class ProductResponse {
     private Long id;
     private String bankCode;
     private String bankName;
+    private String bankImage;
     private String productName;
     private double highestRate;
     private double lowestRate;
@@ -22,6 +23,7 @@ public class ProductResponse {
         return ProductResponse.builder().id(product.getId())
                 .bankCode(product.getBank().getBankCode())
                 .bankName(product.getBank().getBankName())
+                .bankImage(product.getBank().getBankImage())
                 .productName(product.getProductName())
                 .highestRate(product.getHighestRate())
                 .lowestRate(product.getLowestRate())

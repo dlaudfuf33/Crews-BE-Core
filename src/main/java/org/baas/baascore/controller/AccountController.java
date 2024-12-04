@@ -65,6 +65,11 @@ public class AccountController {
     public ResponseEntity<List<FintechBalancePairResponse>> getAccountBalance(@RequestBody BalanceLoadRequest balanceLoadRequest) {
         return ResponseEntity.ok(accountService.getBalance(balanceLoadRequest));
     }
+
+    @PostMapping("/info/date")
+    public ResponseEntity<TransactionDetailResponse> getAccountInfoOfDate(@RequestBody AccountInfoOfDate accountInfoOfDate) {
+        return ResponseEntity.ok().body(accountService.getAccountInfoOfDate(accountInfoOfDate));
+    }
 }
 
 

@@ -125,6 +125,7 @@ public class CoreTransactionService {
                     .recvAccountNum(depositHistory.getAccount().getAccountNumber())
                     .amount(withdrawHistory.getTranAmt())
                     .afterAmt(withdrawHistory.getAccount().getBalance())
+                    .transactionTime(withdrawHistory.getCreatedAt())
                     .build();// 응답 생성
         } catch (CustomException e) {
             if (e.getErrorCode() == ErrorCode.INSUFFICIENT_BALANCE) {

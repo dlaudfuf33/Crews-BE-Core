@@ -37,6 +37,8 @@ public class AccountService {
     private final CustomerRepository customerRepository;
     private final CardRepository cardRepository;
     private final ProductRepository productRepository;
+    private final TransactionHistoryRepository transactionHistoryRepository;
+
 
     public AccountIssuedResponse accountIssued(AccountIssuedRequest accountIssuedRequest, AccountType accountTypeCrew) {
         Customer customer = customerRepository.findByCi(accountIssuedRequest.getCi()).orElseThrow(
@@ -46,7 +48,7 @@ public class AccountService {
         Bank bank = bankRepository.findByBankCode("020").orElseThrow( //"020 - 우리은행 은행코드
                 () -> new CustomException(ErrorCode.BANK_NOT_FOUND)
         );
-        Product product = productRepository.findById(2L).orElseThrow(
+        Product product = productRepository.findById(accountIssuedRequest.getProductId()).orElseThrow(
                 () -> new CustomException(ErrorCode.BANK_NOT_FOUND)
         );
         String accountNumber = getAccountNumber();
@@ -199,5 +201,29 @@ public class AccountService {
 
     public List<FintechBalancePairResponse> getBalance(BalanceLoadRequest balanceLoadRequest) {
         return accountRepository.findBalancesByFintechNumbers(balanceLoadRequest.getFintechNum());
+    }
+
+    public TransactionDetailResponse getAccountInfoOfDate(AccountInfoOfDate accountInfoOfDate) {
+
+        Account account = accountRepository.findByFintechUseNum(accountInfoOfDate.getFintechUseNum()).orElseThrow(
+            () -> new CustomException(ErrorCode.ACCOUNTNUMBER_NOT_FOUND)
+        );
+        Customer customer = customerRepository.findByCi(accountInfoOfDate.getCi()).orElseThrow(
+            () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
+        );
+        if (!customer.equals(account.getCustomer()) && account.getAccountType().equals(AccountType.PERSONAL)){
+            throw new CustomException(ErrorCode.MEMBER_NOT_EQUALS);
+        }
+        List<TransactionHistory> list = transactionHistoryRepository.findTransactionHistoryYearAndMonth(
+            account, accountInfoOfDate.getYear(), accountInfoOfDate.getMonth(), accountInfoOfDate.getTranType());
+
+        List<TransactionHistoryResponse> historyDtoList = list.stream().map(TransactionHistoryResponse::from).toList();
+        return TransactionDetailResponse.builder().tranList(historyDtoList)
+            .accountNumber(account.getAccountNumber())
+            .productName(account.getProduct().getProductName())
+            .balance(account.getBalance())
+            .bankCode(account.getBank().getBankCode())
+            .bankName(account.getBank().getBankName())
+            .build();
     }
 }

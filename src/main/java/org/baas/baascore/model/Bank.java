@@ -27,7 +27,7 @@ public class Bank extends BaseTimeEntity {
     @Column(name = "name", nullable = false)
     private String bankName;
 
-    // 은행 로고 (예: 하나은행, 국민은행)
+    //은행 이미지
     @Column(name = "bank_image", nullable = false)
     private String bankImage;
 
