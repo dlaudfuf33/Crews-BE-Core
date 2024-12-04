@@ -27,6 +27,10 @@ public class Bank extends BaseTimeEntity {
     @Column(name = "name", nullable = false)
     private String bankName;
 
+    //은행 이미지
+    @Column(name = "bank_image", nullable = false)
+    private String bankImage;
+
     // 해당 은행사의 상품 리스트
     @OneToMany(mappedBy = "bank", fetch = FetchType.LAZY)
     private List<Product> products = new ArrayList<>();
