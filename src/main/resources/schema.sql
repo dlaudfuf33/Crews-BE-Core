@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS bank
     id         BIGINT PRIMARY KEY AUTO_INCREMENT,
     code       VARCHAR(255) NOT NULL, -- 기존에 20자 제한이었으나, 일부 상황에서 부족할 수 있으므로 255자로 변경
     name       VARCHAR(255) NOT NULL,
+    bank_image VARCHAR(255) DEFAULT '',
     created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -31,13 +32,13 @@ CREATE TABLE IF NOT EXISTS bank_member
 -- Product 테이블 생성
 CREATE TABLE IF NOT EXISTS bank_product
 (
-    id         BIGINT PRIMARY KEY AUTO_INCREMENT,
-    bank_id    BIGINT       NOT NULL,
-    name       VARCHAR(255) NOT NULL,
-    highest_rate       DOUBLE       NOT NULL,
-    lowest_rate      DOUBLE       NOT NULL,
-    created_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    id           BIGINT PRIMARY KEY AUTO_INCREMENT,
+    bank_id      BIGINT       NOT NULL,
+    name         VARCHAR(255) NOT NULL,
+    highest_rate DOUBLE       NOT NULL,
+    lowest_rate  DOUBLE       NOT NULL,
+    created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (bank_id) REFERENCES bank (id)
 );
 
@@ -68,7 +69,7 @@ CREATE TABLE IF NOT EXISTS core_card
     customer_id BIGINT       NOT NULL,
     account_id  BIGINT       NOT NULL,
     card_name   VARCHAR(255) NOT NULL,
-    card_number VARCHAR(255)  NOT NULL UNIQUE,
+    card_number VARCHAR(255) NOT NULL UNIQUE,
     cvc         VARCHAR(4)   NOT NULL,
     is_issued   BOOLEAN      NOT NULL,
     expired_at  DATETIME     NOT NULL,
@@ -85,7 +86,7 @@ CREATE TABLE IF NOT EXISTS subscribe
     id           BIGINT PRIMARY KEY AUTO_INCREMENT,
     bank_id      BIGINT         NOT NULL,
     product_name VARCHAR(255),
-    business_num VARCHAR(15)    NOT NULL,
+    business_num VARCHAR(255)    NOT NULL,
     company_name VARCHAR(255)   NOT NULL,
     expire_date  DATETIME       NOT NULL,
     is_subscribe BOOLEAN        NOT NULL,

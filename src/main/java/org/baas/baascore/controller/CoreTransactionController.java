@@ -72,4 +72,12 @@ public class CoreTransactionController {
             @RequestBody TransactionDetailRequest transactionDetailRequest) {
         return ResponseEntity.ok().body(coreTransactionService.transactionDetail(transactionDetailRequest));
     }
+
+
+    @PostMapping("/withdraws")
+    public ResponseEntity<TransactionDetailResponse> withdrawTransaction(
+            @RequestBody TransactionDetailRequest transactionDetailRequest) {
+        TransactionDetailResponse tmp =coreTransactionService.transactionDetail(transactionDetailRequest);
+        return ResponseEntity.ok().body(tmp);
+    }
 }

@@ -1,6 +1,7 @@
 package org.baas.baascore.repository;
 
 import jakarta.persistence.LockModeType;
+import org.baas.baascore.dto.response.FintechBalancePairResponse;
 import org.baas.baascore.model.Account;
 import org.baas.baascore.model.Customer;
 import org.baas.baascore.util.AccountType;
@@ -18,7 +19,7 @@ import java.util.Optional;
 public interface AccountRepository extends JpaRepository<Account, Long> {
     @EntityGraph(attributePaths = {"customer", "bank"})
 
-    // 단순 조회 (락 없이)
+        // 단순 조회 (락 없이)
     Optional<Account> findByAccountNumber(String accountNumber);
 
     @EntityGraph(attributePaths = {"bank"})
@@ -44,5 +45,12 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Account> findByFintechUseNumForUpdate(@Param("fintechUseNum") String fintechUseNum);
 
+    @Query("SELECT new org.baas.baascore.dto.response.FintechBalancePairResponse(a.fintechUseNum, a.balance) " +
+            "FROM Account a " +
+            "WHERE a.fintechUseNum IN :fintechNums")
+    List<FintechBalancePairResponse> findBalancesByFintechNumbers(@Param("fintechNums") List<String> fintechNums);
 
-}
+    // 읽기 전용
+    @Query("SELECT a FROM Account a WHERE a.accountNumber IN :accountNumbers")
+    @EntityGraph(attributePaths = {"customer", "bank" ,"product"})
+    List<Account> findByAccountNumbers(@Param("accountNumbers") List<String> accountNumbers);}

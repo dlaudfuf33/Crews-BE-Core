@@ -8,9 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MemberInitRequest {
     @NotBlank
-    private String name;
-
-    @NotBlank
-    private String phoneNumber;
-
+    private String ci;
 }
