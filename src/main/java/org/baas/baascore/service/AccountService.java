@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
@@ -192,7 +191,7 @@ public class AccountService {
 
         AtomicInteger index = new AtomicInteger(1);
         List<AccountInitResponse> accountInfoList = accountRepository.findByCustomerId(customer.getId()).stream()
-                .map(account -> AccountInitResponse.from(account, index.getAndIncrement()))
+                .map(account -> AccountInitResponse.of(account, index.getAndIncrement()))
                 .toList();
 
         return new AccountsInfoResponse(accountInfoList.size(), accountInfoList);

@@ -38,7 +38,7 @@ public class Customer extends BaseTimeEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "ci",length = 88)
+    @Column(name = "ci",length = 88, nullable = false, unique = true)
     private String ci;
 
     // 한 고객이 여러 계좌를 소유할 수 있도록 양방향 매핑 추가

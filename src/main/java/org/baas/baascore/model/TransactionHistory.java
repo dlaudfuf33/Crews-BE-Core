@@ -45,7 +45,7 @@ public class TransactionHistory extends BaseTimeEntity {
     private BigDecimal afterBalanceAmt;
 
     // 출금 상대 이름
-    @Column(name = "counterparty_Name", nullable = false)
+    @Column(name = "counterparty_name", nullable = false)
     private String counterpartyName;
 
     // 출금 상대 계좌 번호
@@ -62,7 +62,7 @@ public class TransactionHistory extends BaseTimeEntity {
 
     // CoreTransaction과의 다대일 관계 설정
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "core_transaction_id", nullable = false)
+    @JoinColumn(name = "transaction_id", nullable = false)
     private CoreTransaction coreTransaction;
 
     public TransactionHistory() {

@@ -23,7 +23,7 @@ public class AccountInitResponse {
     private LocalDate createdAt;
     private LocalDate updatedAt;
 
-    public static AccountInitResponse from(Account account, int index) {
+    public static AccountInitResponse of(Account account, int index) {
         return AccountInitResponse.builder()
                 .index(index)
                 .customerName(account.getCustomer().getName())
