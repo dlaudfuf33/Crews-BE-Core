@@ -33,6 +33,7 @@ public class Subscribe extends BaseTimeEntity {
     private Bank bank;
 
     // 구독상품명
+    @Column(name = "product_name", nullable = false)
     private String productName;
 
     // 사업자 등록 번호
