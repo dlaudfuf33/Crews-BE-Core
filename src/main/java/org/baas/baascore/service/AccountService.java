@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +54,7 @@ public class AccountService {
         String accountNumber = getAccountNumber();
         BigDecimal balance = BigDecimal.ZERO;
         CurrencyType currencyType = CurrencyType.KRW;
-		Account account = Account.builder().customer(customer).bank(bank).product(product).accountNumber(accountNumber).balance(balance)
+        Account account = Account.builder().customer(customer).bank(bank).product(product).accountNumber(accountNumber).balance(balance)
                 .currencyType(currencyType).accountType(accountTypeCrew).fintechUseNum(fintechUseNum).build();
         Account savedAccount = accountRepository.save(account);
         log.info("생성된 계좌번호 : {}, 이름 {}, 식별자번호 {}", accountNumber, customer.getName(), customer.getCi());
@@ -119,6 +122,44 @@ public class AccountService {
 
     }
 
+    public MultiFintechNumsResponse multiFintechNum(MultiFintechNumRequest multiFintechNumRequest) {
+        String accountNumbersStr = String.join(", ", multiFintechNumRequest.getAccountNumbers());
+        log.info("핀테크 번호 요청 처리 중: CI={}, 계좌 번호들={}",
+                multiFintechNumRequest.getCi(),
+                accountNumbersStr);
+
+        // CI로 고객 조회
+        Customer customer = customerRepository.findByCi(multiFintechNumRequest.getCi()).orElseThrow(
+                () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
+        );
+
+        List<String> accountNumberList = multiFintechNumRequest.getAccountNumbers();
+        List<Account> accounts = accountRepository.findByAccountNumbers(accountNumberList);
+
+        if (accounts.isEmpty()) {
+            log.warn("제공된 계좌 번호들에 해당하는 계좌를 찾을 수 없습니다: {}", accountNumberList);
+            throw new CustomException(ErrorCode.ACCOUNTNUMBER_NOT_FOUND);
+        }
+
+        // 모든 계좌가 동일한 고객에게 속하는지 확인
+        boolean allBelongToCustomer = accounts.stream()
+                .allMatch(account -> customer.equals(account.getCustomer()));
+
+        if (!allBelongToCustomer) {
+            log.warn("일부 계좌가 요청한 고객과 일치하지 않습니다.");
+            throw new CustomException(ErrorCode.MEMBER_NOT_EQUALS);
+        }
+
+        // MultiFintechNumResponse 리스트 생성 및 인덱스 부여 (안전한 방식)
+        List<MultiFintechNumResponse> fintechResponses = IntStream.range(0, accounts.size())
+                .mapToObj(i -> MultiFintechNumResponse.of(accounts.get(i), i + 1)) // 인덱스 1부터 시작
+                .toList();
+
+        MultiFintechNumsResponse response = new MultiFintechNumsResponse(fintechResponses.size(), fintechResponses);
+        log.info("핀테크 번호 응답 생성 완료: {}", response);
+        return response;
+    }
+
     @Retryable
     private String getAccountNumber() {
         String accountNumber = createAccountNumber();
@@ -144,18 +185,22 @@ public class AccountService {
         return accountRepository.findByCustomerId(customerId);
     }
 
-    public List<AccountInitResponse> findAccountInit(MemberInitRequest memberInitRequest) {
-        log.info("{}   {}  {}", memberInitRequest, memberInitRequest.getName(), memberInitRequest.getPhoneNumber());
-        // Optional을 사용해 고객을 찾고 예외를 던지도록 간결화
-        Customer customer = customerRepository.findByNameAndPhoneNum(
-                memberInitRequest.getName(),
-                memberInitRequest.getPhoneNumber()
-        ).orElseThrow(() -> new CustomException(ErrorCode.CUSTOMER_NOT_FOUND));
+    public AccountsInfoResponse findAccountInfo(MemberInitRequest memberInitRequest) {
+        log.info("{}   {} ", memberInitRequest, memberInitRequest.getCi());
+        Customer customer = customerRepository.findByCi(memberInitRequest.getCi())
+                .orElseThrow(() -> new CustomException(ErrorCode.CUSTOMER_NOT_FOUND));
 
-        // 고객 ID로 계좌 정보 찾기
-        return accountRepository.findByCustomerId(customer.getId()).stream()
-                .map(AccountInitResponse::from)
+        AtomicInteger index = new AtomicInteger(1);
+        List<AccountInitResponse> accountInfoList = accountRepository.findByCustomerId(customer.getId()).stream()
+                .map(account -> AccountInitResponse.from(account, index.getAndIncrement()))
                 .toList();
+
+        return new AccountsInfoResponse(accountInfoList.size(), accountInfoList);
+
+    }
+
+    public List<FintechBalancePairResponse> getBalance(BalanceLoadRequest balanceLoadRequest) {
+        return accountRepository.findBalancesByFintechNumbers(balanceLoadRequest.getFintechNum());
     }
 
     public TransactionDetailResponse getAccountInfoOfDate(AccountInfoOfDate accountInfoOfDate) {
