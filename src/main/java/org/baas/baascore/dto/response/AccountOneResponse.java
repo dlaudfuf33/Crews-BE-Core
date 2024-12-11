@@ -19,6 +19,7 @@ public class AccountOneResponse {
     private AccountType accountType;
     private String bankCode;
     private String bankName;
+    private String bankImage;
     private String accountNumber;
     private String fintechUseNum;
     private String productName;
@@ -31,6 +32,7 @@ public class AccountOneResponse {
                 .accountType(account.getAccountType())
                 .bankCode(account.getBank().getBankCode())
                 .bankName(account.getBank().getBankName())
+                .bankImage(account.getBank().getBankImage())
                 .accountNumber(account.getAccountNumber())
                 .fintechUseNum(account.getFintechUseNum())
                 .productName(account.getProduct().getProductName())
