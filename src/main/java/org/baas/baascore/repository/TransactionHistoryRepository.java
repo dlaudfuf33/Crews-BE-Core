@@ -18,12 +18,12 @@ public interface TransactionHistoryRepository extends JpaRepository<TransactionH
     Optional<TransactionHistory> findByCoreTransactionIdAndAccount_FintechUseNum(Long id, String fintechNum);
 
     @Query("""
-            select t 
-            from TransactionHistory t 
-            join t.coreTransaction ct 
-            where t.account = :account 
-              and t.createdAt >= :filteredDate 
-              and ct.status = org.baas.baascore.util.StatusType.SUCCESS 
+            select t
+            from TransactionHistory t
+            join t.coreTransaction ct
+            where t.account = :account
+              and t.createdAt >= :filteredDate
+              and ct.status = org.baas.baascore.util.StatusType.SUCCESS
             order by t.createdAt ASC
             """)
     @EntityGraph(attributePaths = {"card", "account"})
@@ -31,13 +31,13 @@ public interface TransactionHistoryRepository extends JpaRepository<TransactionH
                                                                @Param("filteredDate") LocalDateTime filteredDate);
 
     @Query("""
-            select t 
-            from TransactionHistory t 
-            join t.coreTransaction ct 
-            where t.account = :account 
-              and t.createdAt >= :filteredDate 
-              and t.tranType = :transactionType 
-              and ct.status = org.baas.baascore.util.StatusType.SUCCESS 
+            select t
+            from TransactionHistory t
+            join t.coreTransaction ct
+            where t.account = :account
+              and t.createdAt >= :filteredDate
+              and t.tranType = :transactionType
+              and ct.status = org.baas.baascore.util.StatusType.SUCCESS
             order by t.createdAt ASC
             """)
     @EntityGraph(attributePaths = {"card", "account"})

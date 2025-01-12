@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baas.baascore.dto.request.TransferRequest;
 import org.baas.baascore.dto.response.TransferResponse;
-import org.baas.baascore.exception.CustomException;
-import org.baas.baascore.exception.ErrorCode;
 import org.baas.baascore.model.Account;
 import org.baas.baascore.model.TransactionHistory;
 import org.baas.baascore.repository.AccountRepository;
@@ -22,11 +20,12 @@ import java.util.Map;
 public class TransactionExecutionService {
     private final AccountRepository accountRepository;
     private final TransactionHistoryService transactionHistoryService;
+    private final AccountHelper accountHelper;
 
     @Transactional(timeout = 10)
     public TransferResponse execute(TransferRequest transferRequest) {
         // 계좌 락 점유 및 매핑
-        Map<String, Account> mappedAccounts = fetchAndMapAccounts(
+        Map<String, Account> mappedAccounts = accountHelper.fetchAndMapAccounts(
                 transferRequest.getFinUseNum(),
                 transferRequest.getRecvAccountNum(),
                 true // 락 점유
@@ -55,27 +54,5 @@ public class TransactionExecutionService {
                 .afterAmt(withdrawHistory.getAccount().getBalance())
                 .transactionTime(withdrawHistory.getCreatedAt())
                 .build();
-    }
-
-    private Map<String, Account> fetchAndMapAccounts(String fromFintechUseNum, String toAccountNumber, boolean withLock) {
-        List<Account> accounts = withLock
-                ? accountRepository.findAccountsForTransferWithLock(fromFintechUseNum, toAccountNumber)
-                : accountRepository.findAccountsForTransfer(fromFintechUseNum, toAccountNumber);
-
-        if (accounts.size() != 2) {
-            throw new CustomException(ErrorCode.ACCOUNT_NOT_FOUND, "출금 또는 입금 계좌를 찾을 수 없습니다.");
-        }
-
-        Account fromAccount = accounts.stream()
-                .filter(a -> a.getFintechUseNum().equals(fromFintechUseNum))
-                .findFirst()
-                .orElseThrow(() -> new CustomException(ErrorCode.WITHDRAW_ACCOUNT_NOT_FOUND));
-
-        Account toAccount = accounts.stream()
-                .filter(a -> a.getAccountNumber().equals(toAccountNumber))
-                .findFirst()
-                .orElseThrow(() -> new CustomException(ErrorCode.DEPOSIT_ACCOUNT_NOT_FOUND));
-
-        return Map.of("fromAccount", fromAccount, "toAccount", toAccount);
     }
 }
