@@ -19,7 +19,7 @@ import java.util.Optional;
 public interface AccountRepository extends JpaRepository<Account, Long> {
     @EntityGraph(attributePaths = {"customer", "bank"})
 
-        // 단순 조회 (락 없이)
+    // 단순 조회 (락 없이)
     Optional<Account> findByAccountNumber(String accountNumber);
 
     @EntityGraph(attributePaths = {"bank"})
@@ -34,16 +34,16 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     @EntityGraph(attributePaths = {"customer", "bank"})
     List<Account> findByCustomerId(Long customerId);
 
-    // 수정 작업을 위한 조회 (JPQL + 락 적용)
-    @Query("SELECT a FROM Account a WHERE a.accountNumber = :accountNumber")
-    @EntityGraph(attributePaths = {"customer", "bank"})
+    // 수정 작업을 위한 조회 (JPQL + 비관 락 적용)
+    @Query("""
+            SELECT a
+            FROM Account a
+            WHERE a.fintechUseNum = :fromFintechUseNum OR a.accountNumber = :toAccountNumber
+            """)
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<Account> findByAccountNumberForUpdate(@Param("accountNumber") String accountNumber);
-
-    @Query("SELECT a FROM Account a WHERE a.fintechUseNum = :fintechUseNum")
     @EntityGraph(attributePaths = {"customer", "bank"})
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    Optional<Account> findByFintechUseNumForUpdate(@Param("fintechUseNum") String fintechUseNum);
+    List<Account> findAccountsForTransferWithLock(@Param("fromFintechUseNum") String fromFintechUseNum,
+                                                  @Param("toAccountNumber") String toAccountNumber);
 
     @Query("SELECT new org.baas.baascore.dto.response.FintechBalancePairResponse(a.fintechUseNum, a.balance) " +
             "FROM Account a " +
@@ -51,6 +51,17 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     List<FintechBalancePairResponse> findBalancesByFintechNumbers(@Param("fintechNums") List<String> fintechNums);
 
     // 읽기 전용
+    @Query("""
+            SELECT a 
+            FROM Account a 
+            WHERE a.fintechUseNum = :fromFintechUseNum OR a.accountNumber = :toAccountNumber
+            """)
+    @EntityGraph(attributePaths = {"customer", "bank"})
+    List<Account> findAccountsForTransfer(@Param("fromFintechUseNum") String fromFintechUseNum,
+                                          @Param("toAccountNumber") String toAccountNumber);
+
+
     @Query("SELECT a FROM Account a WHERE a.accountNumber IN :accountNumbers")
-    @EntityGraph(attributePaths = {"customer", "bank" ,"product"})
-    List<Account> findByAccountNumbers(@Param("accountNumbers") List<String> accountNumbers);}
+    @EntityGraph(attributePaths = {"customer", "bank", "product"})
+    List<Account> findByAccountNumbers(@Param("accountNumbers") List<String> accountNumbers);
+}
