@@ -16,7 +16,6 @@ import org.baas.baascore.model.Account;
 import org.baas.baascore.model.Customer;
 import org.baas.baascore.model.TransactionHistory;
 import org.baas.baascore.repository.AccountRepository;
-import org.baas.baascore.repository.CoreTransactionRepository;
 import org.baas.baascore.repository.CustomerRepository;
 import org.baas.baascore.repository.TransactionHistoryRepository;
 import org.baas.baascore.util.AccountType;
@@ -34,7 +33,6 @@ import java.util.Map;
 @Slf4j
 public class CoreTransactionService {
     private static final int MAX_RETRIES = 3;
-    private final CoreTransactionRepository coreTransactionRepository;
     private final AccountRepository accountRepository;
     private final CustomerRepository customerRepository;
     private final TransactionHistoryRepository transactionHistoryRepository;
