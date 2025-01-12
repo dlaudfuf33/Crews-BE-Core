@@ -82,14 +82,14 @@ public class Account extends BaseTimeEntity {
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
     private List<Card> cards = new ArrayList<>();
 
-    public void subtractFromBalance(BigDecimal amt) {
+    public synchronized void subtractFromBalance(BigDecimal amt) {
         if (this.balance.compareTo(amt) < 0) {
             throw new CustomException(ErrorCode.INSUFFICIENT_BALANCE); // 잔액 부족 예외
         }
         this.balance = this.balance.subtract(amt);
     }
 
-    public void addToBalance(BigDecimal amt) {
+    public synchronized void addToBalance(BigDecimal amt) {
         this.balance = this.balance.add(amt);
     }
 }
