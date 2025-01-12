@@ -21,6 +21,7 @@ public enum ErrorCode {
     ACCOUNTNUMBER_NOT_FOUND("계좌를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     WITHDRAW_ACCOUNT_NOT_FOUND("출금 계좌를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     DEPOSIT_ACCOUNT_NOT_FOUND("입금 계좌를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    ACCOUNT_NOT_FOUND("계좌를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     TRANSACTION_NOT_FOUND("해당 거래내역을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     PRODUCT_NOT_FOUND("해당 상품을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
@@ -28,6 +29,8 @@ public enum ErrorCode {
     TRANSFER_FAILED("이체 거래 처리 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     UNSUBSCRIBE_FAILED("구독 취소중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     SUBSCRIPTION_NOT_FOUND("해당 구독을 찾을 수 없습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    TRANSFER_INTERRUPTED("해당 구독을 찾을 수 없습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    TRANSFER_TRIED_FAILED("최대 재시도 횟수를 초과했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
     WRONG_ACCOUNTNUMBER("잘못된 계좌 번호 입니다.", HttpStatus.BAD_REQUEST),
     ALREADY_CANCELED("이미 취소된 구독입니다.", HttpStatus.BAD_REQUEST),
