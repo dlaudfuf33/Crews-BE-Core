@@ -62,7 +62,7 @@ public class TransactionHistory extends BaseTimeEntity {
 
     // CoreTransaction과의 다대일 관계 설정
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "transaction_id", nullable = false)
+    @JoinColumn(name = "core_transaction_id", nullable = false)
     private CoreTransaction coreTransaction;
 
     public TransactionHistory() {
