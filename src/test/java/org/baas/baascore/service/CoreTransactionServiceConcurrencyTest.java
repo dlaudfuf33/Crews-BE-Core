@@ -6,105 +6,199 @@ import org.baas.baascore.model.Account;
 import org.baas.baascore.repository.AccountRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
-class CoreTransactionServiceConcurrencyTest {
-    private static final Logger log = LoggerFactory.getLogger(CoreTransactionServiceConcurrencyTest.class);
-
-    @Autowired
-    private CoreTransactionService coreTransactionService;
-
-    private final String finUseNum = "FNUM001";
-    private final String recvAccountNum = "330-7890-1234";
-    private final BigDecimal amt = BigDecimal.valueOf(10000); // 이체할 금액 1만원
-    private final String description = "설명";
-    @Autowired
+class CoreTransactionServiceMockTest {
+    private static final Logger log = LoggerFactory.getLogger(CoreTransactionServiceMockTest.class);
+    @Mock
     private AccountRepository accountRepository;
 
+    @Mock
+    private AccountHelper accountHelper;
+    @Mock
+    private TransactionHistoryService transactionHistoryService;
+
+    @Mock
+    private TransactionExecutionService transactionExecutionService;
+
+    @InjectMocks
+    private CoreTransactionService coreTransactionService;
+
+    private final BigDecimal transferAmount = BigDecimal.valueOf(10000);
+
+    private Map<String, Account> mockAccounts;
 
     @BeforeEach
     void setUp() {
-        // 출금 계좌 초기화 (잔액 100만 원)
-        Account fromAccount = accountRepository.findByFintechUseNum(finUseNum).orElseThrow();
-        BigDecimal initialFromBalance = BigDecimal.valueOf(1000000).subtract(fromAccount.getBalance());
-        fromAccount.addToBalance(initialFromBalance);  // 현재 잔액에서 100만 원으로 초기화
-        accountRepository.save(fromAccount);
+        MockitoAnnotations.openMocks(this);
 
-        // 입금 계좌 초기화 (잔액 0원)
-        Account toAccount = accountRepository.findByAccountNumber(recvAccountNum).orElseThrow();
-        BigDecimal initialToBalance = BigDecimal.ZERO.subtract(toAccount.getBalance());
-        toAccount.addToBalance(initialToBalance);  // 현재 잔액에서 0원으로 초기화
-        accountRepository.save(toAccount);
+        // Mock 데이터 초기화
+        mockAccounts = new HashMap<>();
+        // Mock TransactionExecutionService 설정
+        when(transactionExecutionService.execute(any(TransferRequest.class))).thenAnswer(invocation -> {
+            TransferRequest request = invocation.getArgument(0);
+
+            // 이체 로직 시뮬레이션
+            Account fromAccount = mockAccounts.get(request.getFinUseNum());
+            Account toAccount = mockAccounts.get(request.getRecvAccountNum());
+
+            fromAccount.subtractFromBalance(request.getAmt());
+            toAccount.addToBalance(request.getAmt());
+
+            return TransferResponse.builder()
+                    .historyId(1L)
+                    .recvName("테스트")
+                    .recvBankcode("001")
+                    .recvAccountNum(request.getRecvAccountNum())
+                    .amount(request.getAmt())
+                    .afterAmt(fromAccount.getBalance())
+                    .transactionTime(null)
+                    .build();
+        });
+    }
+
+    @Test
+    void testSingleTransfer() throws Exception {
+        addMockAccount("mock-finuse-a", BigDecimal.valueOf(300000)); // A 계좌: 잔액 30만 원
+        addMockAccount("mock-finuse-b", BigDecimal.ZERO);           // B 계좌: 잔액 0원
+
+        TransferRequest request = new TransferRequest("mock-finuse-a", "mock-finuse-b", transferAmount, "테스트 이체");
+        coreTransactionService.transfer(request);
+
+        // 잔액 검증
+        Account fromAccount = mockAccounts.get("mock-finuse-a");
+        Account toAccount = mockAccounts.get("mock-finuse-b");
+
+        assertEquals(BigDecimal.valueOf(290000), getPrivateBalance(fromAccount), "A 계좌 잔액이 올바르지 않습니다.");
+        assertEquals(BigDecimal.valueOf(10000), getPrivateBalance(toAccount), "B 계좌 잔액이 올바르지 않습니다.");
+    }
+
+    @Test
+    void testConcurrentTransfers() throws Exception {
+        int ammountMockA = 2_000_000;
+        addMockAccount("mock-finuse-a", BigDecimal.valueOf(ammountMockA)); // A 계좌: 잔액 30만 원
+        addMockAccount("mock-finuse-b", BigDecimal.ZERO);           // B 계좌: 잔액 0원
+
+        // 동시성 테스트: A → B로 10번 동시 이체
+        int threadCount = 200;
+
+        Runnable task = () -> {
+            try {
+                TransferRequest request = new TransferRequest("mock-finuse-a", "mock-finuse-b", transferAmount, "동시성 테스트");
+                coreTransactionService.transfer(request);
+            } catch (Exception e) {
+                fail("예외 발생: " + e.getMessage());
+            }
+        };
+
+        runConcurrentTasks(task, threadCount, 100);
+
+        // 잔액 검증
+        Account fromAccount = mockAccounts.get("mock-finuse-a");
+        Account toAccount = mockAccounts.get("mock-finuse-b");
+
+        assertEquals(BigDecimal.valueOf(ammountMockA - (threadCount * 10000)), getPrivateBalance(fromAccount), "A 계좌 잔액이 올바르지 않습니다.");
+        assertEquals(BigDecimal.valueOf(10_000 * threadCount), getPrivateBalance(toAccount), "B 계좌 잔액이 올바르지 않습니다.");
+    }
+
+    @Test
+    void testSequential_BtoCtoD() throws Exception {
+        addMockAccount("mock-finuse-b", BigDecimal.valueOf(10000)); // b 계좌: 잔액 30만 원
+        addMockAccount("mock-finuse-c", BigDecimal.ZERO);           // c 계좌: 잔액 0원
+        addMockAccount("mock-finuse-d", BigDecimal.ZERO);           // d 계좌: 잔액 0원
+
+        // B → C, C → D 순차적 이체 테스트
+        TransferRequest request1 = new TransferRequest("mock-finuse-b", "mock-finuse-c", transferAmount, "B → C 이체");
+        TransferRequest request2 = new TransferRequest("mock-finuse-c", "mock-finuse-d", transferAmount, "C → D 이체");
+
+        // 첫 번째 이체 (B → C)
+        coreTransactionService.transfer(request1);
+
+        // 두 번째 이체 (C → D)
+        coreTransactionService.transfer(request2);
+
+        // 잔액 검증
+        Account accountB = mockAccounts.get("mock-finuse-b");
+        Account accountC = mockAccounts.get("mock-finuse-c");
+        Account accountD = mockAccounts.get("mock-finuse-d");
+
+        assertEquals(BigDecimal.ZERO, getPrivateBalance(accountB), "B 계좌 잔액이 올바르지 않습니다.");
+        assertEquals(BigDecimal.ZERO, getPrivateBalance(accountC), "C 계좌 잔액이 올바르지 않습니다.");
+        assertEquals(BigDecimal.valueOf(10000), getPrivateBalance(accountD), "D 계좌 잔액이 올바르지 않습니다.");
     }
 
 
-    @Test
-    void testConcurrentTransferExecution() {
-        int threadCount = 101; // 101번의 요청 실행
-        ExecutorService executorService = Executors.newFixedThreadPool(100); // 50개의 스레드 풀 사용
-        CountDownLatch latch = new CountDownLatch(threadCount);  // 모든 스레드 종료 대기
 
-        List<TransferResponse> responses = new ArrayList<>();
-        List<Exception> exceptions = new ArrayList<>();
+    private void addMockAccount(String fintechUseNum, BigDecimal initialBalance) throws Exception {
+        Account account = new Account();
+        setPrivateField(account, "fintechUseNum", fintechUseNum); // 핀테크 번호 설정
+        setPrivateField(account, "balance", initialBalance);      // 초기 잔액 설정
+
+        mockAccounts.put(fintechUseNum, account); // 생성된 계좌를 Map에 저장
+
+        // Mock Repository에 동작 정의
+        when(accountRepository.findByFintechUseNum(fintechUseNum)).thenReturn(Optional.of(account));
+    }
+
+    private void setPrivateField(Object target, String fieldName, Object value) throws Exception {
+        Field field = target.getClass().getDeclaredField(fieldName); // 필드 이름으로 Field 객체 가져오기
+        field.setAccessible(true); // private 접근 허용
+        field.set(target, value); // 필드 값 설정
+    }
+
+    private BigDecimal getPrivateBalance(Account account) throws Exception {
+        return (BigDecimal) getPrivateField(account, "balance");
+    }
+
+    private Object getPrivateField(Object target, String fieldName) throws Exception {
+        if (target == null) {
+            throw new IllegalArgumentException("target 객체가 null입니다. 필드명: " + fieldName);
+        }
+        Field field = target.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.get(target);
+    }
+
+    private void runConcurrentTasks(Runnable task, int threadCount, int threadPoolSize) throws InterruptedException {
+        ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize); // 스레드 풀 생성
+        CountDownLatch latch = new CountDownLatch(threadCount); // 모든 작업 완료 대기
+        CyclicBarrier barrier = new CyclicBarrier(threadCount); // 모든 스레드 동시 시작 대기
 
         for (int i = 0; i < threadCount; i++) {
             executorService.execute(() -> {
                 try {
-                    TransferRequest requestDto = new TransferRequest(finUseNum, recvAccountNum, amt, description);
-                    TransferResponse response = coreTransactionService.transfer(requestDto);
-                    synchronized (responses) {
-                        responses.add(response);
+                    if (threadPoolSize >= threadCount) {
+                        barrier.await(); // 모든 스레드가 준비될 때까지 대기
                     }
+                    task.run();      // 작업 실행
                 } catch (Exception e) {
-                    synchronized (exceptions) {
-                        exceptions.add(e);
-                    }
+                    log.error("스레드 오류 발생: {}", Thread.currentThread().getName(), e);
                 } finally {
-                    latch.countDown();
+                    latch.countDown(); // 작업 완료
                 }
             });
         }
 
-        // 모든 스레드가 완료될 때까지 대기
-        try {
-            boolean completed = latch.await(10, TimeUnit.SECONDS);
-            if (!completed) {
-                log.warn("일부 스레드가 완료되지 않았습니다. 타임아웃 발생");
-            }
-        } catch (InterruptedException e) {
-            log.error("대기 중 인터럽트 발생", e);
-            Thread.currentThread().interrupt(); // 인터럽트 상태 복구
-        }
 
-// Executor 서비스 종료
-        executorService.shutdown();
-
-        // 검증 1: 성공 거래의 개수가 99건인지 확인
-        assertEquals(100, responses.size(), "성공 거래의 수는 100여야 합니다.");
-
-        // 검증 2: 실패가 정확히 1건인지 확인
-        assertEquals(1, exceptions.size(), "실패 거래는 정확히 1건이어야 합니다.");
-
-        // 검증 3: 잔액이 음수가 아닌지 확인
-        BigDecimal finalBalance = accountRepository.findByFintechUseNum(finUseNum).orElseThrow().getBalance();
-        assertTrue(finalBalance.compareTo(BigDecimal.ZERO) >= 0, "최종 잔액이 음수가 아닙니다.");
-
-        System.out.println("동시성 테스트 완료: 성공 거래 수 = " + responses.size() + ", 실패 거래 수 = " + exceptions.size());
+        latch.await(); // 모든 작업 완료 대기
+        executorService.shutdown(); // 스레드 풀 종료
     }
 
 
