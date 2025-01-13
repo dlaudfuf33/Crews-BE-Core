@@ -19,7 +19,7 @@ import java.util.Optional;
 public interface AccountRepository extends JpaRepository<Account, Long> {
     @EntityGraph(attributePaths = {"customer", "bank"})
 
-    // 단순 조회 (락 없이)
+        // 단순 조회 (락 없이)
     Optional<Account> findByAccountNumber(String accountNumber);
 
     @EntityGraph(attributePaths = {"bank"})
@@ -38,19 +38,28 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     @Query("""
             SELECT a
             FROM Account a
-            WHERE a.fintechUseNum = :fromFintechUseNum OR a.accountNumber = :toAccountNumber
+            WHERE a.fintechUseNum = :fintechUseNum
             """)
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @EntityGraph(attributePaths = {"customer", "bank"})
-    List<Account> findAccountsForTransferWithLock(@Param("fromFintechUseNum") String fromFintechUseNum,
-                                                  @Param("toAccountNumber") String toAccountNumber);
+    Optional<Account> findByFintechUseNumWithLock(@Param("fintechUseNum") String fintechUseNum);
 
+    @Query("""
+            SELECT a
+            FROM Account a
+            WHERE a.accountNumber = :accountNumber
+            """)
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @EntityGraph(attributePaths = {"customer", "bank"})
+    Optional<Account> findByAccountNumberWithLock(@Param("accountNumber") String accountNumber);
+
+    // 읽기 전용
     @Query("SELECT new org.baas.baascore.dto.response.FintechBalancePairResponse(a.fintechUseNum, a.balance) " +
             "FROM Account a " +
             "WHERE a.fintechUseNum IN :fintechNums")
     List<FintechBalancePairResponse> findBalancesByFintechNumbers(@Param("fintechNums") List<String> fintechNums);
 
-    // 읽기 전용
+
     @Query("""
             SELECT a 
             FROM Account a 

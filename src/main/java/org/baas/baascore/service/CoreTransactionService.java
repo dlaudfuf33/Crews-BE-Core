@@ -93,10 +93,8 @@ public class CoreTransactionService {
     public TransferResponse transfer(TransferRequest transferRequest) {
         Map<String, Account> mappedAccounts = accountHelper.fetchAndMapAccounts(
                 transferRequest.getFinUseNum(),
-                transferRequest.getRecvAccountNum(),
-                false // 단순 조회
+                transferRequest.getRecvAccountNum()
         );
-
         Account fromAccount = mappedAccounts.get("fromAccount");
         Account toAccount = mappedAccounts.get("toAccount");
 
@@ -118,7 +116,7 @@ public class CoreTransactionService {
 
     private void handleRetry(int retry) {
         long backoff = Math.min((long) Math.pow(2, retry) * 1000, 5000); // 지수 백오프
-        log.warn("이체 재시도 - 시도 횟수: {}, 대기 시간: {}ms", retry + 1, backoff);
+        log.warn("Retry transfer - Tried Count: {}, wait Time: {}ms", retry + 1, backoff);
         try {
             Thread.sleep(backoff);
         } catch (InterruptedException e) {

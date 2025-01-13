@@ -15,10 +15,8 @@ import java.util.Map;
 public class AccountHelper {
     private final AccountRepository accountRepository;
 
-    public Map<String, Account> fetchAndMapAccounts(String fromFintechUseNum, String toAccountNumber, boolean withLock) {
-        List<Account> accounts = withLock
-                ? accountRepository.findAccountsForTransferWithLock(fromFintechUseNum, toAccountNumber)
-                : accountRepository.findAccountsForTransfer(fromFintechUseNum, toAccountNumber);
+    public Map<String, Account> fetchAndMapAccounts(String fromFintechUseNum, String toAccountNumber) {
+        List<Account> accounts = accountRepository.findAccountsForTransfer(fromFintechUseNum, toAccountNumber);
 
         if (accounts.size() != 2) {
             throw new CustomException(ErrorCode.ACCOUNT_NOT_FOUND, "출금 또는 입금 계좌를 찾을 수 없습니다.");

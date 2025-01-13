@@ -92,12 +92,12 @@ class CoreTransactionServiceMockTest {
 
     @Test
     void testConcurrentTransfers() throws Exception {
-        int ammountMockA = 2_000_000;
+        int ammountMockA = 12_000_000;
         addMockAccount("mock-finuse-a", BigDecimal.valueOf(ammountMockA)); // A 계좌: 잔액 30만 원
         addMockAccount("mock-finuse-b", BigDecimal.ZERO);           // B 계좌: 잔액 0원
 
         // 동시성 테스트: A → B로 10번 동시 이체
-        int threadCount = 200;
+        int threadCount = 1000;
 
         Runnable task = () -> {
             try {

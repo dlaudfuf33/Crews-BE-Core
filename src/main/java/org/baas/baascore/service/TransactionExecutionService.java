@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.baas.baascore.dto.request.TransferRequest;
 import org.baas.baascore.dto.response.TransferResponse;
+import org.baas.baascore.exception.CustomException;
+import org.baas.baascore.exception.ErrorCode;
 import org.baas.baascore.model.Account;
 import org.baas.baascore.model.TransactionHistory;
 import org.baas.baascore.repository.AccountRepository;
@@ -12,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -20,19 +21,16 @@ import java.util.Map;
 public class TransactionExecutionService {
     private final AccountRepository accountRepository;
     private final TransactionHistoryService transactionHistoryService;
-    private final AccountHelper accountHelper;
+
 
     @Transactional(timeout = 10)
     public TransferResponse execute(TransferRequest transferRequest) {
-        // 계좌 락 점유 및 매핑
-        Map<String, Account> mappedAccounts = accountHelper.fetchAndMapAccounts(
-                transferRequest.getFinUseNum(),
-                transferRequest.getRecvAccountNum(),
-                true // 락 점유
-        );
+        // 계좌 락 점유
+        Account fromAccount = accountRepository.findByAccountNumberWithLock(transferRequest.getRecvAccountNum())
+                .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND));
+        Account toAccount = accountRepository.findByFintechUseNumWithLock(transferRequest.getFinUseNum())
+                .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-        Account fromAccount = mappedAccounts.get("fromAccount");
-        Account toAccount = mappedAccounts.get("toAccount");
 
         // 금액 차감 및 증가
         fromAccount.subtractFromBalance(transferRequest.getAmt());
@@ -42,7 +40,7 @@ public class TransactionExecutionService {
         TransactionHistory withdrawHistory = histories[0];
         TransactionHistory depositHistory = histories[1];
         accountRepository.saveAll(List.of(fromAccount, toAccount));
-        log.info("출금 및 입금 완료 - 출금 계좌 잔액: {}, 입금 계좌 잔액: {}", fromAccount.getBalance(), toAccount.getBalance());
+        log.info("출금 및 입금 완료 - 거래 금액: {} 출금 계좌 잔액: {}, 입금 계좌 잔액: {}", transferRequest.getAmt(), fromAccount.getBalance(), toAccount.getBalance());
 
         log.info("이체 거래 성공 - 상태 업데이트");
         return TransferResponse.builder()
