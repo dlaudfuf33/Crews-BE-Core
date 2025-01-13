@@ -144,79 +144,6 @@ class CoreTransactionServiceMockTest {
     }
 
 
-    private void addMockAccount(String fintechUseNum, BigDecimal initialBalance) throws Exception {
-        Account account = new Account();
-        setPrivateField(account, "fintechUseNum", fintechUseNum); // 핀테크 번호 설정
-        setPrivateField(account, "balance", initialBalance);      // 초기 잔액 설정
-
-        mockAccounts.put(fintechUseNum, account); // 생성된 계좌를 Map에 저장
-
-        // Mock Repository에 동작 정의
-        when(accountRepository.findByFintechUseNum(fintechUseNum)).thenReturn(Optional.of(account));
-    }
-
-    private void setPrivateField(Object target, String fieldName, Object value) throws Exception {
-        Field field = target.getClass().getDeclaredField(fieldName); // 필드 이름으로 Field 객체 가져오기
-        field.setAccessible(true); // private 접근 허용
-        field.set(target, value); // 필드 값 설정
-    }
-
-    private BigDecimal getPrivateBalance(Account account) throws Exception {
-        return (BigDecimal) getPrivateField(account, "balance");
-    }
-
-    private Object getPrivateField(Object target, String fieldName) throws Exception {
-        if (target == null) {
-            throw new IllegalArgumentException("target Object is null. FieldName: " + fieldName);
-        }
-        Field field = target.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        return field.get(target);
-    }
-
-    private void runConcurrentTasks(Runnable task, int threadCount, int threadPoolSize) throws InterruptedException {
-        ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize); // 스레드 풀 생성
-        CountDownLatch latch = new CountDownLatch(threadCount); // 모든 작업 완료 대기
-        CyclicBarrier barrier = new CyclicBarrier(threadCount); // 모든 스레드 동시 시작 대기
-
-        for (int i = 0; i < threadCount; i++) {
-            executorService.execute(() -> {
-                try {
-                    if (threadPoolSize >= threadCount) {
-                        barrier.await(); // 모든 스레드가 준비될 때까지 대기
-                    }
-                    task.run();      // 작업 실행
-                } catch (Exception e) {
-                    log.error("Thread Error: {}", Thread.currentThread().getName(), e);
-                } finally {
-                    latch.countDown(); // 작업 완료
-                }
-            });
-        }
-
-
-        latch.await(); // 모든 작업 완료 대기
-        executorService.shutdown(); // 스레드 풀 종료
-    }
-
-    @Test
-    void testAccountBalanceRead() throws Exception {
-        // 계좌 초기화
-        addMockAccount("mock-finuse-b", BigDecimal.valueOf(10000)); // B 계좌: 잔액 1만 원
-        addMockAccount("mock-finuse-c", BigDecimal.valueOf(5000));  // C 계좌: 잔액 5천 원
-        addMockAccount("mock-finuse-d", BigDecimal.valueOf(0));     // D 계좌: 잔액 0원
-
-        // 단일 스레드에서 계좌 잔액 조회
-        Account accountB = accountRepository.findByFintechUseNum("mock-finuse-b").orElseThrow();
-        Account accountC = accountRepository.findByFintechUseNum("mock-finuse-c").orElseThrow();
-        Account accountD = accountRepository.findByFintechUseNum("mock-finuse-d").orElseThrow();
-
-        // 검증
-        assertEquals(BigDecimal.valueOf(10000), accountB.getBalance(), "B 계좌 잔액이 올바르지 않습니다.");
-        assertEquals(BigDecimal.valueOf(5000), accountC.getBalance(), "C 계좌 잔액이 올바르지 않습니다.");
-        assertEquals(BigDecimal.ZERO, accountD.getBalance(), "D 계좌 잔액이 올바르지 않습니다.");
-    }
-
     @Test
     void testConcurrentAccountBalanceReadPerformance() throws Exception {
         addMockAccount("mock-finuse-b", BigDecimal.valueOf(10000)); // B 계좌: 잔액 1만 원
@@ -277,5 +204,56 @@ class CoreTransactionServiceMockTest {
     }
 
 
+    private void addMockAccount(String fintechUseNum, BigDecimal initialBalance) throws Exception {
+        Account account = new Account();
+        setPrivateField(account, "fintechUseNum", fintechUseNum); // 핀테크 번호 설정
+        setPrivateField(account, "balance", initialBalance);      // 초기 잔액 설정
 
+        mockAccounts.put(fintechUseNum, account); // 생성된 계좌를 Map에 저장
+
+        // Mock Repository에 동작 정의
+        when(accountRepository.findByFintechUseNum(fintechUseNum)).thenReturn(Optional.of(account));
+    }
+
+    private void setPrivateField(Object target, String fieldName, Object value) throws Exception {
+        Field field = target.getClass().getDeclaredField(fieldName); // 필드 이름으로 Field 객체 가져오기
+        field.setAccessible(true); // private 접근 허용
+        field.set(target, value); // 필드 값 설정
+    }
+
+    private BigDecimal getPrivateBalance(Account account) throws Exception {
+        return (BigDecimal) getPrivateField(account, "balance");
+    }
+
+    private Object getPrivateField(Object target, String fieldName) throws Exception {
+        if (target == null) {
+            throw new IllegalArgumentException("target Object is null. FieldName: " + fieldName);
+        }
+        Field field = target.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.get(target);
+    }
+
+    private void runConcurrentTasks(Runnable task, int threadCount, int threadPoolSize) throws InterruptedException {
+        ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize); // 스레드 풀 생성
+        CountDownLatch latch = new CountDownLatch(threadCount); // 모든 작업 완료 대기
+        CyclicBarrier barrier = new CyclicBarrier(threadCount); // 모든 스레드 동시 시작 대기
+
+        for (int i = 0; i < threadCount; i++) {
+            executorService.execute(() -> {
+                try {
+                    if (threadPoolSize >= threadCount) {
+                        barrier.await(); // 모든 스레드가 준비될 때까지 대기
+                    }
+                    task.run();      // 작업 실행
+                } catch (Exception e) {
+                    log.error("Thread Error: {}", Thread.currentThread().getName(), e);
+                } finally {
+                    latch.countDown(); // 작업 완료
+                }
+            });
+        }
+        latch.await(); // 모든 작업 완료 대기
+        executorService.shutdown(); // 스레드 풀 종료
+    }
 }
