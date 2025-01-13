@@ -41,8 +41,12 @@ public class CoreTransactionService {
     private final TransactionHistoryService transactionHistoryService;
 
     public TransactionDetailResponse transactionDetail(TransactionDetailRequest transactionDetailRequest) {
-        Account account = accountRepository.findByFintechUseNum(transactionDetailRequest.getFintechUseNum()).orElseThrow(() -> new CustomException(ErrorCode.ACCOUNTNUMBER_NOT_FOUND));
-        Customer customer = customerRepository.findByCi(transactionDetailRequest.getCi()).orElseThrow(() -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND));
+        Account account = accountRepository.findByFintechUseNum(transactionDetailRequest.getFintechUseNum()).orElseThrow(
+                () -> new CustomException(ErrorCode.ACCOUNTNUMBER_NOT_FOUND)
+        );
+        Customer customer = customerRepository.findByCi(transactionDetailRequest.getCi()).orElseThrow(
+                () -> new CustomException(ErrorCode.IDENTITYCODE_NOT_FOUND)
+        );
         if (!customer.equals(account.getCustomer()) && account.getAccountType().equals(AccountType.PERSONAL)) {
             throw new CustomException(ErrorCode.MEMBER_NOT_EQUALS);
         }
@@ -54,7 +58,13 @@ public class CoreTransactionService {
         String order = transactionDetailRequest.getOrder();
         List<TransactionHistory> list = getTransactionHistories(transactionType, account, filteredDate, order);
         List<TransactionHistoryResponse> historyDtoList = list.stream().map(TransactionHistoryResponse::from).toList();
-        return TransactionDetailResponse.builder().tranList(historyDtoList).accountNumber(account.getAccountNumber()).productName(account.getProduct().getProductName()).balance(account.getBalance()).bankCode(account.getBank().getBankCode()).bankName(account.getBank().getBankName()).build();
+        return TransactionDetailResponse.builder().tranList(historyDtoList)
+                .accountNumber(account.getAccountNumber())
+                .productName(account.getProduct().getProductName())
+                .balance(account.getBalance())
+                .bankCode(account.getBank().getBankCode())
+                .bankName(account.getBank().getBankName())
+                .build();
     }
 
     private List<TransactionHistory> getTransactionHistories(String transactionType, Account account, LocalDateTime filteredDate, String order) {
@@ -65,11 +75,15 @@ public class CoreTransactionService {
         final String WITHDRAW = "WITHDRAW";
         if (transactionType.equalsIgnoreCase(ALL)) {
             list = transactionHistoryRepository.findTransactionHistoryAllTranType(account, filteredDate);
-            if (order.equalsIgnoreCase(DESC)) list.sort((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
+            if (order.equalsIgnoreCase(DESC))
+                list.sort((o1, o2) ->
+                        o2.getCreatedAt().compareTo(o1.getCreatedAt()));
 
         } else if (transactionType.equalsIgnoreCase(DEPOSIT) || transactionType.equalsIgnoreCase(WITHDRAW)) {
             list = transactionHistoryRepository.findTransactionHistorySelectedTranType(account, filteredDate, TranType.valueOf(transactionType.toUpperCase()));
-            if (order.equalsIgnoreCase(DESC)) list.sort((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
+            if (order.equalsIgnoreCase(DESC))
+                list.sort((o1, o2) ->
+                        o2.getCreatedAt().compareTo(o1.getCreatedAt()));
         } else {
             throw new CustomException(ErrorCode.WRONG_TRANSACTION_TYPE);
         }
@@ -77,7 +91,10 @@ public class CoreTransactionService {
     }
 
     public TransferResponse transfer(TransferRequest transferRequest) {
-        Map<String, Account> mappedAccounts = accountHelper.fetchAndMapAccounts(transferRequest.getFinUseNum(), transferRequest.getRecvAccountNum(), false // 단순 조회
+        Map<String, Account> mappedAccounts = accountHelper.fetchAndMapAccounts(
+                transferRequest.getFinUseNum(),
+                transferRequest.getRecvAccountNum(),
+                false // 단순 조회
         );
 
         Account fromAccount = mappedAccounts.get("fromAccount");
@@ -89,15 +106,10 @@ public class CoreTransactionService {
                 // 별도 서비스로 분리된 트랜잭션 처리 호출
                 return transactionExecutionService.execute(transferRequest);
             } catch (PessimisticLockException | LockTimeoutException e) {
-                log.warn("재시도 ... ");
                 handleRetry(retry);
             } catch (CustomException e) {
                 transactionHistoryService.issueHistory(transferRequest, fromAccount, toAccount, StatusType.FAIL);
-                if (e.getErrorCode() == ErrorCode.INSUFFICIENT_BALANCE) {
-                    log.error("잔액 부족으로 거래 실패: {}", e.getMessage());
-                    throw new CustomException(e.getErrorCode());
-                }
-                break; // 재시도하지 않고 즉시 실패
+                throw new CustomException(e.getErrorCode());
             }
         }
         transactionHistoryService.issueHistory(transferRequest, fromAccount, toAccount, StatusType.FAIL);
@@ -105,7 +117,7 @@ public class CoreTransactionService {
     }
 
     private void handleRetry(int retry) {
-        long backoff = Math.min((long) Math.pow(2, retry) * 1000, 3000); // 지수 백오프
+        long backoff = Math.min((long) Math.pow(2, retry) * 1000, 5000); // 지수 백오프
         log.warn("이체 재시도 - 시도 횟수: {}, 대기 시간: {}ms", retry + 1, backoff);
         try {
             Thread.sleep(backoff);
@@ -121,6 +133,12 @@ public class CoreTransactionService {
      * @return TransferStatesResponseDto
      */
     public TransferStatesResponse getTransactionStatus(TransferStatesRequest transferStatesRequest) {
-        return TransferStatesResponse.from(transactionHistoryRepository.findByCoreTransactionIdAndAccount_FintechUseNum(transferStatesRequest.getHistoryId(), transferStatesRequest.getFinUseNum()).orElseThrow(() -> new CustomException(ErrorCode.TRANSACTION_NOT_FOUND)));
+        return TransferStatesResponse.from(
+                transactionHistoryRepository
+                        .findByCoreTransactionIdAndAccount_FintechUseNum(
+                                transferStatesRequest.getHistoryId(),
+                                transferStatesRequest.getFinUseNum())
+                        .orElseThrow(() -> new CustomException(ErrorCode.TRANSACTION_NOT_FOUND))
+        );
     }
 }
