@@ -26,23 +26,23 @@ public class TransactionExecutionService {
     @Transactional(timeout = 10)
     public TransferResponse execute(TransferRequest transferRequest) {
         // 계좌 락 점유
-        Account fromAccount = accountRepository.findByAccountNumberWithLock(transferRequest.getRecvAccountNum())
+        Account withdrawAccount = accountRepository.findByAccountNumberWithLock(transferRequest.getRecvAccountNum())
                 .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND));
-        Account toAccount = accountRepository.findByFintechUseNumWithLock(transferRequest.getFinUseNum())
+        Account depositAccount = accountRepository.findByFintechUseNumWithLock(transferRequest.getFinUseNum())
                 .orElseThrow(() -> new CustomException(ErrorCode.ACCOUNT_NOT_FOUND));
 
 
         // 금액 차감 및 증가
-        fromAccount.subtractFromBalance(transferRequest.getAmt());
-        toAccount.addToBalance(transferRequest.getAmt());
+        withdrawAccount.subtractFromBalance(transferRequest.getAmt());
+        depositAccount.addToBalance(transferRequest.getAmt());
         // 거래 내역 생성
-        TransactionHistory[] histories = transactionHistoryService.issueHistory(transferRequest, fromAccount, toAccount, StatusType.SUCCESS);
+        TransactionHistory[] histories = transactionHistoryService.issueHistory(transferRequest, withdrawAccount, depositAccount, StatusType.SUCCESS);
         TransactionHistory withdrawHistory = histories[0];
         TransactionHistory depositHistory = histories[1];
-        accountRepository.saveAll(List.of(fromAccount, toAccount));
-        log.info("출금 및 입금 완료 - 거래 금액: {} 출금 계좌 잔액: {}, 입금 계좌 잔액: {}", transferRequest.getAmt(), fromAccount.getBalance(), toAccount.getBalance());
+        accountRepository.saveAll(List.of(withdrawAccount, depositAccount));
+        log.info("withdraw & deposit - amount: {} withdraw balance: {}, deposit balance: {}", transferRequest.getAmt(), withdrawAccount.getBalance(), depositAccount.getBalance());
 
-        log.info("이체 거래 성공 - 상태 업데이트");
+        log.info("success transfer - update history-status");
         return TransferResponse.builder()
                 .historyId(withdrawHistory.getCoreTransaction().getId())
                 .recvName(depositHistory.getAccount().getCustomer().getName())
