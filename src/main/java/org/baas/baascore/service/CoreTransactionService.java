@@ -95,8 +95,8 @@ public class CoreTransactionService {
                 transferRequest.getFinUseNum(),
                 transferRequest.getRecvAccountNum()
         );
-        Account fromAccount = mappedAccounts.get("fromAccount");
-        Account toAccount = mappedAccounts.get("toAccount");
+        Account withdrawAccount = mappedAccounts.get("withdrawAccount");
+        Account depositAccount = mappedAccounts.get("depositAccount");
 
 
         for (int retry = 0; retry < MAX_RETRIES; retry++) {
@@ -106,11 +106,11 @@ public class CoreTransactionService {
             } catch (PessimisticLockException | LockTimeoutException e) {
                 handleRetry(retry);
             } catch (CustomException e) {
-                transactionHistoryService.issueHistory(transferRequest, fromAccount, toAccount, StatusType.FAIL);
+                transactionHistoryService.issueHistory(transferRequest, withdrawAccount, depositAccount, StatusType.FAIL);
                 throw new CustomException(e.getErrorCode());
             }
         }
-        transactionHistoryService.issueHistory(transferRequest, fromAccount, toAccount, StatusType.FAIL);
+        transactionHistoryService.issueHistory(transferRequest, withdrawAccount, depositAccount, StatusType.FAIL);
         throw new CustomException(ErrorCode.TRANSFER_TRIED_FAILED);
     }
 

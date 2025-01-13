@@ -15,23 +15,23 @@ import java.util.Map;
 public class AccountHelper {
     private final AccountRepository accountRepository;
 
-    public Map<String, Account> fetchAndMapAccounts(String fromFintechUseNum, String toAccountNumber) {
-        List<Account> accounts = accountRepository.findAccountsForTransfer(fromFintechUseNum, toAccountNumber);
+    public Map<String, Account> fetchAndMapAccounts(String withdraw, String deposit) {
+        List<Account> accounts = accountRepository.findAccountsForTransfer(withdraw, deposit);
 
         if (accounts.size() != 2) {
             throw new CustomException(ErrorCode.ACCOUNT_NOT_FOUND, "출금 또는 입금 계좌를 찾을 수 없습니다.");
         }
 
-        Account fromAccount = accounts.stream()
-                .filter(a -> a.getFintechUseNum().equals(fromFintechUseNum))
+        Account withdrawAccount = accounts.stream()
+                .filter(a -> a.getFintechUseNum().equals(withdraw))
                 .findFirst()
                 .orElseThrow(() -> new CustomException(ErrorCode.WITHDRAW_ACCOUNT_NOT_FOUND));
 
-        Account toAccount = accounts.stream()
-                .filter(a -> a.getAccountNumber().equals(toAccountNumber))
+        Account depositAccount = accounts.stream()
+                .filter(a -> a.getAccountNumber().equals(deposit))
                 .findFirst()
                 .orElseThrow(() -> new CustomException(ErrorCode.DEPOSIT_ACCOUNT_NOT_FOUND));
 
-        return Map.of("fromAccount", fromAccount, "toAccount", toAccount);
+        return Map.of("withdrawAccount", withdrawAccount, "depositAccount", depositAccount);
     }
 }

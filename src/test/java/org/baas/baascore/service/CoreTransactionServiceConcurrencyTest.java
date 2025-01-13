@@ -104,16 +104,15 @@ class CoreTransactionServiceMockTest {
                 TransferRequest request = new TransferRequest("mock-finuse-a", "mock-finuse-b", transferAmount, "동시성 테스트");
                 coreTransactionService.transfer(request);
             } catch (Exception e) {
-                fail("예외 발생: " + e.getMessage());
+                fail("Exception occurred: " + e.getMessage());
             }
         };
 
-        runConcurrentTasks(task, threadCount, 100);
+        runConcurrentTasks(task, threadCount, 1000);
 
         // 잔액 검증
         Account fromAccount = mockAccounts.get("mock-finuse-a");
         Account toAccount = mockAccounts.get("mock-finuse-b");
-
         assertEquals(BigDecimal.valueOf(ammountMockA - (threadCount * 10000)), getPrivateBalance(fromAccount), "A 계좌 잔액이 올바르지 않습니다.");
         assertEquals(BigDecimal.valueOf(10_000 * threadCount), getPrivateBalance(toAccount), "B 계좌 잔액이 올바르지 않습니다.");
     }
@@ -145,7 +144,6 @@ class CoreTransactionServiceMockTest {
     }
 
 
-
     private void addMockAccount(String fintechUseNum, BigDecimal initialBalance) throws Exception {
         Account account = new Account();
         setPrivateField(account, "fintechUseNum", fintechUseNum); // 핀테크 번호 설정
@@ -169,7 +167,7 @@ class CoreTransactionServiceMockTest {
 
     private Object getPrivateField(Object target, String fieldName) throws Exception {
         if (target == null) {
-            throw new IllegalArgumentException("target 객체가 null입니다. 필드명: " + fieldName);
+            throw new IllegalArgumentException("target Object is null. FieldName: " + fieldName);
         }
         Field field = target.getClass().getDeclaredField(fieldName);
         field.setAccessible(true);
@@ -189,7 +187,7 @@ class CoreTransactionServiceMockTest {
                     }
                     task.run();      // 작업 실행
                 } catch (Exception e) {
-                    log.error("스레드 오류 발생: {}", Thread.currentThread().getName(), e);
+                    log.error("Thread Error: {}", Thread.currentThread().getName(), e);
                 } finally {
                     latch.countDown(); // 작업 완료
                 }
@@ -200,6 +198,84 @@ class CoreTransactionServiceMockTest {
         latch.await(); // 모든 작업 완료 대기
         executorService.shutdown(); // 스레드 풀 종료
     }
+
+    @Test
+    void testAccountBalanceRead() throws Exception {
+        // 계좌 초기화
+        addMockAccount("mock-finuse-b", BigDecimal.valueOf(10000)); // B 계좌: 잔액 1만 원
+        addMockAccount("mock-finuse-c", BigDecimal.valueOf(5000));  // C 계좌: 잔액 5천 원
+        addMockAccount("mock-finuse-d", BigDecimal.valueOf(0));     // D 계좌: 잔액 0원
+
+        // 단일 스레드에서 계좌 잔액 조회
+        Account accountB = accountRepository.findByFintechUseNum("mock-finuse-b").orElseThrow();
+        Account accountC = accountRepository.findByFintechUseNum("mock-finuse-c").orElseThrow();
+        Account accountD = accountRepository.findByFintechUseNum("mock-finuse-d").orElseThrow();
+
+        // 검증
+        assertEquals(BigDecimal.valueOf(10000), accountB.getBalance(), "B 계좌 잔액이 올바르지 않습니다.");
+        assertEquals(BigDecimal.valueOf(5000), accountC.getBalance(), "C 계좌 잔액이 올바르지 않습니다.");
+        assertEquals(BigDecimal.ZERO, accountD.getBalance(), "D 계좌 잔액이 올바르지 않습니다.");
+    }
+
+    @Test
+    void testConcurrentAccountBalanceReadPerformance() throws Exception {
+        addMockAccount("mock-finuse-b", BigDecimal.valueOf(10000)); // B 계좌: 잔액 1만 원
+        int threadCount = 50;
+        int testIterations = 100; // 테스트 반복 횟수
+
+        long totalExecutionTimeWithoutLock = 0;
+        long totalExecutionTimeWithLock = 0;
+
+        // 락 미적용 테스트 실행
+        for (int i = 0; i < testIterations; i++) {
+            long startTime = System.currentTimeMillis();
+
+            Runnable task = () -> {
+                try {
+                    Account account = accountRepository.findByFintechUseNum("mock-finuse-b").orElseThrow();
+                    assertEquals(BigDecimal.valueOf(10000), account.getBalance(), "B 계좌 잔액이 올바르지 않습니다.");
+                } catch (Exception e) {
+                    fail("Exception in read with non-lock task: " + e.getMessage());
+                }
+            };
+
+            runConcurrentTasks(task, threadCount, 50);
+
+            long endTime = System.currentTimeMillis();
+            totalExecutionTimeWithoutLock += (endTime - startTime);
+        }
+
+
+        // 락 적용 테스트 실행
+        for (int i = 0; i < testIterations; i++) {
+            long startTime = System.currentTimeMillis();
+
+            Runnable task = () -> {
+                try {
+                    Account account = accountRepository.findByFintechUseNumWithLock("mock-finuse-b").orElseThrow();
+                    assertEquals(BigDecimal.valueOf(10000), account.getBalance(), "B 계좌 잔액이 올바르지 않습니다.");
+                } catch (Exception e) {
+                    fail("Exception in read with lock task: " + e.getMessage());
+                }
+            };
+
+            runConcurrentTasks(task, threadCount, 50);
+
+            long endTime = System.currentTimeMillis();
+            totalExecutionTimeWithLock += (endTime - startTime);
+        }
+
+        log.info("non-lock read test result: total runtime {}ms", totalExecutionTimeWithoutLock);
+        log.info("lock read test result: total runtime {}ms", totalExecutionTimeWithLock);
+
+
+        // 성능 비교
+        log.info("non-lock avg runtime: {}ms", totalExecutionTimeWithoutLock / testIterations);
+        log.info("lock avg runtime: {}ms", totalExecutionTimeWithLock / testIterations);
+
+        assertTrue(totalExecutionTimeWithoutLock < totalExecutionTimeWithLock);
+    }
+
 
 
 }
